@@ -61,5 +61,3 @@ export const enrollHubTheme: TailwindConfig = {
     },
   },
 };
-
-export default enrollHubTheme;

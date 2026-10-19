@@ -265,7 +265,6 @@ waitlistRouter.post('/', formLimiter, async (req, res, next) => {
         name: input.name,
         offer: offer.title,
         offerSlug: offer.slug,
-        phone: input.phone,
       })
       await sendEmail({
         to: email,

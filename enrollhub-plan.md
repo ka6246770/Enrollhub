@@ -38,7 +38,7 @@ progress log.
 | Phase 3 — backend + Telegram | **Done** | API, schema, uploads, the Telegram notification (with Accept/Reject buttons) and the verified webhook are built and tested. A bot token is all that is missing to go live. |
 | Phase 4 — accept/reject + email | **Done** | `POST /telegram/webhook` (secret-checked, idempotent, edits the message), `services/decisions.js` shared by the webhook and the dashboard, and customer confirmation/acceptance/rejection emails via Resend — now **designed HTML** (Phase K) with the editable text inside it. Logs instead of sending without a key, and Retry re-sends afterwards. |
 | Phase 5 — admin dashboard | **Done** | Real login, session guard, live registrations (search, filters, CSV, Accept/Reject, voice playback), offer editing, message log with Retry, sign-out, and the message texts are now **editable** with variable chips (Phase H) so an edit is used for the next message. |
-| Phase 6 — WhatsApp | **Optional / later** | Module stubbed; out of scope for v1. |
+| Phase 6 — WhatsApp | **Not started** | Out of scope for v1; the empty stub module was deleted rather than kept as dead code. |
 | Phase 7 — testing | **Smoke suite, 46 assertions** | `backend/test/api-smoke.sh` (`npm run test:api`) plus browser passes with `agent-browser`. No unit-test framework yet. |
 | Phase 8 — deployment | **Configs ready, not hosted** | `frontend/vercel.json`, `frontend/public/_redirects`, and full steps in `docs/DEPLOYMENT.md`. Needs hosting accounts. |
 | Phase 9 — launch | **Checklist ready, not launched** | `docs/LAUNCH-CHECKLIST.md` covers content, legal, integrations, security, accessibility, and the final end-to-end run. |
@@ -48,7 +48,7 @@ progress log.
 - **Phase A — done.** `backend/src/` created (ESM): `config/{env,templates}.js`,
   `db/{database,schema.sql,migrate.js,seed.js}`, `middleware/{requireAdmin,rateLimit,upload}.js`,
   `routes/{offers,registrations,messages,auth}.js`,
-  `services/{telegram,email,whatsapp}.js`, `scripts/set-admin.js`.
+  `services/{telegram,email}.js`, `scripts/set-admin.js`.
   Six tables created and the three offers seeded. The old `server.js` / `pool.js`
   prototype and its `users` / scratch `offers` tables were removed.
 - **Phase B — done.** `POST /api/registrations` accepts `multipart/form-data` with
@@ -235,8 +235,7 @@ backend/
 │   │   └── auth.js               # login, logout, me
 │   ├── services/
 │   │   ├── telegram.js           # sendMessage, sendAudio, inline buttons
-│   │   ├── email.js              # Resend: confirmation, accepted, rejected
-│   │   └── whatsapp.js           # (later) Cloud API
+│   │   └── email.js              # Resend: confirmation, accepted, rejected
 │   ├── db/
 │   │   ├── database.js           # pg pool + query() helper
 │   │   ├── schema.sql            # tables
@@ -358,7 +357,7 @@ Legend: **done** · **done, hardened** · **gap → phase** · **owner's job** (
 | 5.5 | Messages page: **editable** templates + variable chips + log/Retry | done: editors with variable chips, sample preview, inline validation, log + Retry (Phases H/I) |
 | 5.6 | Real login + attempt limit | done |
 | 5.7 | Dashboard on real data | done |
-| 6.1–6.5 | WhatsApp | out of scope for v1 (stubbed) |
+| 6.1–6.5 | WhatsApp | out of scope for v1 |
 | 7.1–7.3 | Test customer flow, admin flow, browsers/devices | API suite + Chromium browser passes done · cross-device **owner's job** |
 | 8.1–8.6 | Deploy, domain, webhook, backups | configs + `docs/DEPLOYMENT.md` ready · **owner's job** |
 | 9.1–9.4 | Launch checklist, launch, watch, maintain | `docs/LAUNCH-CHECKLIST.md` ready · **owner's job** |
@@ -608,8 +607,11 @@ the person again, or dropping a line to them directly.
 
 ### Later — WhatsApp (Phase 6)
 
-Only after launch, if desired: Meta Business verification, template approval, and
-`services/whatsapp.js` calling the Cloud API. Paid per message.
+Only after launch, if desired: Meta Business verification, template approval, and a
+new `services/whatsapp.js` calling the Cloud API. Paid per message. Nothing for it
+exists in the codebase yet — deliberately, so there is no half-wired module to
+maintain; `enrollhub-project-steps.md` §Phase 6 and the texts in
+`enrollhub-content.md` §7 are the recipe when the time comes.
 
 ---
 

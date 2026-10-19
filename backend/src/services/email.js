@@ -63,7 +63,7 @@ const escapeHtml = (value) => String(value ?? '')
 
 // FRONTEND_URL may list several allowed origins (for CORS), but a link inside an
 // email needs exactly one address, so the first one wins.
-export function siteUrl() {
+function siteUrl() {
   const [first] = String(env.frontendUrl).split(',')
   return (first ?? '').trim().replace(/\/+$/, '')
 }
