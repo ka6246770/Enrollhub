@@ -90,16 +90,23 @@ app.use((error, req, res, next) => {
   res.status(status).json({ message: status >= 500 ? 'Something went wrong. Please try again.' : error.message })
 })
 
-app.listen(env.port, () => {
-  console.log(`EnrollHub API listening on http://localhost:${env.port}`)
-  console.log(`Allowed frontend origin: ${env.frontendUrl}`)
-  console.log(`Upload directory: ${path.resolve(env.uploadDir)}`)
-  logCapabilities()
+// Vercel imports this module and mounts the app as a function, so the app must
+// be the default export. A local `npm run dev` / `npm start` still needs a real
+// HTTP server, so listen() is guarded to run only off-Vercel.
+export default app
 
-  const designs = emailDesignStatus()
-  if (designs.missing.length > 0) {
-    console.warn(
-      `  ! email designs missing: ${designs.missing.join(', ')} — those emails will be sent as plain text. Run "npm run export" in emails/.`,
-    )
-  }
-})
+if (!process.env.VERCEL) {
+  app.listen(env.port, () => {
+    console.log(`EnrollHub API listening on http://localhost:${env.port}`)
+    console.log(`Allowed frontend origin: ${env.frontendUrl}`)
+    console.log(`Upload directory: ${path.resolve(env.uploadDir)}`)
+    logCapabilities()
+
+    const designs = emailDesignStatus()
+    if (designs.missing.length > 0) {
+      console.warn(
+        `  ! email designs missing: ${designs.missing.join(', ')} — those emails will be sent as plain text. Run "npm run export" in emails/.`,
+      )
+    }
+  })
+}

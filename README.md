@@ -6,6 +6,7 @@ Accept/Reject buttons, and the customer is emailed automatically.
 
 - **Frontend** — React 19 + Vite + Tailwind CSS 4 (`frontend/`)
 - **Backend** — Node.js + Express 5 + PostgreSQL (`backend/`)
+- **Emails** — React Email designs, rendered to HTML the API sends (`emails/`)
 - **Notifications** — Telegram bot + Resend email
 
 See `enrollhub-plan.md` for the full plan and `enrollhub-project-steps.md` for the
@@ -26,6 +27,9 @@ original step-by-step guide. Copy texts live in `enrollhub-content.md`.
   customer confirmation/acceptance/rejection emails. A second person can receive
   every registration with its own text and the voice note attached
   (`TELEGRAM_SECOND_CHAT_ID`).
+- Emails are designed messages, not plain text: a branded frame with the wordmark,
+  a heading, one button and small print, with the message itself coming from the
+  editable texts. See `emails/README.md`.
 - Hardening: duplicate guard, per-IP rate limits, audio signature checks,
   admin-only voice downloads, and a voice-retention job.
 - Every outbound notification is recorded. When Telegram or email are not
@@ -53,9 +57,9 @@ npm run test:api              # 44-case smoke test against the running API
 ```
 
 Check it with `curl http://localhost:3001/api/health` — the response lists which
-integrations are configured and any `warnings` (for example a Telegram token that
-is present but does not look like a BotFather token). Those warnings are printed
-at boot too.
+integrations are configured, any `warnings` (for example a Telegram token that is
+present but does not look like a BotFather token), and `emailDesigns`, the email
+layouts that were found. The warnings are printed at boot too.
 
 ### 2. Frontend
 
@@ -67,6 +71,18 @@ npm run dev                   # http://localhost:5173
 ```
 
 With `VITE_API_URL` empty the frontend runs on its own sample data instead.
+
+### 3. Emails (only when changing a design)
+
+```sh
+cd emails
+npm install                   # first time only
+npm run dev                   # preview the four designs at http://localhost:3000
+npm run export                # render them into backend/src/emails/, then restart the API
+```
+
+The rendered HTML is committed, so this is only needed after editing a design.
+The wording is not in this project — it is edited from **Dashboard → Messages**.
 
 ## Environment
 

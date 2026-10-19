@@ -72,6 +72,20 @@ and `status`. Skip it once you have created your own offers.
 The boot log prints which integrations are configured, so check it first if
 notifications do not arrive.
 
+### Email designs
+
+The rendered email HTML lives in `backend/src/emails/` and is **committed**, so a
+deploy needs no extra build step and the API reads it at start-up. After changing
+a design, run `npm run export` in `emails/` (it renders the components, checks the
+placeholders survived, and copies the files in), then restart the API.
+`GET /api/health` reports `emailDesigns` — a missing file is not fatal, that email
+is then sent as plain text.
+
+`MAIL_FROM` is `EnrollHub <onboarding@resend.dev>` until you change it. That is
+Resend's shared testing address: with it, mail is only delivered to the address
+the Resend account belongs to. Verify your domain in Resend and put it in
+`MAIL_FROM` before real customers are emailed.
+
 ---
 
 ## 3. Frontend (example: Vercel)
@@ -152,4 +166,6 @@ status updates.
 | `401` on `GET /api/registrations/:id/voice` while logged in | Session cookie not sent for the media request; the dashboard fetches it with `fetch`, so this normally means the session expired |
 | Uploads vanish after a redeploy | No persistent disk, or `UPLOAD_DIR` not pointing at the mount |
 | Emails/Telegram never arrive | The relevant env var is missing — the boot log says which |
+| Emails arrive as plain text, with no design | `backend/src/emails/` is empty on that host — commit the rendered files or run `npm run export` in `emails/`, then restart the API (`/api/health` → `emailDesigns`) |
+| Resend accepts the send but nothing is delivered | `MAIL_FROM` is still the shared `onboarding@resend.dev` address — verify your own domain |
 | `Something went wrong` (500) | Check the server log; the handler logs full errors for 5xx |

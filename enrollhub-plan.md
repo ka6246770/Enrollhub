@@ -19,17 +19,24 @@ quality passes (**Phase I**) and the data-hygiene and documentation pass
 (**Phase J**). Everything that can be done without accounts, content, or hosting is
 now done; what is left needs the owner (see §7).
 
+**Revision — 19 Oct 2026 (Phase K complete).** The customer emails were plain
+paragraphs; they are now React Email designs adapted from React Email's own
+"Barebones boxed" demo — a branded frame with the owner's editable text inside it.
+The new `emails/` project renders them into `backend/src/emails/`, which the API
+sends through Resend. See the folder structure in §2, decisions 13–16, and the
+progress log.
+
 ---
 
 ## 1. Where the project stands
 
 | Steps-doc phase | Status | Notes |
 | --- | --- | --- |
-| Phase 0 — content & accounts | **Not started** | `enrollhub-content.md` still has every `[placeholder]`. Telegram/Resend accounts not confirmed. Blocks launch, not development. |
+| Phase 0 — content & accounts | **Partly done** | `enrollhub-content.md` still has every `[placeholder]`. A Resend key is in `.env` but the sending domain is not verified (`MAIL_FROM` is still Resend's shared testing address). Blocks launch, not development. |
 | Phase 1 — design | **Done** | PDF design + all screens built and approved visually. |
 | Phase 2 — frontend | **Done** | All pages, router, Tailwind theme, admin UI, accessibility, code-splitting, agent skills. Registration/waitlist/contact forms post to the API, and the dashboard screens read and write live data. Public offer pages now **hydrate from `GET /api/offers`** via `hooks/useOffers.js` (the static file is the instant first paint and the offline fallback), so a dashboard edit reaches visitors; a sold-out offer shows the waitlist CTA instead of the form. |
 | Phase 3 — backend + Telegram | **Done** | API, schema, uploads, the Telegram notification (with Accept/Reject buttons) and the verified webhook are built and tested. A bot token is all that is missing to go live. |
-| Phase 4 — accept/reject + email | **Done** | `POST /telegram/webhook` (secret-checked, idempotent, edits the message), `services/decisions.js` shared by the webhook and the dashboard, and customer confirmation/acceptance/rejection emails via Resend. Logs instead of sending without a key, and Retry re-sends afterwards. |
+| Phase 4 — accept/reject + email | **Done** | `POST /telegram/webhook` (secret-checked, idempotent, edits the message), `services/decisions.js` shared by the webhook and the dashboard, and customer confirmation/acceptance/rejection emails via Resend — now **designed HTML** (Phase K) with the editable text inside it. Logs instead of sending without a key, and Retry re-sends afterwards. |
 | Phase 5 — admin dashboard | **Done** | Real login, session guard, live registrations (search, filters, CSV, Accept/Reject, voice playback), offer editing, message log with Retry, sign-out, and the message texts are now **editable** with variable chips (Phase H) so an edit is used for the next message. |
 | Phase 6 — WhatsApp | **Optional / later** | Module stubbed; out of scope for v1. |
 | Phase 7 — testing | **Smoke suite, 44 assertions** | `backend/test/api-smoke.sh` (`npm run test:api`) plus browser passes with `agent-browser`. No unit-test framework yet. |
@@ -150,6 +157,25 @@ now done; what is left needs the owner (see §7).
   log, and the 15 voice files were cleared and `db:seed` restored the documented
   sample offer state (which `data/offers.js` already matched, so no drift). Final
   lint, build, 44/44 smoke suite, browser pass, and `retention:voice --dry-run`.
+- **Phase K (designed emails) — done.** The customer emails were plain paragraphs;
+  they are now React Email components adapted from the "Barebones boxed" demo
+  (`apps/demo/emails`), wearing the site's own palette and type: a white frame, the
+  message on the page colour, the `[YOUR BRAND]` wordmark, a "which message is
+  this" label, a heading, one button and small print. The new `emails/` project
+  renders them (`npm run export`) into `backend/src/emails/*.html`, which the API
+  reads once and caches; the publish step **refuses to copy a file that lost one of
+  its four placeholders**, so sample copy can never be mailed out by accident.
+  `services/email.js` fills `{{body}}` (HTML-escaped, line breaks → `<br />`),
+  `{{offer}}`, `{{ctaUrl}}` and `{{privacyUrl}}` — so the owner's text from the
+  dashboard lands inside the design, and the two can change independently. Plain
+  text still goes with every email. A missing design is not fatal: that email is
+  sent as plain text and reported at boot and by `/api/health` → `emailDesigns`.
+  A rejection gets a quiet, outlined button instead of a promotional filled one.
+  Proven end to end by running the API with the `resend` package replaced by a
+  capture harness: a real registration and a real accept each produced a payload
+  with `text` **and** a 12 kB `html`, no leftover placeholders, the registrant's
+  name escaped, the offer URL in the button and the privacy link in the footer.
+  44/44 smoke suite still green.
 
 ### Known problems, now fixed
 
@@ -211,10 +237,25 @@ backend/
 │   └── config/
 │       ├── templates.js          # message/email texts with {name}/{offer}
 │       └── env.js                # read + validate process.env
+├── src/emails/                   # rendered email HTML, read at send time
 ├── uploads/                      # voice files (gitignored) — or Supabase Storage
 ├── .env.example
 ├── .env                          # never commit
 └── package.json
+```
+
+### Emails — designed with React Email (added after Phase J)
+
+```text
+emails/
+├── emails/
+│   ├── boxed-email.tsx            # the shared frame: wordmark, card, button, small print
+│   ├── theme.ts                   # colours and type, mirroring frontend/src/index.css
+│   ├── theme-fonts.tsx            # the Manrope / Sora @import
+│   ├── static/mic-mark.svg        # the logo, for when the site has a public URL
+│   └── registration-{confirmation,accepted,rejected}.tsx, waitlist-joined.tsx
+├── scripts/publish.mjs            # renders → checks tokens → copies into backend/src/emails
+└── package.json                   # npm run dev | npm run export
 ```
 
 Convert the backend to **ESM** (`"type": "module"`) so it matches the `import`
@@ -513,6 +554,41 @@ runs are clean.
 **Done when:** a fresh clone can follow the READMEs and reach the same verified
 state. ✅
 
+### Phase K — Designed emails  *(done)*
+
+1. **Project** — `npx create-email@latest` scaffolds `emails/` (React Email 6.11 with
+   its own `node_modules`, so the frontend and backend bundles are untouched).
+2. **The frame** — `emails/emails/boxed-email.tsx`, adapted from React Email's
+   "Barebones boxed" demo: a white frame, the message on the site's page colour, the
+   `[YOUR BRAND]` wordmark, a "which message is this" label, a heading, one button,
+   and small print carrying the privacy link and the business address. `theme.ts`
+   mirrors `frontend/src/index.css` (brand `#08715F`, ink `#15231F`, page `#F4F7F5`)
+   and adds only the sizes and the single `mobile` variant the emails use.
+3. **Four designs** — `registration-confirmation`, `registration-accepted`,
+   `registration-rejected`, `waitlist-joined`. Each takes `body`/`offer`/`ctaUrl`
+   defaulted to the API's placeholders, and carries `PreviewProps` so `email dev`
+   shows realistic copy. The rejection uses a **quiet, outlined button**: a filled
+   promotional button on a "no" reads wrong.
+4. **Export** — `npm run export` renders to `out/`, then `scripts/publish.mjs`
+   copies the HTML into `backend/src/emails/` and **refuses any file that lost a
+   placeholder** — sample copy reaching a customer's inbox is the failure worth
+   guarding against.
+5. **Sending** — `services/email.js` reads the layouts once, escapes and fills
+   `{{body}}` / `{{offer}}` / `{{ctaUrl}}` / `{{privacyUrl}}` / `{{siteUrl}}`, and
+   sends `html` alongside the plain `text`. `offerSlug` flows through from the
+   registration, the decision, and the Retry path. A missing file is not fatal: the
+   email goes as plain text, with a boot warning and `/api/health` → `emailDesigns`
+   saying so.
+6. **Proven** — the API was run with the `resend` package swapped for a capture
+   harness (no production code touched): a real registration produced `text` plus a
+   12 kB `html` with no leftover placeholders and the registrant's name escaped, and
+   a real accept produced the acceptance design with the offer URL in its button.
+   `npm run test:api` still 44/44.
+
+**Done when:** a registration and a decision both go out as designed HTML that
+contains the owner's current text, and nothing breaks when the design files are
+missing. ✅
+
 ### Later — WhatsApp (Phase 6)
 
 Only after launch, if desired: Meta Business verification, template approval, and
@@ -530,9 +606,10 @@ Only after launch, if desired: Meta Business verification, template approval, an
 | **M4** | Hardened, deployed, launched | E + F + G | E done · F/G ready, need accounts + content |
 | **M5** | Templates editable, second person gets §6 text + audio | H | **Done** |
 | **M6** | Skill-reviewed, data cleaned, docs current, final suite green | I + J | **Done** (44/44, clean console) |
+| **M7** | Customer emails are designed HTML carrying the owner's text | K | **Done** |
 
-Order taken: **A → B → C → D → E → F → G** (code complete), then **H → I → J**
-(done). WhatsApp (Phase 6) can follow launch if the owner wants it.
+Order taken: **A → B → C → D → E → F → G** (code complete), then **H → I → J**, then
+**K** (done). WhatsApp (Phase 6) can follow launch if the owner wants it.
 
 ---
 
@@ -564,22 +641,38 @@ Order taken: **A → B → C → D → E → F → G** (code complete), then **H
 12. **Templates are grouped by channel** in the dashboard (email to customers vs
     Telegram alerts to you) because that is how the owner thinks about them, and
     eight identical cards read as a wall. ✅
+13. **Designs and copy stay separate** — the email frame (the words you cannot
+    phrase differently without a developer: heading, button label, small print) is
+    a React Email component; the message itself stays in the database. Editing a
+    text needs no export, editing a design does (`npm run export` in `emails/`). ✅
+14. **The rendered email HTML is committed** to `backend/src/emails/`, so the API
+    host needs no build step and no React Email toolchain. The publish script fails
+    the export if a placeholder disappears — the one failure that would otherwise
+    mail the sample text to everybody. ✅
+15. **No webfonts are embedded**, just one Google Fonts `@import` (the same two
+    families the site loads) plus an Arial fallback. Gmail and Outlook strip
+    `@import`, and the alternative — hosted font files — is a stale URL that fails
+    silently. ✅
+16. **The email logo stays text** until the site has a public address: an `<Img>`
+    needs an absolute URL, and a broken image is worse than a wordmark. The mark is
+    prepared in `emails/emails/static/` with instructions for switching. ✅
 
 ---
 
 ## 7. What is left, and who can do it
 
-**Locally, by the agent:** nothing. Phases A–J are complete — editable templates
+**Locally, by the agent:** nothing. Phases A–K are complete — editable templates
 and the second-person message with audio, the skill-driven quality passes, the
-dev-data cleanup, the docs, and a final green run (lint, build, 44/44 API suite,
-browser passes, retention dry-run).
+dev-data cleanup, the designed emails, the docs, and a final green run (44/44 API
+suite, a captured-email end-to-end check, browser checks of all four designs).
 
 **Only the owner can do (blocks launch, not development):**
 
 | Needed | Unblocks | Where |
 | --- | --- | --- |
 | **Fix the Telegram bot token in `backend/.env`** — the value there is truncated (no `<bot_id>:` prefix), so `getMe` returns 404 and every alert fails (logged gracefully). Paste the full token from BotFather. Then add `TELEGRAM_SECOND_CHAT_ID` for the second person | live registration alerts, Accept/Reject, the second-person message + audio | `docs/DEPLOYMENT.md`, `docs/LAUNCH-CHECKLIST.md` |
-| Resend API key + a verified domain | confirmation / accepted / rejected / waitlist emails | same |
+| Resend API key + a **verified domain** in `MAIL_FROM` — the current shared `onboarding@resend.dev` address only delivers to the Resend account's own inbox | confirmation / accepted / rejected emails, designed and in colour | same |
+| A decision on the waitlist email: the form collects a name and phone number only, so the `waitlist` text — and its finished design — has nowhere to go. Add an optional email field (and a `waitlist.email` column) or delete that template | the waitlist confirmation email | `emails/README.md` |
 | Hosting accounts + a persistent upload volume | deployment (`vercel.json`, `_redirects` are ready) | `docs/DEPLOYMENT.md` |
 | Real content for every `[placeholder]` | the launch checklist | `docs/LAUNCH-CHECKLIST.md` |
 | A lawyer's review of the privacy policy + consent text | legal sign-off | `docs/LAUNCH-CHECKLIST.md` |

@@ -35,6 +35,14 @@ Each editor shows a preview with sample values.
 - [ ] The second-person text reads correctly if that person is a colleague or a group.
 - [ ] Send yourself one real registration and read the four messages that result.
 
+The **frame** around those texts is separate: the headline, button label and small
+print are in `emails/emails/boxed-email.tsx`, which also carries `[YOUR BRAND]`,
+`[BUSINESS ADDRESS]` and `[SUPPORT EMAIL]` in its footer. Editing a design means
+running `npm run export` in `emails/` and restarting the API — see
+`emails/README.md`.
+
+- [ ] Those three placeholders are replaced in the email frame and re-exported.
+
 ## 2. Offers in the database
 
 The public offer pages paint `frontend/src/data/offers.js` first and then replace
@@ -74,6 +82,7 @@ curl -s http://localhost:3001/api/offers | node -e "let d='';process.stdin.on('d
 - [ ] `TELEGRAM_SECOND_CHAT_ID` set if a second person should see every lead, and that chat has received a test registration **with the voice note attached**.
 - [ ] Resend domain verified; `MAIL_FROM` uses that domain; `RESEND_API_KEY` set; boot log says `email : configured`.
 - [ ] A real confirmation email arrives (not in spam) and is readable on a phone.
+- [ ] That email arrives as the **designed** message — wordmark, heading, button, small print — not as plain text (`GET /api/health` → `emailDesigns.missing` is empty; see `emails/README.md`).
 
 ## 5. Security and operations
 
