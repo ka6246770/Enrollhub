@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS waitlist (
   offer_id   integer NOT NULL REFERENCES offers(id) ON DELETE CASCADE,
   name       text NOT NULL,
   phone      text NOT NULL,
+  email      text,
   created_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS waitlist_offer_idx ON waitlist (offer_id);
@@ -93,3 +94,7 @@ CREATE TABLE IF NOT EXISTS message_templates (
 -- Safe on an existing table too: both are no-ops once applied.
 ALTER TABLE message_templates ALTER COLUMN updated_at DROP NOT NULL;
 ALTER TABLE message_templates ALTER COLUMN updated_at DROP DEFAULT;
+
+-- The waitlist form asks for a phone number first, so the address is optional.
+-- When one is given, that person also gets the confirmation email.
+ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS email text;

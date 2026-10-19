@@ -1,9 +1,5 @@
-// The waitlist text.
-//
-// NOTE: nothing sends this yet. The waitlist form collects a name and a phone
-// number, not an email address, so there is nowhere to deliver it. The design is
-// built and the `waitlist` text is editable on the dashboard, ready for whenever
-// the form starts asking for an email.
+// Sent to someone who joins a waitlist and leaves an email address. The form asks
+// for a phone number first, so nothing is sent when the address is empty.
 
 import { BoxedEmail } from './boxed-email';
 

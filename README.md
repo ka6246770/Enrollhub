@@ -29,7 +29,9 @@ original step-by-step guide. Copy texts live in `enrollhub-content.md`.
   (`TELEGRAM_SECOND_CHAT_ID`).
 - Emails are designed messages, not plain text: a branded frame with the wordmark,
   a heading, one button and small print, with the message itself coming from the
-  editable texts. See `emails/README.md`.
+  editable texts. Four of them: confirmation, accepted, rejected, and the waitlist
+  confirmation, which goes out when a joiner leaves the optional email address.
+  See `emails/README.md`.
 - Hardening: duplicate guard, per-IP rate limits, audio signature checks,
   admin-only voice downloads, and a voice-retention job.
 - Every outbound notification is recorded. When Telegram or email are not
@@ -53,7 +55,7 @@ cp .env.example .env          # then fill in DATABASE_URL and SESSION_SECRET
 npm run db:setup              # create the tables and seed the three offers
 npm run admin:set -- you@example.com "a strong password"
 npm run dev                   # http://localhost:3001
-npm run test:api              # 44-case smoke test against the running API
+npm run test:api              # 46-case smoke test against the running API
 ```
 
 Check it with `curl http://localhost:3001/api/health` — the response lists which

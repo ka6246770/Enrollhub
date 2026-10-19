@@ -28,6 +28,8 @@ export default function OfferWaitlist() {
         name: formData.get('name'),
         phone: formData.get('phone'),
         offerSlug: offer.slug,
+        // The address is optional: omit it rather than sending an empty string.
+        ...(formData.get('email') ? { email: formData.get('email') } : {}),
       })
       setJoined(true)
     } catch (submitError) {
@@ -70,6 +72,10 @@ export default function OfferWaitlist() {
               <div className="mt-4 grid gap-4">
                 <Field label="Name" name="name" placeholder="Your full name" autoComplete="name" required />
                 <Field label="WhatsApp number" name="phone" type="tel" placeholder="+20 1XX XXX XXXX" autoComplete="tel" required />
+                <div>
+                  <Field label="Email (optional)" name="email" type="email" placeholder="you@example.com" autoComplete="email" />
+                  <p className="mt-1.5 text-[11px] leading-relaxed text-muted">Add an address if you would like a confirmation now, and an email if a seat opens.</p>
+                </div>
               </div>
               <label className="mt-4 flex items-start gap-2.5 text-xs leading-relaxed text-muted">
                 <input className="mt-0.5 accent-brand" type="checkbox" required />

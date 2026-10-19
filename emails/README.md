@@ -70,8 +70,7 @@ live in the design files.
 | `registration-confirmation` | the moment a registration arrives | `customerConfirmation` |
 | `registration-accepted` | when the owner accepts | `accepted` |
 | `registration-rejected` | when the owner rejects | `rejected` |
-| `waitlist-joined` | **nothing yet** — see below | `waitlist` |
+| `waitlist-joined` | when someone leaves an email address on the waitlist form | `waitlist` |
 
-The waitlist design is built and ready, but nothing can send it: the waitlist form
-collects a name and a phone number, not an email address. It is here so the
-design exists the day the form starts asking for one.
+The waitlist form asks for a phone number first and the address is optional, so
+this email only goes out when there is somewhere to send it.

@@ -33,6 +33,7 @@ Each editor shows a preview with sample values.
 - [ ] `[X] hours` in the confirmation and second-person texts is the real response time.
 - [ ] Every text still contains its `{name}` / `{offer}` variables (the editor refuses a save that drops one).
 - [ ] The second-person text reads correctly if that person is a colleague or a group.
+- [ ] The waitlist text reads well for someone who left an email address (with a phone number only, nothing is sent — the owner is still alerted).
 - [ ] Send yourself one real registration and read the four messages that result.
 
 The **frame** around those texts is separate: the headline, button label and small
@@ -114,7 +115,8 @@ On a phone, against production:
 - [ ] Press **Accept** → customer receives the acceptance email → dashboard shows `accepted`.
 - [ ] Press **Reject** on another registration → rejection email → dashboard shows `rejected`.
 - [ ] Register the same email again → "You have already registered for this offer."
-- [ ] Open the full offer → sold-out state → waitlist form → owner gets the waitlist alert.
+- [ ] Open the full offer → sold-out state → waitlist form **with an email address** → owner gets the waitlist alert **and** the joiner gets the waitlist confirmation email.
+- [ ] Join the waitlist again **without** an email address → still accepted, owner alert only.
 - [ ] Contact form → owner gets the alert; the message appears on the Messages page.
 - [ ] Admin: sign in, search, filter, export CSV, change a seat limit, sign out.
 - [ ] Everything above again on a 360 px-wide screen.

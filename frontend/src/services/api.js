@@ -141,7 +141,7 @@ const demoTemplateSeed = [
   {
     key: 'waitlist',
     label: 'Waitlist email',
-    channel: 'email', where: 'Sent to someone who joins a waitlist',
+    channel: 'email', where: 'Sent to someone who joins a waitlist and leaves an email address',
     body: 'Hi {name}, you are on the waitlist for {offer}. We will message you if a seat opens up.',
     variables: ['name', 'offer', 'phone'],
     required: ['name', 'offer'],

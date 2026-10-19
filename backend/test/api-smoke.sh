@@ -132,8 +132,12 @@ check_form 'unknown offer' 404 "$(status -X POST "$API/registrations" \
   -F 'offerSlug=nope' -F 'consent=on' -F "recording=@$TMP/voice.mp3;type=audio/mpeg")"
 
 section 'Waitlist'
-check_form 'join waitlist' 201 "$(status -X POST "$API/waitlist" -H 'Content-Type: application/json' \
+check_form 'join waitlist with an email' 201 "$(status -X POST "$API/waitlist" -H 'Content-Type: application/json' \
   -d "{\"name\":\"Waiter\",\"email\":\"waiter.$STAMP@example.com\",\"phone\":\"+1994$STAMP\",\"offerSlug\":\"$ANY_SLUG\"}")"
+check_form 'join waitlist without an email' 201 "$(status -X POST "$API/waitlist" -H 'Content-Type: application/json' \
+  -d "{\"name\":\"No Email\",\"phone\":\"+1993$STAMP\",\"offerSlug\":\"$ANY_SLUG\"}")"
+check_form 'waitlist with a broken email' 400 "$(status -X POST "$API/waitlist" -H 'Content-Type: application/json' \
+  -d "{\"name\":\"Bad Email\",\"email\":\"not-an-email\",\"phone\":\"+1992$STAMP\",\"offerSlug\":\"$ANY_SLUG\"}")"
 check_form 'waitlist unknown offer' 404 "$(status -X POST "$API/waitlist" -H 'Content-Type: application/json' \
   -d '{"name":"Waiter","email":"waiter2@example.com","phone":"+1993000","offerSlug":"nope"}')"
 

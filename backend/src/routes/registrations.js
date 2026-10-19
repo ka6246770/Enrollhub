@@ -8,7 +8,7 @@ import { requireAdmin } from '../middleware/requireAdmin.js'
 import { formLimiter } from '../middleware/rateLimit.js'
 import { uploadVoice, verifyAudioSignature } from '../middleware/upload.js'
 import { applyDecision } from '../services/decisions.js'
-import { sendEmail, confirmationEmail } from '../services/email.js'
+import { sendEmail, confirmationEmail, waitlistEmail } from '../services/email.js'
 import { notifyNewRegistration, notifyOwnerOfWaitlist, storeVoiceFile } from '../services/telegram.js'
 
 export const registrationsRouter = Router()
@@ -238,18 +238,43 @@ const waitlistSchema = z.object({
   name: z.string().trim().min(2).max(120),
   phone: z.string().trim().min(6).max(40),
   offerSlug: z.string().trim().min(1).max(80),
+  // Optional: the form asks for a phone number first. With an address, the person
+  // also gets the waitlist confirmation email.
+  email: z.string().trim().email('Enter a valid email address.').max(200).optional(),
 })
 
 waitlistRouter.post('/', formLimiter, async (req, res, next) => {
   try {
     const input = waitlistSchema.parse(req.body)
 
-    const { rows } = await query('SELECT id, title FROM offers WHERE slug = $1', [input.offerSlug])
+    const { rows } = await query('SELECT id, title, slug FROM offers WHERE slug = $1', [input.offerSlug])
     const offer = rows[0]
     if (!offer) return res.status(404).json({ message: 'Offer not found.' })
 
-    await query('INSERT INTO waitlist (offer_id, name, phone) VALUES ($1, $2, $3)', [offer.id, input.name, input.phone])
+    const email = input.email || null
+    await query(
+      'INSERT INTO waitlist (offer_id, name, phone, email) VALUES ($1, $2, $3, $4)',
+      [offer.id, input.name, input.phone, email],
+    )
     await notifyOwnerOfWaitlist({ name: input.name, phone: input.phone, offer })
+
+    // The owner is always alerted on Telegram; the joiner only hears back when
+    // they left an address.
+    if (email) {
+      const mail = await waitlistEmail({
+        name: input.name,
+        offer: offer.title,
+        offerSlug: offer.slug,
+        phone: input.phone,
+      })
+      await sendEmail({
+        to: email,
+        subject: mail.subject,
+        text: mail.text,
+        html: mail.html,
+        type: 'waitlist',
+      })
+    }
 
     res.status(201).json({ ok: true })
   } catch (error) {

@@ -39,7 +39,7 @@ progress log.
 | Phase 4 — accept/reject + email | **Done** | `POST /telegram/webhook` (secret-checked, idempotent, edits the message), `services/decisions.js` shared by the webhook and the dashboard, and customer confirmation/acceptance/rejection emails via Resend — now **designed HTML** (Phase K) with the editable text inside it. Logs instead of sending without a key, and Retry re-sends afterwards. |
 | Phase 5 — admin dashboard | **Done** | Real login, session guard, live registrations (search, filters, CSV, Accept/Reject, voice playback), offer editing, message log with Retry, sign-out, and the message texts are now **editable** with variable chips (Phase H) so an edit is used for the next message. |
 | Phase 6 — WhatsApp | **Optional / later** | Module stubbed; out of scope for v1. |
-| Phase 7 — testing | **Smoke suite, 44 assertions** | `backend/test/api-smoke.sh` (`npm run test:api`) plus browser passes with `agent-browser`. No unit-test framework yet. |
+| Phase 7 — testing | **Smoke suite, 46 assertions** | `backend/test/api-smoke.sh` (`npm run test:api`) plus browser passes with `agent-browser`. No unit-test framework yet. |
 | Phase 8 — deployment | **Configs ready, not hosted** | `frontend/vercel.json`, `frontend/public/_redirects`, and full steps in `docs/DEPLOYMENT.md`. Needs hosting accounts. |
 | Phase 9 — launch | **Checklist ready, not launched** | `docs/LAUNCH-CHECKLIST.md` covers content, legal, integrations, security, accessibility, and the final end-to-end run. |
 
@@ -176,6 +176,16 @@ progress log.
   with `text` **and** a 12 kB `html`, no leftover placeholders, the registrant's
   name escaped, the offer URL in the button and the privacy link in the footer.
   44/44 smoke suite still green.
+- **Phase K, waitlist follow-up — done.** The `waitlist` text and its finished
+  design had nowhere to go: the form collected a name and a phone number only. The
+  form now has an **optional email field** (`waitlist.email`, validated, omitted
+  when left blank), so a joiner who leaves an address gets the designed
+  confirmation and a joiner who does not still reaches the owner on Telegram.
+  Verified through the capture harness: `html` present, offer URL in the button, no
+  leftover placeholders; no email at all when the field is blank; a broken address
+  refused with "Enter a valid email address." Suite now **46/46**. One limit,
+  recorded instead of hidden: a waitlist log row is not tied to a registration, so
+  the dashboard's Retry cannot rebuild it (it says so).
 
 ### Known problems, now fixed
 
@@ -277,7 +287,7 @@ and the backend mounts all routers under `/api`.
 | `GET` | `/offers` | — | `Offer[]` (each with `waitlistCount`) |
 | `GET` | `/offers/:slug` | — | `Offer` |
 | `POST` | `/registrations` | `multipart/form-data`: `name, age, language, level, residence, email, phone, consent, offerSlug, recording` | `201 {ok:true, id}` · `400` validation/bad audio · `409` duplicate · `429` rate-limited |
-| `POST` | `/waitlist` | `{name, phone, offerSlug}` | `201 {ok:true}` |
+| `POST` | `/waitlist` | `{name, phone, offerSlug, email?}` | `201 {ok:true}` — with an `email`, that person also gets the waitlist confirmation |
 | `POST` | `/messages` | `{name, email, message}` | `201 {ok:true}` |
 
 ### Admin (requireAdmin)
@@ -583,11 +593,18 @@ state. ✅
    harness (no production code touched): a real registration produced `text` plus a
    12 kB `html` with no leftover placeholders and the registrant's name escaped, and
    a real accept produced the acceptance design with the offer URL in its button.
-   `npm run test:api` still 44/44.
+   `npm run test:api` still 46/46. The waitlist design was wired up straight away:
+   the form's new optional email field is the only change needed, so the
+   `waitlist` text is no longer a dashboard text that nothing sends.
 
 **Done when:** a registration and a decision both go out as designed HTML that
 contains the owner's current text, and nothing breaks when the design files are
 missing. ✅
+
+**One limit, on purpose:** a waitlist email's log row is not tied to a
+registration (there is no registration), so the dashboard's **Retry** cannot
+rebuild it and says so instead of failing silently. Re-sending one means asking
+the person again, or dropping a line to them directly.
 
 ### Later — WhatsApp (Phase 6)
 
@@ -656,6 +673,10 @@ Order taken: **A → B → C → D → E → F → G** (code complete), then **H
 16. **The email logo stays text** until the site has a public address: an `<Img>`
     needs an absolute URL, and a broken image is worse than a wordmark. The mark is
     prepared in `emails/emails/static/` with instructions for switching. ✅
+17. **The waitlist email address is optional, not required** — the form asks for a
+    phone number first because that is how the owner follows up, so requiring an
+    address would cost sign-ups. Joining still works with a phone number alone; an
+    address just means the joiner also gets confirmation. ✅
 
 ---
 
@@ -663,7 +684,7 @@ Order taken: **A → B → C → D → E → F → G** (code complete), then **H
 
 **Locally, by the agent:** nothing. Phases A–K are complete — editable templates
 and the second-person message with audio, the skill-driven quality passes, the
-dev-data cleanup, the designed emails, the docs, and a final green run (44/44 API
+dev-data cleanup, the designed emails, the docs, and a final green run (46/46 API
 suite, a captured-email end-to-end check, browser checks of all four designs).
 
 **Only the owner can do (blocks launch, not development):**
@@ -672,7 +693,6 @@ suite, a captured-email end-to-end check, browser checks of all four designs).
 | --- | --- | --- |
 | **Fix the Telegram bot token in `backend/.env`** — the value there is truncated (no `<bot_id>:` prefix), so `getMe` returns 404 and every alert fails (logged gracefully). Paste the full token from BotFather. Then add `TELEGRAM_SECOND_CHAT_ID` for the second person | live registration alerts, Accept/Reject, the second-person message + audio | `docs/DEPLOYMENT.md`, `docs/LAUNCH-CHECKLIST.md` |
 | Resend API key + a **verified domain** in `MAIL_FROM` — the current shared `onboarding@resend.dev` address only delivers to the Resend account's own inbox | confirmation / accepted / rejected emails, designed and in colour | same |
-| A decision on the waitlist email: the form collects a name and phone number only, so the `waitlist` text — and its finished design — has nowhere to go. Add an optional email field (and a `waitlist.email` column) or delete that template | the waitlist confirmation email | `emails/README.md` |
 | Hosting accounts + a persistent upload volume | deployment (`vercel.json`, `_redirects` are ready) | `docs/DEPLOYMENT.md` |
 | Real content for every `[placeholder]` | the launch checklist | `docs/LAUNCH-CHECKLIST.md` |
 | A lawyer's review of the privacy policy + consent text | legal sign-off | `docs/LAUNCH-CHECKLIST.md` |
