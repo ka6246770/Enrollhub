@@ -3,6 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { capabilities, env } from '../config/env.js'
 import { recordMessage } from '../db/database.js'
 import { renderTemplate } from './messageTemplates.js'
+import { registrationValues } from './registrationValues.js'
 
 const apiUrl = (method) => `https://api.telegram.org/bot${env.telegramBotToken}/${method}`
 
@@ -78,21 +79,8 @@ export async function sendAudio(chatId, voice, caption) {
 }
 
 // Every {variable} a registration message can use.
-function registrationVars(registration, offer) {
-  return {
-    offer: offer.title,
-    name: registration.name,
-    age: registration.age,
-    language: registration.language,
-    level: registration.level,
-    residence: registration.residence,
-    email: registration.email,
-    phone: registration.phone,
-  }
-}
-
 async function buildOwnerText(registration, offer) {
-  return renderTemplate('ownerRegistration', registrationVars(registration, offer))
+  return renderTemplate('ownerRegistration', registrationValues(registration, offer))
 }
 
 export { buildOwnerText }
@@ -100,7 +88,7 @@ export { buildOwnerText }
 // The second person gets its own text (content pack §6) and the voice file too,
 // so they have everything the owner has. Never throws.
 async function sendToSecondPerson({ registration, offer, voice }) {
-  const text = await renderTemplate('secondPerson', registrationVars(registration, offer))
+  const text = await renderTemplate('secondPerson', registrationValues(registration, offer))
   const recipient = `chat:${env.telegramSecondChatId}`
 
   try {

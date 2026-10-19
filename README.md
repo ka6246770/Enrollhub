@@ -99,7 +99,7 @@ Backend (`backend/.env`, never commit):
 | `COOKIE_SAMESITE` | `lax` (same domain) or `none` (cross-site, needs HTTPS) |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `TELEGRAM_SECOND_CHAT_ID` | Owner notifications |
 | `TELEGRAM_WEBHOOK_SECRET` | Verifies webhook calls |
-| `RESEND_API_KEY`, `MAIL_FROM` | Customer emails |
+| `RESEND_API_KEY`, `MAIL_FROM`, `OWNER_EMAIL` | Customer emails, and the owner's copy of each registration (with the recording) |
 | `UPLOAD_DIR`, `MAX_UPLOAD_BYTES`, `DUPLICATE_WINDOW_HOURS` | Uploads and anti-duplicate rules |
 | `VOICE_RETENTION_DAYS` | Age at which recordings are deleted (default 180) |
 

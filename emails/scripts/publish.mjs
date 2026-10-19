@@ -1,9 +1,7 @@
-// Copies the rendered emails from ./out into backend/src/emails, where the API
-// reads them from (see backend/src/services/email.js).
-//
-// The API fills four tokens at send time, and every email has to keep them.
-// If an export ever bakes in sample copy instead of a token this step fails
-// loudly, rather than silently emailing the same text to everybody.
+// The API fills these tokens at send time. Every email needs the first three;
+// the four customer-facing designs also carry the privacy link. If an export
+// ever bakes in sample copy instead of a token this step fails loudly, rather
+// than silently emailing the same text to everybody.
 
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -13,7 +11,15 @@ const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const outDir = path.join(scriptDir, '..', 'out');
 const targetDir = path.join(scriptDir, '..', '..', 'backend', 'src', 'emails');
 
-const requiredTokens = ['{{body}}', '{{offer}}', '{{ctaUrl}}', '{{privacyUrl}}'];
+const alwaysRequired = ['{{body}}', '{{offer}}', '{{ctaUrl}}'];
+
+// An internal notification has no privacy link to offer, so it is exempt.
+const customerEmails = new Set([
+  'registration-confirmation.html',
+  'registration-accepted.html',
+  'registration-rejected.html',
+  'waitlist-joined.html',
+]);
 
 const files = (await readdir(outDir).catch(() => [])).filter((file) =>
   file.endsWith('.html'),
@@ -30,6 +36,9 @@ let failed = false;
 
 for (const file of files.sort()) {
   const html = await readFile(path.join(outDir, file), 'utf8');
+  const requiredTokens = customerEmails.has(file)
+    ? [...alwaysRequired, '{{privacyUrl}}']
+    : alwaysRequired;
   const missing = requiredTokens.filter((token) => !html.includes(token));
 
   if (missing.length > 0) {

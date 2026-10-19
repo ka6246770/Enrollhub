@@ -13,6 +13,7 @@ const MESSAGE_FILTERS = ['All', 'Delivered', 'Failed', 'Skipped']
 // Human labels for the log's machine values.
 const TYPE_LABELS = {
   owner_registration: 'Owner alert (with voice file)',
+  owner_email: 'Owner alert (email copy)',
   owner_voice: 'Voice recording',
   customer_confirmation: 'Customer confirmation',
   accepted: 'Acceptance email',

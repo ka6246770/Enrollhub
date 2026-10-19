@@ -67,6 +67,7 @@ and `status`. Skip it once you have created your own offers.
 | `TELEGRAM_WEBHOOK_SECRET` | any random string |
 | `RESEND_API_KEY` | from resend.com |
 | `MAIL_FROM` | `EnrollHub <hello@yourdomain>` (verify the domain in Resend first) |
+| `OWNER_EMAIL` | where the owner's copy of each registration goes; empty turns it off |
 | `VOICE_RETENTION_DAYS` | `180` |
 
 The boot log prints which integrations are configured, so check it first if
@@ -85,6 +86,10 @@ is then sent as plain text.
 Resend's shared testing address: with it, mail is only delivered to the address
 the Resend account belongs to. Verify your domain in Resend and put it in
 `MAIL_FROM` before real customers are emailed.
+
+`OWNER_EMAIL` is the exception: it is the account's own inbox, so it already
+receives the owner's copy of every registration (form + recording) through the
+sandbox. Leave it empty if you only want the Telegram alert.
 
 ---
 

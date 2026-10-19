@@ -6,7 +6,9 @@ read by `src/services/email.js` at send time. Edit the React Email components in
 export.
 
 Each file keeps the placeholders the API fills in (`{{body}}`, `{{offer}}`,
-`{{ctaUrl}}`, `{{privacyUrl}}`), which is why the text is not visible in these
-files. The publish step refuses to copy a file that lost one of them.
+`{{name}}`, `{{ctaUrl}}`, `{{privacyUrl}}`), which is why the text is not visible
+in these files. The publish step refuses to copy a file that lost one of them;
+the owner alert (`registration-alert.html`) has its own footer and therefore no
+`{{privacyUrl}}`.
 
 See `emails/README.md` for the full workflow.

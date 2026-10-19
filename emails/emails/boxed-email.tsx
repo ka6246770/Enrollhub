@@ -6,15 +6,17 @@
 // the brand wordmark at the top, and the small print at the bottom.
 //
 // The wording the owner can change lives in the database and reaches the
-// exported HTML through three tokens the API fills in at send time:
+// exported HTML through tokens the API fills in at send time:
 //
 //   {{body}}        the rendered message text   (escaped, newlines become <br />)
 //   {{offer}}       the offer title             (escaped)
+//   {{name}}        the applicant's name        (escaped; owner alert only)
 //   {{ctaUrl}}      where the button points
 //   {{privacyUrl}}  the footer's privacy link
 //
 // Everything else — the headline, the button label, the footer — is structure,
-// not copy, so it stays in code.
+// not copy, so it stays in code. Internal notifications pass `footer` to replace
+// the customer-facing small print.
 //
 // Named export only (no default export) so `email export` does not treat this as
 // a template.
@@ -50,6 +52,8 @@ export type BoxedEmailProps = {
   cta: { label: string; url: string; variant?: 'primary' | 'quiet' };
   /** One line of small print under the button. */
   note: string;
+  /** Replaces the customer-facing small print. Internal notifications say something else. */
+  footer?: string;
 };
 
 // A rejection is not the moment for a filled, promotional button; it gets the
@@ -66,6 +70,7 @@ export function BoxedEmail({
   body,
   cta,
   note,
+  footer,
 }: BoxedEmailProps) {
   return (
     <Tailwind config={enrollHubTheme}>
@@ -121,12 +126,16 @@ export function BoxedEmail({
               {/* Small print: why this arrived, and how to be forgotten. */}
               <Section className="bg-surface mobile:px-5 px-6 py-8">
                 <Text className="font-11 text-muted m-0">
-                  You are receiving this email because you registered for an
-                  offer on [YOUR BRAND]. Read the{' '}
-                  <Link href="{{privacyUrl}}" className="text-brand">
-                    privacy policy
-                  </Link>
-                  .
+                  {footer ?? (
+                    <>
+                      You are receiving this email because you registered for an
+                      offer on [YOUR BRAND]. Read the{' '}
+                      <Link href="{{privacyUrl}}" className="text-brand">
+                        privacy policy
+                      </Link>
+                      .
+                    </>
+                  )}
                 </Text>
                 <Text className="font-11 text-muted mt-3 mb-0">
                   [YOUR BRAND] · [BUSINESS ADDRESS] · [SUPPORT EMAIL]

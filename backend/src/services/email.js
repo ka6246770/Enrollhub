@@ -5,6 +5,7 @@ import { Resend } from 'resend'
 import { capabilities, env } from '../config/env.js'
 import { recordMessage } from '../db/database.js'
 import { renderTemplate } from './messageTemplates.js'
+import { registrationValues } from './registrationValues.js'
 
 let client
 function getClient() {
@@ -32,6 +33,7 @@ const designFiles = {
   accepted: 'registration-accepted.html',
   rejected: 'registration-rejected.html',
   waitlist: 'waitlist-joined.html',
+  ownerRegistration: 'registration-alert.html',
 }
 
 function layout(file) {
@@ -77,6 +79,8 @@ function fillLayout(file, values) {
     // cannot inject markup into the frame.
     body: escapeHtml(values.body).replace(/\r?\n/g, '<br />'),
     offer: escapeHtml(values.offer),
+    // Only the owner's alert uses the applicant's name.
+    name: escapeHtml(values.name ?? ''),
     ctaUrl: escapeHtml(values.ctaUrl),
     privacyUrl: escapeHtml(`${siteUrl()}/privacy`),
     // Available for designs that link somewhere of their own, such as a hosted
@@ -93,7 +97,7 @@ const offerLink = (slug) => (slug ? `${siteUrl()}/offers/${slug}` : `${siteUrl()
 
 // Sends one email and records the outcome. Never throws: email failures are
 // logged, not surfaced to the visitor.
-export async function sendEmail({ to, subject, text, html = null, registrationId = null, type = 'email' }) {
+export async function sendEmail({ to, subject, text, html = null, attachments = null, registrationId = null, type = 'email' }) {
   if (!capabilities.email) {
     console.log(`[email] not configured — would send "${subject}" to ${to}:\n${text}`)
     await recordMessage({ registrationId, channel: 'email', type, recipient: to, status: 'skipped' }).catch(() => {})
@@ -105,6 +109,9 @@ export async function sendEmail({ to, subject, text, html = null, registrationId
     // Plain text goes out either way: it is the fallback for readers that block
     // HTML, and it is what the dashboard shows when a send is retried.
     if (html) message.html = html
+    // Resend takes the bytes straight from memory; this is only used by the
+    // owner's copy, which carries the recording.
+    if (attachments?.length) message.attachments = attachments
 
     const { data, error } = await getClient().emails.send(message)
     if (error) throw new Error(error.message)
@@ -151,5 +158,48 @@ export async function waitlistEmail({ name, offer, offerSlug }) {
     subject: `You're on the waitlist for ${offer}`,
     text,
     html: fillLayout(designFiles.waitlist, { body: text, offer, ctaUrl: offerLink(offerSlug) }),
+  }
+}
+
+// Reads a recording back from disk, for a retry: multer keeps a fresh upload in
+// memory, but a resend only has the stored file. Missing files just mean the
+// email goes without an attachment.
+function storedVoice(voicePath) {
+  if (!voicePath) return []
+  try {
+    return [{
+      filename: path.basename(voicePath),
+      content: readFileSync(path.resolve(env.uploadDir, voicePath)),
+    }]
+  } catch {
+    return []
+  }
+}
+
+// The owner's copy of a registration: the whole form (the same editable text
+// the Telegram alert uses) plus the recording attached, so it can be searched
+// and listened to later without opening Telegram. Sent only when OWNER_EMAIL is
+// set; unlike the customer emails, the requester is the owner.
+export async function ownerRegistrationEmail({ registration, offer, voice = null, voicePath = null }) {
+  const text = await renderTemplate('ownerRegistration', registrationValues(registration, offer))
+  const attachments = voice?.buffer
+    ? [{ filename: path.basename(voice.originalname || 'recording.mp3'), content: voice.buffer }]
+    : storedVoice(voicePath)
+
+  const body = [
+    text,
+    `Voice recording: ${attachments.length > 0 ? 'attached.' : 'not provided.'}`,
+  ].join('\n\n')
+
+  return {
+    subject: `New registration — ${registration.name} for ${offer.title}`,
+    text: `${body}\n\nReview it in the dashboard: ${siteUrl()}/admin`,
+    html: fillLayout(designFiles.ownerRegistration, {
+      body,
+      offer: offer.title,
+      name: registration.name,
+      ctaUrl: `${siteUrl()}/admin`,
+    }),
+    attachments,
   }
 }

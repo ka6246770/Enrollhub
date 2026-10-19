@@ -34,7 +34,7 @@ Each editor shows a preview with sample values.
 - [ ] Every text still contains its `{name}` / `{offer}` variables (the editor refuses a save that drops one).
 - [ ] The second-person text reads correctly if that person is a colleague or a group.
 - [ ] The waitlist text reads well for someone who left an email address (with a phone number only, nothing is sent — the owner is still alerted).
-- [ ] Send yourself one real registration and read the four messages that result.
+- [ ] Send yourself one real registration and read every message that results.
 
 The **frame** around those texts is separate: the headline, button label and small
 print are in `emails/emails/boxed-email.tsx`, which also carries `[YOUR BRAND]`,
@@ -82,6 +82,8 @@ curl -s http://localhost:3001/api/offers | node -e "let d='';process.stdin.on('d
 - [ ] `TELEGRAM_BOT_TOKEN` is the **complete** token from BotFather — check `curl https://api.telegram.org/bot<TOKEN>/getMe` returns `"ok":true`. A truncated token returns `404 Not Found`, and every alert fails silently (logged, never shown to visitors); the boot log and `GET /api/health` now warn about it.
 - [ ] `TELEGRAM_SECOND_CHAT_ID` set if a second person should see every lead, and that chat has received a test registration **with the voice note attached**.
 - [ ] Resend domain verified; `MAIL_FROM` uses that domain; `RESEND_API_KEY` set; boot log says `email : configured`.
+- [ ] `OWNER_EMAIL` set to the inbox that should receive every registration's details and recording (empty = Telegram only).
+- [ ] That owner copy arrives, with the voice recording attached and the "Review and decide" button opening the dashboard.
 - [ ] A real confirmation email arrives (not in spam) and is readable on a phone.
 - [ ] That email arrives as the **designed** message — wordmark, heading, button, small print — not as plain text (`GET /api/health` → `emailDesigns.missing` is empty; see `emails/README.md`).
 

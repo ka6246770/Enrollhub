@@ -33,6 +33,9 @@ export const env = {
 
   resendApiKey: process.env.RESEND_API_KEY ?? '',
   mailFrom: process.env.MAIL_FROM ?? 'EnrollHub <onboarding@resend.dev>',
+  // A second copy of every registration, with the recording attached. Unlike
+  // the customer emails this is an internal alert, so it is off when empty.
+  ownerEmail: process.env.OWNER_EMAIL ?? '',
 
   uploadDir: process.env.UPLOAD_DIR ?? 'uploads',
   maxUploadBytes: asNumber(process.env.MAX_UPLOAD_BYTES, 10 * 1024 * 1024),

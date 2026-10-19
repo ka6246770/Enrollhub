@@ -8,7 +8,7 @@ import { requireAdmin } from '../middleware/requireAdmin.js'
 import { formLimiter } from '../middleware/rateLimit.js'
 import { uploadVoice, verifyAudioSignature } from '../middleware/upload.js'
 import { applyDecision } from '../services/decisions.js'
-import { sendEmail, confirmationEmail, waitlistEmail } from '../services/email.js'
+import { sendEmail, confirmationEmail, ownerRegistrationEmail, waitlistEmail } from '../services/email.js'
 import { notifyNewRegistration, notifyOwnerOfWaitlist, storeVoiceFile } from '../services/telegram.js'
 
 export const registrationsRouter = Router()
@@ -124,7 +124,8 @@ registrationsRouter.post('/', formLimiter, uploadVoice, verifyAudioSignature, as
       registration.voice_path = filename
     }
 
-    // Notify the owner and confirm to the customer. Both never throw.
+    // Notify the owner and confirm to the customer. Nothing here throws: a
+    // notification failure must not fail the registration.
     const messageId = await notifyNewRegistration({
       registration: registration,
       offer: offer,
@@ -132,6 +133,22 @@ registrationsRouter.post('/', formLimiter, uploadVoice, verifyAudioSignature, as
     })
     if (messageId) {
       await query('UPDATE registrations SET telegram_message_id = $1 WHERE id = $2', [messageId, registration.id])
+    }
+
+    // The owner also gets the whole form by email, recording attached. This is
+    // the copy that can be searched later; it is skipped while OWNER_EMAIL is
+    // empty and fails without affecting the visitor.
+    if (env.ownerEmail) {
+      const ownerCopy = await ownerRegistrationEmail({ registration, offer, voice: req.file })
+      await sendEmail({
+        to: env.ownerEmail,
+        subject: ownerCopy.subject,
+        text: ownerCopy.text,
+        html: ownerCopy.html,
+        attachments: ownerCopy.attachments,
+        registrationId: registration.id,
+        type: 'owner_email',
+      })
     }
 
     const confirmation = await confirmationEmail({

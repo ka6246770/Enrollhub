@@ -186,6 +186,17 @@ progress log.
   refused with "Enter a valid email address." Suite now **46/46**. One limit,
   recorded instead of hidden: a waitlist log row is not tied to a registration, so
   the dashboard's Retry cannot rebuild it (it says so).
+- **Phase K, owner copy — done.** At the owner's request, every registration is
+  also emailed to `OWNER_EMAIL` (`ka6246770@gmail.com` locally): the same editable
+  `ownerRegistration` text, every form field, a **"Review and decide"** button to
+  the dashboard, and the voice recording as an `.mp3` attachment. It is a fifth
+  React Email design (`registration-alert`) with an internal footer instead of the
+  customer privacy line. The send is skipped when `OWNER_EMAIL` is empty and logged
+  as `owner_email`, so the dashboard's Retry can rebuild it (reading the file back
+  from `UPLOAD_DIR`). Verified with a real registration: Telegram text + audio
+  delivered, owner email **delivered** to Gmail, no leftover tokens, name escaped.
+  This is also the only address Resend's shared `onboarding@resend.dev` sandbox
+  will deliver to, which makes it usable before a domain is verified.
 
 ### Known problems, now fixed
 
@@ -679,6 +690,12 @@ Order taken: **A → B → C → D → E → F → G** (code complete), then **H
     phone number first because that is how the owner follows up, so requiring an
     address would cost sign-ups. Joining still works with a phone number alone; an
     address just means the joiner also gets confirmation. ✅
+18. **The owner gets a second copy by email** — `OWNER_EMAIL` receives every
+    registration's full form with the recording attached, in addition to the
+    Telegram alert. It is off when the variable is empty; it is logged like any
+    other send so Retry can rebuild it, and it is the one email that works with
+    Resend's shared testing address (mail may only go to the account's own inbox
+    until a domain is verified). ✅
 
 ---
 
@@ -687,7 +704,7 @@ Order taken: **A → B → C → D → E → F → G** (code complete), then **H
 **Locally, by the agent:** nothing. Phases A–K are complete — editable templates
 and the second-person message with audio, the skill-driven quality passes, the
 dev-data cleanup, the designed emails, the docs, and a final green run (46/46 API
-suite, a captured-email end-to-end check, browser checks of all four designs).
+suite, a captured-email end-to-end check, browser checks of every design).
 
 **Only the owner can do (blocks launch, not development):**
 

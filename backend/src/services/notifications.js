@@ -1,5 +1,6 @@
 import { query } from '../db/database.js'
-import { confirmationEmail, decisionEmail, sendEmail } from './email.js'
+import { env } from '../config/env.js'
+import { confirmationEmail, decisionEmail, ownerRegistrationEmail, sendEmail } from './email.js'
 import { notifyNewRegistration } from './telegram.js'
 
 // Re-sends one entry from messages_log. Used by the dashboard's Retry action.
@@ -22,6 +23,26 @@ export async function resendLogEntry(entry) {
   }
 
   if (entry.channel === 'email') {
+    if (entry.type === 'owner_email') {
+      if (!env.ownerEmail) {
+        throw Object.assign(new Error('OWNER_EMAIL is not set, so the owner copy cannot be re-sent.'), { status: 400 })
+      }
+      const mail = await ownerRegistrationEmail({
+        registration,
+        offer: { title: registration.offer_title, slug: registration.offer_slug },
+        voicePath: registration.voice_path,
+      })
+      return sendEmail({
+        to: env.ownerEmail,
+        subject: mail.subject,
+        text: mail.text,
+        html: mail.html,
+        attachments: mail.attachments,
+        registrationId: registration.id,
+        type: entry.type,
+      })
+    }
+
     const details = {
       name: registration.name,
       offer: registration.offer_title,
