@@ -1,0 +1,3 @@
+# Netlify: send every path to the SPA so client-side routes keep working.
+# Delete this file if you deploy to Vercel (see ../vercel.json).
+/*  /index.html  200

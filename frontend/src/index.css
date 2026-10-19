@@ -1,0 +1,83 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Manrope', Arial, Helvetica, sans-serif;
+  --font-display: 'Sora', 'Manrope', Arial, Helvetica, sans-serif;
+
+  --color-page: #f4f7f5;
+  --color-ink: #15231f;
+  --color-muted: #46534f;
+  --color-brand: #08715f;
+  --color-brand-dark: #056453;
+  --color-line: #d4ddd8;
+  --color-soft: #edf5f2;
+
+  --color-mint: #dceee8;
+  --color-mint-ink: #086553;
+  --color-sand: #faebca;
+  --color-sand-ink: #6d4a00;
+  --color-sand-strong: #d99a2b;
+  --color-coral: #fde5e1;
+  --color-coral-ink: #9c3428;
+  --color-coral-strong: #c0392b;
+
+  --color-plum: #5b57e8;
+  --color-plum-soft: #e6e7fb;
+  --color-plum-ink: #3b34c9;
+
+  --color-night: #0d2620;
+  --color-night-soft: #16352d;
+  --color-night-ink: #e6f0ec;
+  --color-night-muted: #8fa8a0;
+}
+
+/* Shared page container: 786px max on desktop, 440px max on small screens. */
+@utility content-width {
+  width: min(100% - 48px, 786px);
+  margin-inline: auto;
+
+  @media (max-width: 650px) {
+    width: min(100% - 36px, 440px);
+  }
+}
+
+@layer base {
+  body {
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+  }
+
+  /* Visible, consistent keyboard focus ring for links and controls.
+     Text inputs opt out with `outline-none` and provide their own focus ring. */
+  a:focus-visible,
+  button:focus-visible,
+  summary:focus-visible,
+  [role='switch']:focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

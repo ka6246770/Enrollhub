@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment files (never commit real secrets)
+.env
+.env.local
+.env.*.local
+
+# Uploaded voice recordings
+uploads/
+
+# Logs and OS files
+*.log
+npm-debug.log*
+.DS_Store

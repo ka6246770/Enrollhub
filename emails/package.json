@@ -1,0 +1,21 @@
+{
+  "name": "enrollhub-emails",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The EnrollHub emails, designed with React Email and exported to backend/src/emails as HTML.",
+  "scripts": {
+    "dev": "email dev",
+    "export": "email export --pretty && node scripts/publish.mjs"
+  },
+  "dependencies": {
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-email": "^6.11.3",
+    "resend": "^6.34.1"
+  },
+  "devDependencies": {
+    "@react-email/ui": "6.11.3",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3"
+  }
+}

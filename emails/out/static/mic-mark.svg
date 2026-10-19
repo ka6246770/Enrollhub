@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="[YOUR BRAND]">
+  <!-- The microphone mark from frontend/src/components/Brand.jsx, drawn at 48px
+       so it can be converted to a PNG and used as the email logo. -->
+  <rect width="48" height="48" rx="13" fill="#08715F" />
+  <g transform="translate(6 6) scale(1.5)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="9" y="3" width="6" height="12" rx="3" />
+    <path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 17v4m-3 0h6" />
+  </g>
+</svg>
