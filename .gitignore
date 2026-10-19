@@ -5,6 +5,10 @@ node_modules/
 dist/
 build/
 
+# React Email render output. The copy the API reads is backend/src/emails/,
+# written by "npm run export" in emails/ (see emails/README.md).
+emails/out/
+
 # Environment files (never commit real secrets)
 .env
 .env.local
