@@ -31,7 +31,7 @@ const RegistrationConfirmation = ({
 );
 
 RegistrationConfirmation.PreviewProps = {
-  body: 'Hi Amina, thanks for registering for Speaking Club — Level 3. We will contact you within [X] hours.',
+  body: 'Hi Amina, thanks for registering for Speaking Club — Level 3. We will contact you about the next step.',
   offer: 'Speaking Club — Level 3',
   ctaUrl: 'https://example.com/offers/speaking-club',
 } satisfies Props;

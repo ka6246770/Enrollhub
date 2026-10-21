@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="logo-title">
+  <title id="logo-title">Al-Tayeb Company</title>
+  <rect width="512" height="512" rx="72" fill="#14201b"/>
+  <g transform="translate(86 56) scale(10)" fill="none" stroke="#d9551f" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M7 12.2 16 7l9 5.2v9.6L16 27l-9-5.2v-9.6Z"/>
+    <path d="M7 12.2 16 17.4l9-5.2M16 17.4V27"/>
+  </g>
+  <text x="256" y="420" fill="#edf0e9" font-family="Overpass, Arial, sans-serif" font-size="58" font-weight="800" letter-spacing="3" text-anchor="middle">AL-TAYEB</text>
+</svg>

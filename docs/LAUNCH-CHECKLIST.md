@@ -1,48 +1,41 @@
 # Launch checklist
 
-Everything below is content or an external account, so none of it can be filled
-in from inside the codebase. Work top to bottom; each section ends with a
-verifiable result.
+This checklist covers the external accounts, content decisions and operational
+checks that cannot be completed from the codebase alone. The product and its
+tests are in place; work top to bottom and verify each section.
 
 ---
 
 ## 1. Brand and copy
 
-All visible text lives in the frontend. Replace every `[PLACEHOLDER]` (find them
-all with `grep -roE '\[[A-Z][A-Z0-9 /&.-]{2,}\]' frontend/src | sort -u`).
+The Al-Tayeb brand, page copy and email frame are filled in. The remaining inputs
+below are external details, not text placeholders:
 
-| Placeholder | Files |
-| --- | --- |
-| `[YOUR BRAND]`, `[BRAND NAME]` | `components/Brand.jsx`, `components/Footer.jsx`, `components/admin/AdminLayout.jsx`, `pages/admin/Login.jsx`, `hooks/useDocumentTitle.js` |
-| `[WELCOME HEADLINE]` | `pages/Welcome.jsx` |
-| `[OFFER 1..3 TITLE]`, `[PRICE]`, `[DURATION]` | `data/offers.js` **and** the `offers` table (see §2) |
-| `[START DATE]`, `[DATE]`, `[YEAR]` | `pages/Welcome.jsx`, `pages/Terms.jsx`, `pages/Privacy.jsx` |
-| `[SUPPORT EMAIL]`, `[PHONE]`, `[WHATSAPP NUMBER]`, `[BUSINESS ADDRESS]`, `[NAME]` | `pages/Contact.jsx`, `pages/Terms.jsx`, `pages/Privacy.jsx`, `pages/admin/Login.jsx` |
-
-- [ ] Every placeholder replaced.
-- [ ] Favicon and social preview image swapped (`frontend/public/favicon.svg`, `frontend/index.html`).
-- [ ] Page titles/descriptions read correctly on each route.
-- [ ] Copy proof-read in the languages you actually offer.
-- [ ] "Forgot password?" on the login screen points somewhere real, or is removed.
+- [ ] Confirm the legal business name, address and support contact with the owner.
+      Set `VITE_SUPPORT_EMAIL`, `VITE_WHATSAPP_NUMBER` and
+      `VITE_BUSINESS_ADDRESS`, or leave them blank so the site routes people to
+      the contact form. Never invent contact details.
+- [ ] Replace the SVG social card with a 1200×630 PNG/JPG.
+- [ ] Page titles/descriptions read correctly on every public route.
+- [ ] Copy proof-read in the languages actually offered.
+- [ ] Decide whether to keep the sign-in help note; password reset is not built.
 
 **The message texts are copy too.** They live in the database and are edited under
-**Dashboard → Messages** — the confirmation, acceptance, rejection, and waitlist
-emails, the alert you receive, the alert the second person receives, and so on.
-Each editor shows a preview with sample values.
+**Dashboard → Messages** — confirmation, under-review, offer, acceptance,
+rejection, waitlist and the owner alerts. Each editor shows a preview with sample
+values.
 
-- [ ] `[X] hours` in the confirmation and second-person texts is the real response time.
+- [ ] The confirmation text's response-time promise matches what the team can do.
 - [ ] Every text still contains its `{name}` / `{offer}` variables (the editor refuses a save that drops one).
 - [ ] The second-person text reads correctly if that person is a colleague or a group.
-- [ ] The waitlist text reads well for someone who left an email address (with a phone number only, nothing is sent — the owner is still alerted).
+- [ ] The waitlist text reads well for someone who left an email address; with a phone number only, the owner must copy the private WhatsApp link.
 - [ ] Send yourself one real registration and read every message that results.
 
 The **frame** around those texts is separate: the headline, button label and small
-print are in `emails/emails/boxed-email.tsx`, which also carries `[YOUR BRAND]`,
-`[BUSINESS ADDRESS]` and `[SUPPORT EMAIL]` in its footer. Editing a design means
-running `npm run export` in `emails/` and restarting the API — see
-`emails/README.md`.
+print are in `emails/emails/boxed-email.tsx`. Editing a design means running
+`npm run export` in `emails/` and restarting the API — see `emails/README.md`.
 
-- [ ] Those three placeholders are replaced in the email frame and re-exported.
+- [ ] Al-Tayeb branding and footer wording are approved, re-exported, and `GET /api/health` reports `emailDesigns.missing: []`.
 
 ## 2. Offers in the database
 
@@ -66,19 +59,37 @@ curl -s http://localhost:3001/api/offers | node -e "let d='';process.stdin.on('d
 
 ## 3. Legal and consent
 
-- [ ] Privacy policy names the data collected (name, age, language, level, residence, email, phone, **voice recording**), why, where it is stored, and how long it is kept (`VOICE_RETENTION_DAYS`, default 180 days).
-- [ ] Privacy policy names every processor: Telegram, your mail provider (Resend), your host, your database host.
-- [ ] Terms state that a registration is a request for a seat, not a confirmation.
-- [ ] The registration form's consent checkbox links to the privacy policy, and the wording matches what is stored (`registrations.consent_at`).
-- [ ] A deletion route exists for users who ask: delete the row and the file in `uploads/`.
-- [ ] Cookie note: the only cookie is the admin session cookie (`enrollhub.sid`), `httpOnly`.
-- [ ] Business identity (name, address, contact) present where the law requires it.
+- [ ] **Outstanding:** the owner/lawyer reviews `frontend/src/pages/Privacy.jsx`,
+      `frontend/src/pages/Terms.jsx` and the registration/waitlist consent wording
+      before launch.
+- [ ] The policy matches what is actually collected: name, age, residence, email,
+      phone and **voice recording** for applications; name, phone and optional
+      email for the waitlist; contact details and message for enquiries.
+- [ ] The policy names every processor used in the deployment: Telegram, Resend,
+      the application host and the database host.
+- [ ] Terms state that an application is a request, not a confirmed place, and
+      that only the applicant can accept or decline an offer through their
+      private link.
+- [ ] Consent checkboxes link to the privacy policy, and the wording matches what
+      is stored (`registrations.consent_at` / `waitlist.consent_at`).
+- [ ] Privacy deletion works: the admin action removes the application row, its
+      recording and message logs, frees the seat, and invalidates its status link.
+- [ ] Retention matches the policy: recordings after `VOICE_RETENTION_DAYS`
+      (default 180), applications 12 months after the job closes, waitlist and
+      contact data after 12 months. Schedule both retention jobs (§5).
+- [ ] Cookie note: the only cookie is the admin session cookie (`enrollhub.sid`),
+      `httpOnly`.
+- [ ] Business identity (name, address, contact) is present where the law
+      requires it. If an external value is not confirmed, the site uses the
+      contact form rather than inventing details.
 
 ## 4. Integrations
 
 - [ ] Telegram bot created; `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID` set; boot log says `telegram : configured`.
 - [ ] Webhook registered: `npm run telegram:webhook -- https://api.example.com`.
-- [ ] Accept/Reject buttons work on a real registration, the customer email lands, and the buttons disappear.
+- [ ] Telegram **Offer place** / **Not selected** buttons work on a real registration; the applicant email lands, the applicant can accept/decline only through the private link, and the buttons disappear.
+- [ ] A waitlist bulk offer sends the private acceptance link; a phone-only entry still lets the owner copy that link into WhatsApp.
+- [ ] An applicant acceptance marks the dashboard `accepted`; an applicant decline marks it `declined`. An admin cannot set either state directly.
 - [ ] `TELEGRAM_BOT_TOKEN` is the **complete** token from BotFather — check `curl https://api.telegram.org/bot<TOKEN>/getMe` returns `"ok":true`. A truncated token returns `404 Not Found`, and every alert fails silently (logged, never shown to visitors); the boot log and `GET /api/health` now warn about it.
 - [ ] `TELEGRAM_SECOND_CHAT_ID` set if a second person should see every lead, and that chat has received a test registration **with the voice note attached**.
 - [ ] Resend domain verified; `MAIL_FROM` uses that domain; `RESEND_API_KEY` set; boot log says `email : configured`.
@@ -98,34 +109,57 @@ curl -s http://localhost:3001/api/offers | node -e "let d='';process.stdin.on('d
 - [ ] Persistent volume mounted and `UPLOAD_DIR` pointing at it; uploads survive a redeploy.
 - [ ] Daily Postgres backups enabled; the volume is snapshotted.
 - [ ] `npm run retention:voice` scheduled daily.
+- [ ] `npm run retention:privacy` scheduled monthly (or more often if legal advice requires it).
 - [ ] `npm run test:api` passes against production (`API=... ADMIN_EMAIL=... ADMIN_PASSWORD=...`).
 
 ## 6. Accessibility and performance
 
-- [ ] Lighthouse (mobile) ≥ 95 for accessibility and best practices on `/`, `/offers/offer-1`, and the registration form.
+- [ ] Lighthouse (mobile) ≥ 95 for accessibility and best practices on `/`, `/offers`, and the registration form.
 - [ ] Full keyboard pass: Tab reaches every control, focus is always visible, the skip link works, the mobile menu opens and closes with Escape.
 - [ ] Screen reader pass on the registration form — labels, error announcements (`role="alert"`), and the consent checkbox.
 - [ ] `prefers-reduced-motion` respected (animations off).
-- [ ] Records are ≥ 60 s and ≤ 120 s, ≤ 10 MB, and the recorder works on iOS Safari and Android Chrome.
+- [ ] Voice files of 60–120 s and up to 10 MB can be selected and uploaded on iOS Safari and Android Chrome; the fallback contact link is visible when upload fails.
 - [ ] Sold-out and duplicate paths show the friendly messages, not raw errors.
 
-## 7. Final end-to-end run
+## 7. SEO and GEO
+
+See [`SEO-GEO.md`](SEO-GEO.md) for the implementation, content rules and
+prerender guidance.
+
+- [ ] `VITE_SITE_URL` is the production origin, with no trailing slash.
+- [ ] `VITE_SAME_AS` contains only exact, verified official profiles, or is empty.
+- [ ] `VITE_SUPPORT_EMAIL`, `VITE_WHATSAPP_NUMBER` and `VITE_BUSINESS_ADDRESS` are set, or intentionally omitted.
+- [ ] The example origin `https://enrollhub.example.com` is gone from `frontend/index.html`, `frontend/public/robots.txt` and `frontend/public/sitemap.xml` (or the sitemap was regenerated).
+- [ ] `public/og-image.svg` is replaced with a 1200×630 PNG/JPG, and `site.socialImage` points to it.
+- [ ] `npm run seo:sitemap` ran after the final offers were published; `dist/sitemap.xml` and `dist/robots.txt` are present.
+- [ ] `/`, `/offers`, `/about`, `/faq`, `/contact` and each live `/offers/:slug` have one H1, a direct answer, and a clean H1 → H2 → H3 outline.
+- [ ] Rich Results Test passes `FAQPage` and `JobPosting`; Schema Markup Validator passes `Organization`, `WebSite`, `BreadcrumbList` and `Article`.
+- [ ] `curl -s -A GPTBot https://your-domain.example/faq` and a JavaScript-disabled browser show useful page content, not an empty `#root`.
+- [ ] A prerender/SSR decision is recorded. Until public routes are prerendered, non-JS AI crawlers see only the static baseline and no-JS summary.
+
+## 8. Final end-to-end run
 
 On a phone, against production:
 
-- [ ] Register on offer 1 with a voice note → thank-you page → email arrives → Telegram alert with audio and two buttons.
-- [ ] Press **Accept** → customer receives the acceptance email → dashboard shows `accepted`.
-- [ ] Press **Reject** on another registration → rejection email → dashboard shows `rejected`.
-- [ ] Register the same email again → "You have already registered for this offer."
-- [ ] Open the full offer → sold-out state → waitlist form **with an email address** → owner gets the waitlist alert **and** the joiner gets the waitlist confirmation email.
-- [ ] Join the waitlist again **without** an email address → still accepted, owner alert only.
+- [ ] Apply on offer 1 with a voice note → thank-you page shows a private status link → confirmation email arrives → Telegram alert includes audio and offer/not-selected buttons.
+- [ ] From the dashboard (or Telegram), record **Offer place** → applicant receives the offer email → dashboard shows `offered`.
+- [ ] Open the applicant's private link, accept the place → acceptance email arrives → dashboard shows `accepted`.
+- [ ] Record **Offer place** for another applicant, then decline from their private link → dashboard shows `declined` and no place is confirmed.
+- [ ] The admin status editor never offers `accepted` or `declined` as choices.
+- [ ] Apply with the same email again → "You have already registered for this offer."
+- [ ] Open a full offer → waitlist form **with an email address** → owner gets the waitlist alert **and** the joiner gets the waitlist confirmation email.
+- [ ] Join the waitlist again **without** an email address → still accepted, owner alert only; the dashboard offers a copyable private WhatsApp link.
+- [ ] Select the waitlist entries, send a bulk place offer, and accept or decline through the returned private link.
+- [ ] Delete an application from the dashboard → its row, recording, logs and seat are gone, and its private status link returns 404.
 - [ ] Contact form → owner gets the alert; the message appears on the Messages page.
-- [ ] Admin: sign in, search, filter, export CSV, change a seat limit, sign out.
-- [ ] Everything above again on a 360 px-wide screen.
+- [ ] Admin: sign in, search, filter by status/job/date/recording, set a follow-up date, export CSV, change a seat limit, sign out.
+- [ ] Everything above again on a 390 px-wide screen with no horizontal page overflow and all admin navigation visible.
 
-## 8. After launch
+## 9. After launch
 
 - [ ] Watch the Messages page daily for `failed` entries for the first week.
 - [ ] Keep an eye on the API logs for 5xx responses.
 - [ ] Re-run `npm run test:api` after any deploy.
-- [ ] WhatsApp confirmations remain the last open item (plan Phase 6) — add it only if the volume justifies it.
+- [ ] Automated WhatsApp Business messaging remains optional — the dashboard
+      already provides copy and `wa.me` links. Add the API only if message volume
+      justifies it.

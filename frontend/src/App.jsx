@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import RequireAdmin from './components/admin/RequireAdmin.jsx'
-import { useDocumentTitle } from './hooks/useDocumentTitle.js'
+import RouteSeo from './components/RouteSeo.jsx'
 import About from './pages/About.jsx'
 import AllOffers from './pages/AllOffers.jsx'
 import Contact from './pages/Contact.jsx'
@@ -19,7 +19,9 @@ import Welcome from './pages/Welcome.jsx'
 const Login = lazy(() => import('./pages/admin/Login.jsx'))
 const Dashboard = lazy(() => import('./pages/admin/Dashboard.jsx'))
 const Offers = lazy(() => import('./pages/admin/Offers.jsx'))
+const Waitlist = lazy(() => import('./pages/admin/Waitlist.jsx'))
 const Messages = lazy(() => import('./pages/admin/Messages.jsx'))
+const Status = lazy(() => import('./pages/Status.jsx'))
 
 function RouteFallback() {
   return (
@@ -30,29 +32,32 @@ function RouteFallback() {
 }
 
 export default function App() {
-  useDocumentTitle()
-
   return (
-    <Suspense fallback={<RouteFallback />}>
-      <Routes>
-        <Route path="/" element={<Welcome />} />
-        <Route path="/offers" element={<AllOffers />} />
-        <Route path="/offers/:slug" element={<Offer />} />
-        <Route path="/offers/:slug/waitlist" element={<OfferWaitlist />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/faq" element={<Faq />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/thank-you" element={<Thanks />} />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/admin/login" element={<Login />} />
-        <Route path="/admin" element={<RequireAdmin><Dashboard /></RequireAdmin>} />
-        <Route path="/admin/dashboard" element={<RequireAdmin><Dashboard /></RequireAdmin>} />
-        <Route path="/admin/registrations" element={<RequireAdmin><Dashboard section="Registrations" /></RequireAdmin>} />
-        <Route path="/admin/offers" element={<RequireAdmin><Offers /></RequireAdmin>} />
-        <Route path="/admin/messages" element={<RequireAdmin><Messages /></RequireAdmin>} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Suspense>
+    <>
+      <RouteSeo />
+      <Suspense fallback={<RouteFallback />}>
+        <Routes>
+          <Route path="/" element={<Welcome />} />
+          <Route path="/offers" element={<AllOffers />} />
+          <Route path="/offers/:slug" element={<Offer />} />
+          <Route path="/offers/:slug/waitlist" element={<OfferWaitlist />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/faq" element={<Faq />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/thank-you" element={<Thanks />} />
+          <Route path="/status/:token" element={<Status />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/admin/login" element={<Login />} />
+          <Route path="/admin" element={<RequireAdmin><Dashboard /></RequireAdmin>} />
+          <Route path="/admin/dashboard" element={<RequireAdmin><Dashboard /></RequireAdmin>} />
+          <Route path="/admin/registrations" element={<RequireAdmin><Dashboard section="Registrations" /></RequireAdmin>} />
+          <Route path="/admin/waitlist" element={<RequireAdmin><Waitlist /></RequireAdmin>} />
+          <Route path="/admin/offers" element={<RequireAdmin><Offers /></RequireAdmin>} />
+          <Route path="/admin/messages" element={<RequireAdmin><Messages /></RequireAdmin>} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
+    </>
   )
 }

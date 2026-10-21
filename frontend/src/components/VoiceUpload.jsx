@@ -1,8 +1,10 @@
+import { Link } from 'react-router-dom'
 import { secondaryButton } from '../lib/ui.js'
 
 // Presentational voice-recording picker. All state lives in the
 // `useVoiceRecording` hook, which the parent form owns.
-export function VoiceUpload({ audioRef, error, fileInputRef, handleChange, isChecking, play, recording, remove }) {
+export function VoiceUpload({ audioRef, error, fileInputRef, handleChange, isChecking, offerTitle, play, recording, remove }) {
+  const helpHref = `/contact?type=problem&message=${encodeURIComponent(`I could not upload my recording for ${offerTitle || 'a job'}. Please tell me how to send it.`)}`
   return (
     <div className="mt-6">
       <div className="flex items-baseline justify-between gap-3">
@@ -37,8 +39,14 @@ export function VoiceUpload({ audioRef, error, fileInputRef, handleChange, isChe
               <span className="min-w-0 max-w-full truncate text-[12px] text-muted">{recording?.name || 'No file chosen'}</span>
             </div>
             <p className="mt-2 text-[12px] leading-relaxed text-muted">
-              One to two minutes. Say your name, age, city, any factory work you have done, and whether you need housing. MP3, M4A or WAV, up to 10&nbsp;MB.
+              Record one to two minutes in a quiet place. Say your name, age, city, any factory
+              work you have done, and whether you need housing. MP3, M4A or WAV, up to 10&nbsp;MB.
             </p>
+            <ul className="mt-2 grid gap-1 text-[11px] leading-relaxed text-muted">
+              <li>Use your phone&apos;s voice recorder if the browser picker is difficult.</li>
+              <li>Speak in your own voice; do not send someone else&apos;s recording.</li>
+              <li>The recording is deleted after 180 days unless you ask us to delete it sooner.</li>
+            </ul>
           </div>
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
@@ -48,7 +56,18 @@ export function VoiceUpload({ audioRef, error, fileInputRef, handleChange, isChe
         <audio aria-label="Preview voice note" className="hidden" ref={audioRef}>Your browser does not support audio playback.</audio>
       </div>
       {isChecking ? <p className="mt-2 text-[12px] text-muted" role="status">Checking recording length…</p> : null}
-      {error ? <p className="mt-2 text-[12px] font-semibold text-coral-ink" role="alert">{error}</p> : null}
+      {error ? (
+        <div className="mt-2 border border-coral-strong/25 bg-coral/30 p-3" role="alert">
+          <p className="text-[12px] font-semibold text-coral-ink">{error}</p>
+          <p className="mt-1 text-[11px] leading-relaxed text-coral-ink">
+            If choosing or uploading the file keeps failing, <Link className="font-bold underline" to={helpHref}>send us a problem report</Link>{' '}
+            and we will tell you where to send the recording. Do not post it publicly.
+          </p>
+        </div>
+      ) : null}
+      <p className="mt-3 text-[11px] leading-relaxed text-muted">
+        Upload trouble? <Link className="font-bold text-brand underline" to={helpHref}>Ask us for another way to send it</Link>.
+      </p>
     </div>
   )
 }

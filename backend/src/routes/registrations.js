@@ -1,5 +1,6 @@
 import path from 'node:path'
 import { createReadStream } from 'node:fs'
+import { rm } from 'node:fs/promises'
 import { Router } from 'express'
 import { z } from 'zod'
 import { env } from '../config/env.js'
@@ -8,8 +9,10 @@ import { requireAdmin } from '../middleware/requireAdmin.js'
 import { formLimiter } from '../middleware/rateLimit.js'
 import { uploadVoice, verifyAudioSignature } from '../middleware/upload.js'
 import { applyDecision } from '../services/decisions.js'
-import { sendEmail, confirmationEmail, ownerRegistrationEmail, waitlistEmail } from '../services/email.js'
-import { notifyNewRegistration, notifyOwnerOfWaitlist, storeVoiceFile } from '../services/telegram.js'
+import { confirmationEmail, ownerRegistrationEmail, sendEmail, siteUrl } from '../services/email.js'
+import { closeExpiredOffers } from '../services/offers.js'
+import { notifyNewRegistration, storeVoiceFile } from '../services/telegram.js'
+import { createStatusToken } from '../services/tokens.js'
 
 export const registrationsRouter = Router()
 
@@ -29,8 +32,17 @@ const registrationSchema = z.object({
 })
 
 const statusSchema = z.object({
-  status: z.enum(['new', 'contacted', 'accepted', 'rejected']),
-  notes: z.string().trim().max(2000).optional(),
+  status: z.enum(['new', 'contacted', 'offered', 'accepted', 'rejected', 'declined']).optional(),
+  notes: z.preprocess(
+    (value) => (value === undefined ? undefined : value === '' || value === null ? null : value),
+    z.string().trim().max(4000).nullable().optional(),
+  ),
+  followUpAt: z.preprocess(
+    (value) => (value === '' || value === undefined ? undefined : value === null ? null : value),
+    z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Use a valid follow-up date.').nullable().optional(),
+  ),
+}).refine((value) => Object.values(value).some((item) => item !== undefined), {
+  message: 'Nothing to update.',
 })
 
 const acceptsTrue = (value) => value === 'on' || value === 'true' || value === '1' || value === true
@@ -48,10 +60,23 @@ function mapRegistration(row) {
     email: row.email,
     phone: row.phone,
     voiceUrl: row.voice_path ? `/registrations/${row.id}/voice` : null,
+    hasRecording: Boolean(row.voice_path),
     status: row.status,
     notes: row.notes,
+    followUpAt: row.follow_up_at,
+    statusToken: row.status_token,
+    offeredAt: row.offered_at,
+    respondedAt: row.responded_at,
     whatsappConfirmed: row.whatsapp_confirmed,
     createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  }
+}
+
+function publicStatus(response) {
+  return {
+    ...response,
+    statusPath: response.statusUrl ? new URL(response.statusUrl).pathname : null,
   }
 }
 
@@ -66,10 +91,20 @@ registrationsRouter.post('/', formLimiter, uploadVoice, verifyAudioSignature, as
 
     const input = registrationSchema.parse(req.body)
 
+    // Date-driven closure is applied before the offer is read, so a stale
+    // `active` row cannot accept an application after its closing date.
+    await closeExpiredOffers()
+
     const { rows: offerRows } = await client.query('SELECT * FROM offers WHERE slug = $1', [input.offerSlug])
     const offer = offerRows[0]
     if (!offer) return res.status(404).json({ message: 'Offer not found.' })
 
+    if (offer.status === 'paused') {
+      return res.status(409).json({ message: 'Registration is paused for this offer. Please check back later.' })
+    }
+    if (offer.status === 'closed') {
+      return res.status(409).json({ message: 'This offer is no longer accepting applications.' })
+    }
     if (offer.status !== 'active' || offer.seats_taken >= offer.seats_total) {
       return res.status(409).json({ message: 'This offer is sold out. Please join the waitlist instead.' })
     }
@@ -88,9 +123,10 @@ registrationsRouter.post('/', formLimiter, uploadVoice, verifyAudioSignature, as
       return res.status(409).json({ message: 'You have already registered for this offer. We will contact you soon.' })
     }
 
+    const statusToken = createStatusToken('reg')
     const { rows: insertedRows } = await client.query(
-      `INSERT INTO registrations (offer_id, name, age, language, level, residence, email, phone, voice_mime)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      `INSERT INTO registrations (offer_id, name, age, language, level, residence, email, phone, voice_mime, status_token)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
        RETURNING *`,
       [
         offer.id,
@@ -102,6 +138,7 @@ registrationsRouter.post('/', formLimiter, uploadVoice, verifyAudioSignature, as
         input.email,
         input.phone,
         req.file?.mimetype ?? null,
+        statusToken,
       ],
     )
     const registration = insertedRows[0]
@@ -151,10 +188,12 @@ registrationsRouter.post('/', formLimiter, uploadVoice, verifyAudioSignature, as
       })
     }
 
+    const statusUrl = `${siteUrl()}/status/${statusToken}`
     const confirmation = await confirmationEmail({
       name: registration.name,
       offer: offer.title,
       offerSlug: offer.slug,
+      statusLink: statusUrl,
     })
     await sendEmail({
       to: registration.email,
@@ -165,7 +204,7 @@ registrationsRouter.post('/', formLimiter, uploadVoice, verifyAudioSignature, as
       type: 'customer_confirmation',
     })
 
-    res.status(201).json({ ok: true, id: registration.id })
+    res.status(201).json({ ok: true, id: registration.id, statusPath: `/status/${statusToken}` })
   } catch (error) {
     try {
       await client.query('ROLLBACK')
@@ -180,7 +219,8 @@ registrationsRouter.post('/', formLimiter, uploadVoice, verifyAudioSignature, as
 
 // --- Admin: list and update registrations ----------------------------------
 
-registrationsRouter.get('/', requireAdmin, async (req, res, next) => {  try {
+registrationsRouter.get('/', requireAdmin, async (req, res, next) => {
+  try {
     const clauses = []
     const params = []
 
@@ -191,6 +231,18 @@ registrationsRouter.get('/', requireAdmin, async (req, res, next) => {  try {
     if (req.query.offer) {
       params.push(String(req.query.offer))
       clauses.push(`o.slug = $${params.length}`)
+    }
+    if (req.query.date) {
+      params.push(String(req.query.date))
+      clauses.push(`r.created_at::date = $${params.length}::date`)
+    }
+    if (req.query.recording === 'yes') clauses.push('r.voice_path IS NOT NULL')
+    if (req.query.recording === 'no') clauses.push('r.voice_path IS NULL')
+    if (req.query.followUp === 'due') {
+      clauses.push('r.follow_up_at IS NOT NULL AND r.follow_up_at <= CURRENT_DATE')
+    }
+    if (req.query.attention === '1') {
+      clauses.push(`(r.status = 'new' OR (r.follow_up_at IS NOT NULL AND r.follow_up_at <= CURRENT_DATE))`)
     }
     if (req.query.q) {
       params.push(`%${String(req.query.q)}%`)
@@ -218,14 +270,136 @@ registrationsRouter.patch('/:id', requireAdmin, async (req, res, next) => {
     if (!Number.isInteger(id)) return res.status(400).json({ message: 'Invalid registration id.' })
 
     const patch = statusSchema.parse(req.body)
-    // Shared with the Telegram webhook, so a status change made here also emails
-    // the customer when it is an accept or reject.
-    const result = await applyDecision(id, patch.status, { notes: patch.notes })
-    if (!result.found) return res.status(404).json({ message: 'Registration not found.' })
+    if (patch.status) {
+      // Shared with the Telegram webhook, so a status change made here also
+      // emails the customer. `accepted` and `declined` are rejected by the
+      // service: the applicant must answer the private link.
+      const result = await applyDecision(id, patch.status, {
+        notes: patch.notes,
+        followUpAt: patch.followUpAt,
+      })
+      if (!result.found) return res.status(404).json({ message: 'Registration not found.' })
 
-    res.json(mapRegistration({ ...result.registration, slug: result.registration.offer_slug }))
+      return res.json({
+        ...mapRegistration({ ...result.registration, slug: result.registration.offer_slug }),
+        ...publicStatus(result),
+      })
+    }
+
+    const sets = ['updated_at = now()']
+    const params = [id]
+    if (patch.notes !== undefined) {
+      params.push(patch.notes)
+      sets.push(`notes = $${params.length}`)
+    }
+    if (patch.followUpAt !== undefined) {
+      params.push(patch.followUpAt)
+      sets.push(`follow_up_at = $${params.length}`)
+    }
+
+    const { rows } = await query(
+      `UPDATE registrations SET ${sets.join(', ')} WHERE id = $1
+       RETURNING id, offer_id, name, age, language, level, residence, email, phone, voice_path,
+                 status, notes, follow_up_at, status_token, offered_at, responded_at,
+                 whatsapp_confirmed, created_at, updated_at,
+                 (SELECT slug FROM offers WHERE offers.id = registrations.offer_id) AS slug`,
+      params,
+    )
+    if (!rows[0]) return res.status(404).json({ message: 'Registration not found.' })
+    res.json(mapRegistration(rows[0]))
   } catch (error) {
     next(error)
+  }
+})
+
+// Admin: create (or reuse) the applicant's private status link. Useful for an
+// application received before status links existed, and for resending a link
+// after an email bounced.
+registrationsRouter.post('/:id/status-link', requireAdmin, async (req, res, next) => {
+  try {
+    const id = Number(req.params.id)
+    if (!Number.isInteger(id)) return res.status(400).json({ message: 'Invalid registration id.' })
+
+    const { rows } = await query('SELECT id, status_token FROM registrations WHERE id = $1', [id])
+    const row = rows[0]
+    if (!row) return res.status(404).json({ message: 'Registration not found.' })
+
+    const token = row.status_token || createStatusToken('reg')
+    if (!row.status_token) {
+      await query('UPDATE registrations SET status_token = $2, updated_at = now() WHERE id = $1', [id, token])
+    }
+
+    res.json({
+      statusToken: token,
+      statusPath: `/status/${token}`,
+      statusUrl: `${siteUrl()}/status/${token}`,
+    })
+  } catch (error) {
+    next(error)
+  }
+})
+
+// Admin: fulfil a privacy request. This removes the recording from disk, the
+// applicant's message log entries, and the registration itself, then frees the
+// seat it occupied so the public offer page reflects the change immediately.
+registrationsRouter.delete('/:id', requireAdmin, async (req, res, next) => {
+  const id = Number(req.params.id)
+  if (!Number.isInteger(id)) return res.status(400).json({ message: 'Invalid registration id.' })
+
+  const client = await pool.connect()
+  let voicePath = null
+  try {
+    await client.query('BEGIN')
+    const { rows } = await client.query(
+      'SELECT id, offer_id, voice_path FROM registrations WHERE id = $1 FOR UPDATE',
+      [id],
+    )
+    const registration = rows[0]
+    if (!registration) {
+      await client.query('ROLLBACK')
+      return res.status(404).json({ message: 'Registration not found.' })
+    }
+    voicePath = registration.voice_path
+
+    if (voicePath) {
+      const file = path.join(path.resolve(env.uploadDir), path.basename(voicePath))
+      try {
+        await rm(file, { force: true })
+      } catch (error) {
+        if (error.code !== 'ENOENT') throw error
+      }
+    }
+
+    await client.query('DELETE FROM messages_log WHERE registration_id = $1', [id])
+    await client.query(
+      `UPDATE offers
+       SET seats_taken = GREATEST(seats_taken - 1, 0),
+           status = CASE
+             WHEN status = 'soldout' AND GREATEST(seats_taken - 1, 0) < seats_total THEN 'active'
+             ELSE status
+           END,
+           updated_at = now()
+       WHERE id = $1`,
+      [registration.offer_id],
+    )
+    await client.query('DELETE FROM registrations WHERE id = $1', [id])
+    await client.query('COMMIT')
+
+    res.json({
+      ok: true,
+      deleted: true,
+      recordingRemoved: Boolean(voicePath),
+      message: 'Applicant details and recording deleted.',
+    })
+  } catch (error) {
+    try {
+      await client.query('ROLLBACK')
+    } catch {
+      // already committed or rolled back
+    }
+    next(error)
+  } finally {
+    client.release()
   }
 })
 
@@ -241,58 +415,6 @@ registrationsRouter.get('/:id/voice', requireAdmin, async (req, res, next) => {
 
     res.type(row.voice_mime || 'audio/mpeg')
     createReadStream(path.resolve(env.uploadDir, row.voice_path)).on('error', () => res.sendStatus(404)).pipe(res)
-  } catch (error) {
-    next(error)
-  }
-})
-
-// --- Public: join a waitlist ------------------------------------------------
-// Mounted separately at /api/waitlist (see src/index.js).
-
-export const waitlistRouter = Router()
-
-const waitlistSchema = z.object({
-  name: z.string().trim().min(2).max(120),
-  phone: z.string().trim().min(6).max(40),
-  offerSlug: z.string().trim().min(1).max(80),
-  // Optional: the form asks for a phone number first. With an address, the person
-  // also gets the waitlist confirmation email.
-  email: z.string().trim().email('Enter a valid email address.').max(200).optional(),
-})
-
-waitlistRouter.post('/', formLimiter, async (req, res, next) => {
-  try {
-    const input = waitlistSchema.parse(req.body)
-
-    const { rows } = await query('SELECT id, title, slug FROM offers WHERE slug = $1', [input.offerSlug])
-    const offer = rows[0]
-    if (!offer) return res.status(404).json({ message: 'Offer not found.' })
-
-    const email = input.email || null
-    await query(
-      'INSERT INTO waitlist (offer_id, name, phone, email) VALUES ($1, $2, $3, $4)',
-      [offer.id, input.name, input.phone, email],
-    )
-    await notifyOwnerOfWaitlist({ name: input.name, phone: input.phone, offer })
-
-    // The owner is always alerted on Telegram; the joiner only hears back when
-    // they left an address.
-    if (email) {
-      const mail = await waitlistEmail({
-        name: input.name,
-        offer: offer.title,
-        offerSlug: offer.slug,
-      })
-      await sendEmail({
-        to: email,
-        subject: mail.subject,
-        text: mail.text,
-        html: mail.html,
-        type: 'waitlist',
-      })
-    }
-
-    res.status(201).json({ ok: true })
   } catch (error) {
     next(error)
   }

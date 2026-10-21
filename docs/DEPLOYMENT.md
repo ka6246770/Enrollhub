@@ -30,16 +30,20 @@ from your machine:
 ```bash
 cd backend
 DATABASE_URL='postgresql://user:pass@host:5432/dbname' npm run db:migrate
-DATABASE_URL='...' npm run db:seed         # three starter offers
+DATABASE_URL='...' npm run db:seed         # four demo offers
 DATABASE_URL='...' npm run admin:set -- you@example.com 'a-strong-password'
 ```
 
-`db:migrate` is idempotent and also creates the `message_templates` table, so run
-it on every deploy. `db:seed` inserts the three demo offers **and** the eight
-message texts: the texts use `ON CONFLICT DO NOTHING`, so re-running never
-overwrites an edit made in the dashboard, but the offers use `DO UPDATE`, so
-**do not run `db:seed` against a live database** — it would reset `seats_taken`
-and `status`. Skip it once you have created your own offers.
+`db:migrate` is idempotent and also creates the `message_templates` and `session`
+tables, so run it on every deploy. Admin sessions are stored in Postgres, which
+means a restart no longer signs the owner out and remembered sign-ins survive a
+redeploy. The current migration also widens the allowed offer statuses to include
+`paused`; it does not rewrite or delete any offer rows. `db:seed` inserts
+the four demo offers **and** the message texts: the texts use
+`ON CONFLICT DO NOTHING`, so re-running never overwrites an edit made in the
+dashboard, but the offers use `DO UPDATE`, so **do not run `db:seed` against a
+live database** — it would reset `seats_taken` and `status`. Skip it once you
+have created your own offers.
 
 ---
 
@@ -59,6 +63,8 @@ and `status`. Skip it once you have created your own offers.
 | `PORT` | usually provided by the host |
 | `FRONTEND_URL` | `https://enrollhub.example.com` (comma-separate several) |
 | `SESSION_SECRET` | the random string from step 0 |
+| `SESSION_DEFAULT_HOURS` | server-side lifetime of a normal (browser-session) sign-in; default `8` |
+| `SESSION_REMEMBER_DAYS` | remembered sign-in lifetime; default `30` |
 | `COOKIE_SAMESITE` | `none` when the frontend is on a different site (see §4) |
 | `UPLOAD_DIR` | `/var/data/uploads` |
 | `TELEGRAM_BOT_TOKEN` | from @BotFather |
@@ -68,7 +74,13 @@ and `status`. Skip it once you have created your own offers.
 | `RESEND_API_KEY` | from resend.com |
 | `MAIL_FROM` | `EnrollHub <hello@yourdomain>` (verify the domain in Resend first) |
 | `OWNER_EMAIL` | where the owner's copy of each registration goes; empty turns it off |
+| `OWNER_NOTIFY_EMAIL` | where contact-form problem reports and comments go; falls back to `ADMIN_EMAIL` |
 | `VOICE_RETENTION_DAYS` | `180` |
+
+Problem reports and comments are saved, sent to Telegram, and emailed to
+`OWNER_NOTIFY_EMAIL` (or `ADMIN_EMAIL` when it is empty). If neither address is
+set, or email is not configured, the message log records the email as skipped;
+the report itself is still saved and the visitor still sees success.
 
 The boot log prints which integrations are configured, so check it first if
 notifications do not arrive.
@@ -96,14 +108,28 @@ sandbox. Leave it empty if you only want the Telegram alert.
 ## 3. Frontend (example: Vercel)
 
 1. New project → repo → root directory `frontend`.
-2. Build command `npm run build`, output directory `dist`. `frontend/vercel.json`
-   already rewrites every path to `index.html`, which the client-side router
-   needs. Netlify users get the same via `frontend/public/_redirects`.
-3. Environment variable `VITE_API_URL=https://api.enrollhub.example.com/api`.
-   **It is inlined at build time** — change it and redeploy, do not expect a
-   runtime toggle.
+2. Build command `npm run seo:sitemap && npm run build`, output directory `dist`.
+   The sitemap step fails soft when the API is unreachable, so it still writes
+   the static routes. `frontend/vercel.json` already rewrites every path to
+   `index.html`, which the client-side router needs. Netlify users get the same
+   via `frontend/public/_redirects`.
+3. Environment variables:
+   - `VITE_API_URL=https://api.enrollhub.example.com/api`
+   - `VITE_SITE_URL=https://enrollhub.example.com` (canonical origin, no trailing slash)
+   - `VITE_CONTENT_PUBLISHED_AT=YYYY-MM-DD`
+   - `VITE_CONTENT_UPDATED_AT=YYYY-MM-DD`
+   - optional: `VITE_SUPPORT_EMAIL`, `VITE_WHATSAPP_NUMBER`,
+     `VITE_BUSINESS_ADDRESS`
+   - optional and only when verified: `VITE_SAME_AS` (comma-separated exact
+     `https:` profile URLs)
+
+   **All `VITE_*` values are inlined at build time** — change them and redeploy,
+   do not expect a runtime toggle.
 4. Deploy, then confirm the API accepts the origin: the site must call the API
    from exactly one of the URLs listed in `FRONTEND_URL`.
+5. Confirm `/robots.txt` and `/sitemap.xml` resolve on the frontend domain and
+   that the sitemap `Sitemap:` line uses the production origin. See
+   [`SEO-GEO.md`](SEO-GEO.md) for validation and the prerender caveat.
 
 ---
 
@@ -119,6 +145,10 @@ If they are on completely different sites (`*.vercel.app` + `*.onrender.com`):
   `cookie.secure` in that case),
 - `NODE_ENV=production`,
 - `FRONTEND_URL` set to the exact frontend origin, no trailing slash.
+
+With **Keep me signed in** checked, the cookie gets a persistent 30-day expiry
+and the database session expiry rolls forward while the dashboard is used.
+Uncheck it on a shared computer: the browser then discards the cookie on close.
 
 Symptoms: signing in appears to work but every page bounces back to
 `/admin/login`, or `GET /api/auth/me` returns 401 — that is the cookie being
@@ -137,9 +167,10 @@ TELEGRAM_BOT_TOKEN=... TELEGRAM_WEBHOOK_SECRET=... \
 npm run telegram:webhook        # prints the current webhook status
 ```
 
-Then press **Accept** or **Reject** on a real registration: the customer gets an
-email, the message buttons are replaced with the decision, and the dashboard
-status updates.
+Then press **Offer place** or **Not selected** on a real registration: the
+applicant gets the matching email, the message buttons are replaced with the
+decision, and the dashboard status updates. A place is not confirmed until the
+applicant accepts it through the private link in that email.
 
 ---
 
@@ -148,6 +179,12 @@ status updates.
 - **Voice retention** — schedule daily:
   `npm run retention:voice` (use `-- --dry-run` first). On Render this is a Cron
   Job; elsewhere it is a crontab entry. `VOICE_RETENTION_DAYS` controls the cutoff.
+- **Application, waitlist and contact retention** — schedule monthly:
+  `npm run retention:privacy` (use `-- --dry-run` first). It removes application
+  details 12 months after the job closes, waitlist entries 12 months after
+  sign-up, and contact messages after 12 months. It also deletes recordings,
+  message logs and frees seats. Run it more often if your policy or legal advice
+  requires a tighter window.
 - **Backups** — enable daily Postgres backups with your provider. Uploads live on
   the disk; snapshot it too, or switch to object storage.
 - **Logs** — the API logs a line for every notification it skips or sends; wire

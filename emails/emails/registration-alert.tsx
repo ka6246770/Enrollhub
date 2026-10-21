@@ -29,7 +29,7 @@ const RegistrationAlert = ({
     body={body}
     cta={{ label: 'Review and decide', url: ctaUrl }}
     note={`The voice recording is attached. Reply to ${name} by email or phone.`}
-    footer="Internal notification from [YOUR BRAND]. The recording is personal data — keep it only as long as you need it."
+    footer="Internal notification from Al-Tayeb Company. The recording is personal data — keep it only as long as you need it."
   />
 );
 

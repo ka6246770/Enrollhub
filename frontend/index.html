@@ -1,23 +1,132 @@
 <!doctype html>
-<html lang="en" class="min-w-[320px] scroll-smooth">
+<html lang="en" dir="ltr" class="min-w-[320px] scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#14201b" />
+
+    <!-- SEO: baseline metadata is deliberately generic so every SPA route that
+         receives this shell is not labelled with a misleading page title.
+         Seo.jsx replaces it with route-specific metadata after the app loads. -->
+    <title>Al-Tayeb | Factory jobs in Egypt</title>
     <meta
       name="description"
-      content="Al-Tayeb Company is hiring for packaging, labeling and steward jobs in Sadat City, El-Obour and 10th of Ramadan. Salaries from 6,600 EGP a month, with housing included."
+      content="Al-Tayeb hires packaging, labeling and steward workers in Sadat City, El-Obour and 10th of Ramadan. Pay from 6,600 EGP a month, housing included."
     />
+    <meta name="author" content="Al-Tayeb Company" />
+    <meta name="application-name" content="Al-Tayeb" />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+
+    <!-- SEO: Open Graph and Twitter Card fallbacks. The absolute URL and the
+         route-specific title are added by Seo.jsx. Replace this example origin
+         and the SVG social card before launch. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Al-Tayeb" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:title" content="Al-Tayeb | Factory jobs in Egypt" />
+    <meta
+      property="og:description"
+      content="Al-Tayeb hires packaging, labeling and steward workers in Sadat City, El-Obour and 10th of Ramadan. Pay from 6,600 EGP a month, housing included."
+    />
+    <meta property="og:image" content="https://enrollhub.example.com/og-image.svg" />
+    <meta property="og:image:alt" content="Al-Tayeb factory jobs in Sadat City, El-Obour and 10th of Ramadan." />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Al-Tayeb | Factory jobs in Egypt" />
+    <meta
+      name="twitter:description"
+      content="Al-Tayeb hires packaging, labeling and steward workers in Sadat City, El-Obour and 10th of Ramadan. Pay from 6,600 EGP a month, housing included."
+    />
+    <meta name="twitter:image" content="https://enrollhub.example.com/og-image.svg" />
+    <meta name="twitter:image:alt" content="Al-Tayeb factory jobs in Sadat City, El-Obour and 10th of Ramadan." />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;700;800;900&family=Overpass+Mono:wght@500;700&display=swap"
       rel="stylesheet"
     />
-    <title>Al-Tayeb | Factory jobs in Sadat City, El-Obour and 10th of Ramadan</title>
+
+    <!-- SEO + GEO: baseline entity graph for crawlers that parse HTML without
+         executing JavaScript. Seo.jsx updates the same #seo-jsonld element with
+         the route-specific graph (FAQPage, JobPosting, Article, breadcrumbs).
+         Before launch, replace the example origin and add exact, verified
+         sameAs URLs only. Do not guess profile links. -->
+    <script id="seo-jsonld" type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://enrollhub.example.com/#organization",
+            "name": "Al-Tayeb Company",
+            "alternateName": "Al-Tayeb",
+            "legalName": "Al-Tayeb Company",
+            "url": "https://enrollhub.example.com/",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://enrollhub.example.com/logo.svg",
+              "width": 512,
+              "height": 512
+            },
+            "description": "Factory recruitment for packaging, labeling and steward jobs in Sadat City, El-Obour and 10th of Ramadan City, Egypt.",
+            "areaServed": [
+              { "@type": "City", "name": "Sadat City" },
+              { "@type": "City", "name": "El-Obour" },
+              { "@type": "City", "name": "10th of Ramadan City" }
+            ],
+            "knowsAbout": [
+              "Factory recruitment in Egypt",
+              "Packaging and labeling jobs",
+              "Factory steward jobs",
+              "Housing for factory workers",
+              "Shift work in Sadat City, El-Obour and 10th of Ramadan"
+            ],
+            "address": {
+              "@type": "PostalAddress",
+              "addressCountry": "EG"
+            }
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://enrollhub.example.com/#website",
+            "url": "https://enrollhub.example.com/",
+            "name": "Al-Tayeb",
+            "alternateName": "Al-Tayeb Company",
+            "description": "Factory recruitment for packaging, labeling and steward jobs in Sadat City, El-Obour and 10th of Ramadan City, Egypt.",
+            "inLanguage": "en",
+            "publisher": { "@id": "https://enrollhub.example.com/#organization" }
+          }
+        ]
+      }
+    </script>
   </head>
   <body class="min-w-[320px] bg-page font-sans text-ink antialiased">
+    <!-- SEO + GEO: readable fallback for visitors and crawlers that do not run
+         JavaScript. The React app replaces it when it mounts. -->
+    <noscript>
+      <main style="max-width: 760px; margin: 0 auto; padding: 48px 24px; font-family: system-ui, sans-serif; line-height: 1.7;">
+        <p style="font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;">Al-Tayeb Company</p>
+        <h1 style="font-size: 40px; line-height: 1.05;">Factory jobs in Egypt with housing included</h1>
+        <p>
+          Al-Tayeb hires packaging, labeling and steward workers in Sadat City, El-Obour and 10th of Ramadan City.
+          Monthly pay ranges from 6,600 to 11,400 EGP. Roles are open to Egyptian men aged 18–50 with a National ID,
+          and housing is included for workers who relocate.
+        </p>
+        <nav aria-label="Site">
+          <p><a href="/offers">See the open factory jobs</a></p>
+          <p><a href="/about">How the application works</a></p>
+          <p><a href="/faq">Pay, housing, shifts and eligibility FAQ</a></p>
+          <p><a href="/contact">Contact Al-Tayeb</a></p>
+        </nav>
+      </main>
+    </noscript>
+
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

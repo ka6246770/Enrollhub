@@ -33,3 +33,17 @@ export function isWithinLastDays(value, days = 7) {
   if (Number.isNaN(time)) return false
   return Date.now() - time < days * 24 * 60 * 60 * 1000
 }
+
+// Local calendar date as YYYY-MM-DD. `toISOString()` would use UTC and can show
+// yesterday or tomorrow in Cairo, so this is deliberately built by hand.
+export function todayIso(date = new Date()) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+// DATE columns arrive as plain YYYY-MM-DD strings.
+export function isDateDue(value, today = todayIso()) {
+  return Boolean(value) && value <= today
+}

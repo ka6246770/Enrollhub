@@ -23,3 +23,13 @@ export const loginLimiter = rateLimit({
   skipSuccessfulRequests: true,
   handler: reject('Too many sign-in attempts. Please wait a few minutes and try again.'),
 })
+
+// Private status links: a real applicant may refresh a few times, while a
+// scanner enumerating random tokens is stopped quickly. Tokens still carry 192
+// bits of entropy; this is defence in depth, not the only protection.
+export const lookupLimiter = rateLimit({
+  ...shared,
+  windowMs: 15 * 60 * 1000,
+  limit: 120,
+  handler: reject('Too many status checks from this address. Please wait a few minutes and try again.'),
+})

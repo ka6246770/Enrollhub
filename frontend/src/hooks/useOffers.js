@@ -28,6 +28,10 @@ function toPublicShape(offer, index) {
     seats_taken: offer.seatsTaken,
     closes_at: offer.closesAt,
     status: offer.status,
+    // SEO: JobPosting needs datePosted; updated_at keeps the sitemap lastmod
+    // and article timestamps tied to the real offer record.
+    created_at: offer.createdAt,
+    updated_at: offer.updatedAt,
   }
 }
 

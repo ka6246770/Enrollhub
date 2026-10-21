@@ -20,6 +20,7 @@ export function query(text, params) {
 // delivered, failed, or skipped (for example when an integration is not set up).
 export function recordMessage({
   registrationId = null,
+  waitlistId = null,
   channel,
   type,
   recipient = null,
@@ -27,8 +28,8 @@ export function recordMessage({
   error = null,
 }) {
   return query(
-    `INSERT INTO messages_log (registration_id, channel, type, recipient, status, error)
-     VALUES ($1, $2, $3, $4, $5, $6)`,
-    [registrationId, channel, type, recipient, status, error],
+    `INSERT INTO messages_log (registration_id, waitlist_id, channel, type, recipient, status, error)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+    [registrationId, waitlistId, channel, type, recipient, status, error],
   )
 }

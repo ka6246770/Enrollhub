@@ -43,40 +43,60 @@ export const users = [
   },
 ]
 
+// GEO: the questions below use the wording people actually type into search
+// and AI assistants. Every answer contains a verifiable fact: a pay range, a
+// location, an age limit, a document, a shift length or a process step. Avoid
+// "great opportunity" style copy here; it gives answer engines nothing to cite.
 export const faq = [
   {
-    question: 'How do I apply?',
+    question: 'How do I apply for an Al-Tayeb factory job?',
     answer:
-      'Pick a job, fill in your details, and add a voice note of one to two minutes. It takes about three minutes, and you will see a confirmation page straight away.',
+      'Choose a job on the offers page, enter your name, age, city, phone and email, then record a voice note of one to two minutes. The form takes about three minutes. You will see a confirmation receipt immediately, and Al-Tayeb will reply on WhatsApp to the number you provided.',
+  },
+  {
+    question: 'Who is eligible for Al-Tayeb factory jobs?',
+    answer:
+      'The current roles are for Egyptian men aged 18 to 50. A National ID card is the only document required, and no previous factory experience is needed. Each job page lists any additional requirement, such as a haircut and neatly trimmed beard before the first shift.',
   },
   {
     question: 'What should I say in the voice note?',
     answer:
-      'Your name and age, the city you live in, any factory or warehouse work you have done, and when you can start. Say whether you need housing. One to two minutes is enough.',
+      'Give your full name and age, the city or governorate you live in, any factory, warehouse or packaging work you have done, when you can start, and whether you need housing. Speak clearly in a quiet place. One to two minutes is enough; the file can be MP3, M4A or WAV up to 10 MB.',
   },
   {
-    question: 'Who can apply?',
+    question: 'How much do Al-Tayeb factory jobs pay in Egypt?',
     answer:
-      'These roles are for Egyptian men aged 18 to 50. A National ID card is the only document required.',
+      'Advertised monthly pay ranges from 6,600 to 11,400 EGP before bonuses or incentives. Packaging and labeling in Sadat City pays 9,000 EGP plus a 2,000 EGP bonus after 30 days. Packaging and wrapping roles pay 9,600 to 11,400 EGP depending on the factory. The El-Obour steward role pays 11,000 EGP, and the 10th of Ramadan packaging role pays 6,600 to 8,400 EGP.',
   },
   {
-    question: 'Do I need factory experience?',
+    question: 'Where are the Al-Tayeb jobs located?',
     answer:
-      'None of the four jobs asks for previous experience. You need to be able to work a full factory shift.',
+      'The current factory jobs are in Sadat City in Menoufia, El-Obour in Qalyubia, and 10th of Ramadan City in Sharqia. Each job page names the city and the shift. Housing is available for workers relocating from another area.',
   },
   {
-    question: 'Is housing really included?',
+    question: 'What shifts are available at Al-Tayeb factories?',
     answer:
-      'Yes, for anyone relocating from another area. Each job lists what comes with the room: mattresses, water heaters, transport, meals and so on. Tell us where you live now and whether you need housing.',
+      'Most roles use 12-hour factory shifts. Some include a one-hour break. The 10th of Ramadan packaging job offers a choice of an 8-hour shift at 6,600 EGP or a 12-hour shift at 8,400 EGP per month. The exact shift and break are listed on each job page.',
   },
   {
-    question: 'When will I hear back?',
-    answer: 'We review every application and reply on WhatsApp within [X] hours. Keep your phone on.',
-  },
-  {
-    question: 'What if the job is full?',
+    question: 'Is housing really included with Al-Tayeb jobs?',
     answer:
-      'Join the waitlist. If a place opens, we will contact you on WhatsApp — and you can apply for another open job at the same time.',
+      'Yes. Housing is included for workers who relocate. Depending on the factory, the room includes mattresses, water heaters, bathtubs and security cameras, and transport may run between the accommodation and the factory. Each job page lists the exact housing and transport package.',
+  },
+  {
+    question: 'What documents do I need to apply?',
+    answer:
+      'A valid Egyptian National ID card is the only document required. You do not need a CV or previous factory experience. The application form asks for your name, age, city, phone number, email and a short voice note.',
+  },
+  {
+    question: 'What if the Al-Tayeb job I want is full?',
+    answer:
+      'Join the waitlist on the job page. If a place opens, Al-Tayeb will contact you on WhatsApp at the number you provide. You can apply for another open job at the same time.',
+  },
+  {
+    question: 'When will Al-Tayeb reply to my application?',
+    answer:
+      'Al-Tayeb reviews applications in the order they arrive and replies on WhatsApp to the number provided. Response time depends on the number of applications and the hiring factory. Keep your phone switched on and make sure the WhatsApp number you entered is correct.',
   },
 ]
 
@@ -89,5 +109,5 @@ export const messages = [
 export const HOW_IT_WORKS_STEPS = [
   ['Pick a job', 'Compare the city, shift and monthly pay, then open the job you want.'],
   ['Send a voice note', 'Fill in your details and record one to two minutes about yourself.'],
-  ['We call you on WhatsApp', 'We review every application and reply within [X] hours.'],
+  ['We call you on WhatsApp', 'We review every application and reply on WhatsApp to the number you gave us.'],
 ]

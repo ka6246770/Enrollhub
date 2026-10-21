@@ -1,8 +1,12 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
+import { site } from '../config/site.js'
 import { container } from '../lib/ui.js'
 import Brand from './Brand.jsx'
 
 export function Footer() {
+  const { pathname, search, hash } = useLocation()
+  const from = `${pathname}${search}${hash}`
+
   return (
     <footer className="mt-16 bg-night text-night-ink">
       <div className={`${container} grid gap-10 py-12 min-[760px]:grid-cols-[1.7fr_1fr_1fr_1fr]`}>
@@ -26,6 +30,7 @@ export function Footer() {
           <p className="mono-label text-night-muted">Company</p>
           <div className="mt-4 grid gap-2.5 text-[13px] font-semibold">
             <Link className="text-night-ink/80 no-underline hover:text-white" to="/contact">Contact</Link>
+            <Link className="text-night-ink/80 no-underline hover:text-white" state={{ from }} to="/contact?type=problem">Report a problem</Link>
             <Link className="text-night-ink/80 no-underline hover:text-white" to="/privacy">Privacy policy</Link>
             <Link className="text-night-ink/80 no-underline hover:text-white" to="/terms">Terms of use</Link>
             <Link className="text-night-ink/60 no-underline hover:text-white" to="/admin/login">Team sign in</Link>
@@ -35,9 +40,20 @@ export function Footer() {
         <div>
           <p className="mono-label text-night-muted">Contact</p>
           <div className="mt-4 grid gap-2.5 text-[13px] font-semibold">
-            <p className="text-night-ink/80">[WHATSAPP NUMBER]</p>
-            <p className="break-words text-night-ink/80">[SUPPORT EMAIL]</p>
-            <p className="text-night-ink/80">[BUSINESS ADDRESS]</p>
+            {site.contact.telephone ? (
+              <a className="text-night-ink/80 no-underline hover:text-white" href={`https://wa.me/${site.contact.telephone.replace(/[^\d]/g, '')}`} rel="noreferrer" target="_blank">
+                {site.contact.telephone}
+              </a>
+            ) : null}
+            {site.contact.email ? (
+              <a className="break-words text-night-ink/80 no-underline hover:text-white" href={`mailto:${site.contact.email}`}>
+                {site.contact.email}
+              </a>
+            ) : null}
+            {site.contact.address ? <p className="text-night-ink/80">{site.contact.address}</p> : null}
+            {!site.contact.telephone && !site.contact.email && !site.contact.address ? (
+              <Link className="text-night-ink/80 no-underline hover:text-white" to="/contact">Use the contact form</Link>
+            ) : null}
           </div>
         </div>
       </div>

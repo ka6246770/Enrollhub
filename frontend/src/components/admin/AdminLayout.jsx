@@ -7,6 +7,7 @@ import { BrandMark } from '../Brand.jsx'
 const ADMIN_LINKS = [
   ['Overview', '/admin', 'grid'],
   ['Registrations', '/admin/registrations', 'users'],
+  ['Waitlist', '/admin/waitlist', 'waitlist'],
   ['Offers', '/admin/offers', 'tag'],
   ['Messages', '/admin/messages', 'chat'],
 ]
@@ -16,6 +17,7 @@ const NAV_ICON_PATHS = {
   users: 'M15.5 20v-1.5a3.5 3.5 0 0 0-3.5-3.5H6.5A3.5 3.5 0 0 0 3 18.5V20m14-9.5a3.5 3.5 0 1 0-7 0 3.5 3.5 0 0 0 7 0Zm4.5 9.5v-1.5a3.5 3.5 0 0 0-2.6-3.36M16 4.14a3.5 3.5 0 0 1 0 6.72',
   tag: 'm3.5 12.5 9-9H20a1 1 0 0 1 1 1v7.5l-9 9a1.5 1.5 0 0 1-2.12 0L3.5 14.62a1.5 1.5 0 0 1 0-2.12ZM16.5 7.5h.01',
   chat: 'M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v7A2.5 2.5 0 0 1 17.5 15H9l-5 4.5V5.5Z',
+  waitlist: 'M5 4h14l1 7v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7l1-7Zm0 7h4l1 2h4l1-2h4',
 }
 
 function NavIcon({ name }) {
@@ -89,7 +91,7 @@ function MobileAdminNav({ active, onSignOut }) {
         </Link>
         <button className="text-[11px] font-bold text-night-ink/70 transition-colors hover:text-white" onClick={onSignOut} type="button">Sign out</button>
       </div>
-      <nav aria-label="Admin sections" className="mt-3 flex gap-2 overflow-x-auto pb-3">
+      <nav aria-label="Admin sections" className="mt-3 flex flex-wrap gap-2 pb-3">
         {ADMIN_LINKS.map(([label, href]) => (
           <Link
             className={`shrink-0 rounded-lg px-3 py-2 text-[11px] font-bold no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white motion-reduce:transition-none ${active === label ? 'bg-brand text-white' : 'text-night-ink/80 hover:bg-night-soft hover:text-white'}`}
@@ -119,7 +121,7 @@ export function AdminLayout({ active, children }) {
       <AdminSidebar active={active} email={email} onSignOut={handleSignOut} />
       <MobileAdminNav active={active} onSignOut={handleSignOut} />
       <div className="min-[900px]:pl-[248px]">
-        <main className={adminContainer} id="main-content">{children}</main>
+        <main className={`${adminContainer} motion-page`} id="main-content">{children}</main>
       </div>
     </div>
   )

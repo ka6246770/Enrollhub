@@ -5,7 +5,7 @@
 
 **The emails do not use it yet, on purpose.** An `<Img>` in an email needs an
 absolute URL, and there is no public site address until the project is deployed.
-Until then the header shows the `[YOUR BRAND]` wordmark as text, which cannot
+Until then the header shows the Al-Tayeb Company wordmark as text, which cannot
 break.
 
 ## Adding the logo once the site has a URL

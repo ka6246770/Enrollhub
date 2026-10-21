@@ -89,7 +89,7 @@ export function BoxedEmail({
                 <Row>
                   <Column className="w-1/2 py-[7px] align-middle">
                     <Text className="font-13 text-ink m-0 font-bold">
-                      [YOUR BRAND]
+                      Al-Tayeb Company
                     </Text>
                   </Column>
                   <Column align="right" className="w-1/2 py-[7px] align-middle">
@@ -129,7 +129,7 @@ export function BoxedEmail({
                   {footer ?? (
                     <>
                       You are receiving this email because you registered for an
-                      offer on [YOUR BRAND]. Read the{' '}
+                      offer on Al-Tayeb Company. Read the{' '}
                       <Link href="{{privacyUrl}}" className="text-brand">
                         privacy policy
                       </Link>
@@ -138,7 +138,7 @@ export function BoxedEmail({
                   )}
                 </Text>
                 <Text className="font-11 text-muted mt-3 mb-0">
-                  [YOUR BRAND] · [BUSINESS ADDRESS] · [SUPPORT EMAIL]
+                  Al-Tayeb Company · Egypt · Contact us through the website
                 </Text>
               </Section>
             </Section>

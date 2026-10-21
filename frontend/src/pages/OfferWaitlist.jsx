@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Field } from '../components/FormField.jsx'
 import PageFrame from '../components/PageFrame.jsx'
+import Seo from '../components/Seo.jsx'
+import { isClosed, isOpen, isPaused } from '../data/offers.js'
 import { useOffers } from '../hooks/useOffers.js'
 import { button, container } from '../lib/ui.js'
 import { joinWaitlist } from '../services/api.js'
@@ -14,13 +16,15 @@ export default function OfferWaitlist() {
   const [error, setError] = useState('')
   const offers = useOffers()
   const offer = offers.find((item) => item.slug === slug)
-  if (!offer) return <NotFound />
+  if (!offer || isClosed(offer)) return <NotFound />
 
-  const openOffers = offers.filter((item) => item.id !== offer.id && item.status !== 'soldout')
+  const paused = isPaused(offer)
+  const openOffers = offers.filter((item) => item.id !== offer.id && isOpen(item))
   const reference = String(offer.reference ?? offer.id).padStart(2, '0')
 
   async function handleSubmit(event) {
     event.preventDefault()
+    if (paused) return
     const formData = new FormData(event.currentTarget)
     setError('')
     setSending(true)
@@ -29,6 +33,7 @@ export default function OfferWaitlist() {
         name: formData.get('name'),
         phone: formData.get('phone'),
         offerSlug: offer.slug,
+        consent: formData.get('consent') === 'on',
         // The address is optional: omit it rather than sending an empty string.
         ...(formData.get('email') ? { email: formData.get('email') } : {}),
       })
@@ -42,7 +47,13 @@ export default function OfferWaitlist() {
 
   return (
     <PageFrame>
-      <main className={`${container} max-w-[760px] pb-14 pt-8`} id="main-content">
+      <Seo
+        description={`Join the waitlist for the ${offer.title} job in ${offer.location}. We will contact you on WhatsApp or email if a place opens.`}
+        noindex
+        path={`/offers/${offer.slug}/waitlist`}
+        title={`${offer.title} waitlist | Al-Tayeb`}
+      />
+      <main className={`${container} motion-page max-w-[760px] pb-14 pt-8`} id="main-content">
         <Link className="inline-flex items-center gap-2 text-[12px] font-bold text-muted no-underline hover:text-ink" to="/offers">
           <span aria-hidden="true">←</span> All jobs
         </Link>
@@ -53,11 +64,15 @@ export default function OfferWaitlist() {
             <span aria-hidden="true" className="mono-label text-ink/30">/</span>
             <span className="mono-label text-ink">{offer.location}</span>
             <span aria-hidden="true" className="mono-label text-ink/30">/</span>
-            <span className="mono-label text-coral-strong">Waitlist</span>
+            <span className={`mono-label ${paused ? 'text-sand-ink' : 'text-coral-strong'}`}>
+              {paused ? 'Registration paused' : 'Waitlist'}
+            </span>
           </div>
           <h1 className="mt-4 text-balance text-[clamp(34px,5vw,50px)] font-extrabold leading-[1.0] tracking-[-0.04em]">{offer.title}</h1>
           <p className="mt-3 max-w-[58ch] text-[15px] leading-[1.65] text-muted">
-            This job is full right now. Leave your name and number and we will contact you on WhatsApp if a place opens.
+            {paused
+              ? 'Registration is paused for this job. The waitlist is closed too, so please check back later.'
+              : 'Leave your name and number and we will contact you on WhatsApp or email if a place opens.'}
           </p>
         </header>
 
@@ -72,16 +87,28 @@ export default function OfferWaitlist() {
           </div>
         </div>
 
-        {joined ? (
-          <div className="mt-7 border border-brand/30 bg-mint p-5" role="status">
+        {paused ? (
+          <div className="motion-panel mt-7 border border-sand-strong/30 bg-sand p-5">
+            <h2 className="text-[18px] font-extrabold text-sand-ink">Registration paused</h2>
+            <p className="mt-1.5 text-[13px] leading-relaxed text-sand-ink/85">
+              We are not taking new applications or waitlist sign-ups for this job right now. Please check back later.
+            </p>
+            <Link className="mt-4 inline-flex text-[12px] font-bold text-brand underline underline-offset-4" to={`/offers/${offer.slug}`}>
+              View the job
+            </Link>
+          </div>
+        ) : joined ? (
+          <div className="motion-panel mt-7 border border-brand/30 bg-mint p-5" role="status">
             <h2 className="text-[18px] font-extrabold text-mint-ink">You are on the waitlist.</h2>
             <p className="mt-1.5 text-[13px] leading-relaxed text-mint-ink/85">
-              If a place opens, we will contact you on WhatsApp. You can apply for another open job in the meantime.
+              If a place opens, we will contact you on WhatsApp or email. You will get a private
+              link to accept it; the place is not confirmed until you accept. You can apply for
+              another open job in the meantime.
             </p>
             <Link className="mt-4 inline-flex text-[12px] font-bold text-brand underline underline-offset-4" to="/offers">See the open jobs</Link>
           </div>
         ) : (
-          <form className="mt-7 border border-ink/15 bg-white p-5 max-[500px]:p-4" onSubmit={handleSubmit}>
+          <form className="motion-panel mt-7 border border-ink/15 bg-white p-5 max-[500px]:p-4" onSubmit={handleSubmit}>
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h2 className="text-[20px] font-extrabold tracking-[-0.02em]">Join the waitlist</h2>
               <span className="mono-label text-muted">Ref {reference}</span>
@@ -91,12 +118,19 @@ export default function OfferWaitlist() {
               <Field label="WhatsApp number" name="phone" type="tel" placeholder="+20 1XX XXX XXXX" autoComplete="tel" required />
               <div>
                 <Field label="Email (optional)" name="email" type="email" placeholder="you@example.com" autoComplete="email" />
-                <p className="mt-1.5 text-[11px] leading-relaxed text-muted">Add an address if you would like a confirmation now, and an email if a place opens.</p>
+                <p className="mt-1.5 text-[11px] leading-relaxed text-muted">
+                  With an email address, we can send the private link when a place opens. Without
+                  one, we will contact you on WhatsApp and read the link to you if needed.
+                </p>
               </div>
             </div>
             <label className="mt-4 flex items-start gap-2.5 text-[12px] leading-relaxed text-muted">
-              <input className="mt-0.5 accent-accent" type="checkbox" required />
-              <span>I agree to be contacted on WhatsApp if a place opens for this job.</span>
+              <input className="mt-0.5 accent-accent" name="consent" type="checkbox" required />
+              <span>
+                I agree to be contacted on WhatsApp or email if a place opens for this job. I have
+                read how my details are handled in the{' '}
+                <Link className="font-bold text-brand underline" to="/privacy">privacy policy</Link>.
+              </span>
             </label>
             <button className={`${button} mt-4 w-full`} type="submit" disabled={sending}>
               {sending ? 'Joining…' : 'Join the waitlist'}

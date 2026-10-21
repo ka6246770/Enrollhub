@@ -19,14 +19,20 @@ src/
 ├── main.jsx                 # React entry: mounts App inside BrowserRouter
 ├── App.jsx                  # route table; lazy-loads the dashboard screens
 ├── index.css                # Tailwind theme tokens and base styles
+├── config/
+│   ├── site.js              # canonical origin, entity facts, sameAs, dates
+│   └── route-seo.js         # static-route metadata, schemas, breadcrumbs
 ├── components/
 │   ├── Header.jsx           # public header
 │   ├── Footer.jsx           # public footer
 │   ├── PageFrame.jsx        # header + footer + skip-link wrapper
 │   ├── PageHero.jsx         # page intro (Eyebrow + title)
 │   ├── Brand.jsx            # logo mark and wordmark
+│   ├── Seo.jsx              # title, canonical, OG/Twitter, JSON-LD writer
+│   ├── RouteSeo.jsx         # applies the static route metadata map
+│   ├── DirectAnswer.jsx     # 40–60 word GEO answer block
 │   ├── OfferCard.jsx
-│   ├── FaqList.jsx
+│   ├── FaqList.jsx          # visible H3 questions + answers
 │   ├── CtaBand.jsx
 │   ├── FormField.jsx        # Field / SelectField / TextareaField
 │   ├── RegistrationForm.jsx # offer registration form
@@ -51,14 +57,14 @@ src/
 │   ├── offers.js            # sample offers (instant first paint + offline fallback)
 │   └── sample-data.js       # sample registrations, messages, FAQ, templates
 ├── hooks/
-│   ├── useDocumentTitle.js   # keeps document.title in sync with the route
 │   ├── useVoiceRecording.js  # voice-recording state + validation
 │   ├── useAsyncResource.js   # load/reload helper for the dashboard screens
 │   ├── useOffers.js          # static offers first, then the live ones from the API
 │   └── useUnsavedChangesWarning.js  # warns before leaving with unsaved template edits
 ├── lib/
 │   ├── ui.js                # shared class-name strings
-│   └── format.js            # date formatting helpers
+│   ├── format.js            # date formatting helpers
+│   └── seo.js               # schema.org builders and page JSON-LD graph
 └── services/
     └── api.js               # API layer (sample data fallback, REST when configured)
 ```
@@ -67,22 +73,52 @@ src/
 
 - `/` — public welcome page and offer list
 - `/offers` — all offers
-- `/offers/offer-1`, `/offers/offer-2`, and `/offers/offer-3` — offer registration forms
-- `/offers/offer-2/waitlist` — sold-out offer waitlist
+- `/offers/:slug` — offer detail page and registration form
+- `/offers/:slug/waitlist` — waitlist form for sold-out or paused offers
+- `/status/:token` — private applicant/waitlist status page with accept and decline
 - `/about` — how it works, with the voice recording instructions
 - `/faq` — frequently asked questions
 - `/contact` — contact details and a message form
-- `/thank-you` — registration confirmation
-- `/privacy` and `/terms` — draft legal pages
+- `/thank-you` — registration confirmation with the private status link
+- `/privacy` and `/terms` — privacy policy and terms, awaiting final owner/legal review
 - unmatched URLs — not-found page with links to the offers and admin sign-in
 - `/admin/login` — dashboard sign-in screen
 - `/admin` and `/admin/dashboard` — dashboard overview and registrations
 - `/admin/registrations` — dashboard scrolled to the registrations table
+- `/admin/waitlist` — waitlist search, follow-up and bulk offers
 - `/admin/offers` — offer management screen
 - `/admin/messages` — message templates and message log
 
 Dashboard filter state lives in the URL, so views are shareable and deep-linkable
 (for example `/admin?status=Accepted` or `/admin?q=sara`).
+
+## SEO and GEO
+
+Public routes have route-specific titles, descriptions, canonicals, Open Graph
+and Twitter tags, and a schema.org JSON-LD graph. The graph always identifies
+the `Organization` and `WebSite`, then adds `WebPage`, `CollectionPage`,
+`Article`, `FAQPage`, `JobPosting` or `BreadcrumbList` as appropriate. Dynamic
+offer pages build their metadata from live pay, location, seat and closing-date
+data.
+
+- `VITE_SITE_URL` is the canonical production origin (no trailing slash).
+- `VITE_SAME_AS` accepts only comma-separated, exact, verified `https:` profile
+  URLs. Leave it empty rather than guessing.
+- `VITE_CONTENT_PUBLISHED_AT` / `VITE_CONTENT_UPDATED_AT` feed article dates and
+  the visible FAQ review date.
+- `npm run seo:sitemap` regenerates `public/sitemap.xml` from the static routes
+  and `GET /offers`, and keeps the `Sitemap:` line in `public/robots.txt` on the
+  same origin. It fails soft if the API is unreachable.
+- `public/robots.txt` allows Googlebot, Bingbot and the major AI/answer-engine
+  crawlers, while excluding `/admin`, `/api` and `/uploads`.
+- Replace the SVG social card with a 1200×630 PNG/JPG before launch, and replace
+  every `[PLACEHOLDER]` in the public copy.
+
+The app is still a client-rendered SPA. The static `index.html` provides a
+baseline entity graph, generic metadata and a no-JS fallback, but non-JavaScript
+crawlers cannot see per-page metadata or body content until public routes are
+prerendered or server-rendered. See [`../docs/SEO-GEO.md`](../docs/SEO-GEO.md)
+for the full validation checklist and prerender guidance.
 
 ## Accessibility and quality notes
 

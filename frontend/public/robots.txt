@@ -1,0 +1,43 @@
+# SEO + GEO: allow Google, Bing and the major answer-engine crawlers to read
+# the public site, while keeping private and machine-only paths out of crawl.
+# Robots.txt is advisory, not access control: /admin and /api are protected by
+# authentication and server-side checks.
+#
+# Replace the example origin in the Sitemap line with the production domain.
+# After changing VITE_SITE_URL, run `npm run seo:sitemap`; that script also
+# rewrites this Sitemap line.
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api
+Disallow: /uploads
+
+# SEO: Google and Bing. Explicit groups make the intended access obvious.
+User-agent: Googlebot
+User-agent: Bingbot
+Allow: /
+Disallow: /admin
+Disallow: /api
+Disallow: /uploads
+
+# GEO: answer engines and their user-triggered fetchers. Allowing these does
+# not guarantee citation, but it lets them retrieve the factual pages.
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: ClaudeBot
+User-agent: Claude-User
+User-agent: anthropic-ai
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: CCBot
+Allow: /
+Disallow: /admin
+Disallow: /api
+Disallow: /uploads
+
+# Standard sitemap location. Keep this in sync with VITE_SITE_URL.
+Sitemap: https://enrollhub.example.com/sitemap.xml

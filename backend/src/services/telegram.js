@@ -46,11 +46,11 @@ export async function answerCallback(callbackQueryId, text) {
   }
 }
 
-// Replaces the Accept / Reject buttons with the final decision. Also never
-// throws, for the same reason as answerCallback.
+// Replaces the decision buttons with the recorded state. Also never throws, for
+// the same reason as answerCallback.
 export async function markOwnerMessageDecided(messageId, registration, offer, decision) {
   if (!capabilities.telegram || !messageId) return null
-  const line = decision === 'accepted' ? '✅ Accepted' : '❌ Rejected'
+  const line = decision === 'offered' ? '📩 Place offered — waiting for the applicant' : '❌ Not selected'
   try {
     return await callTelegramApi('editMessageText', {
       chat_id: env.telegramChatId,
@@ -141,8 +141,8 @@ export async function notifyNewRegistration({ registration, offer, voice }) {
   const text = await buildOwnerText(registration, offer)
   const replyMarkup = {
     inline_keyboard: [[
-      { text: '✅ Accept', callback_data: `reg:${registration.id}:accept` },
-      { text: '❌ Reject', callback_data: `reg:${registration.id}:reject` },
+      { text: '📩 Offer place', callback_data: `reg:${registration.id}:accept` },
+      { text: '❌ Not selected', callback_data: `reg:${registration.id}:reject` },
     ]],
   }
 
@@ -222,11 +222,14 @@ export async function notifyNewRegistration({ registration, offer, voice }) {
 }
 
 // Notifies the owner about a contact-form message.
-export async function notifyOwnerOfContact(message) {
+export async function notifyOwnerOfContact(report) {
   const text = await renderTemplate('contactMessage', {
-    name: message.name,
-    email: message.email,
-    message: message.message,
+    type: report.type,
+    name: report.name,
+    email: report.email || '—',
+    message: report.message,
+    pageUrl: report.pageUrl || '—',
+    time: report.time,
   })
 
   if (!capabilities.telegram) {
@@ -255,18 +258,19 @@ export async function notifyOwnerOfContact(message) {
 }
 
 // Notifies the owner that someone joined a waitlist.
-export async function notifyOwnerOfWaitlist({ name, phone, offer }) {
+export async function notifyOwnerOfWaitlist({ name, phone, offer, waitlistId = null }) {
   const text = await renderTemplate('ownerWaitlist', { offer: offer.title, name, phone })
 
   if (!capabilities.telegram) {
     console.log(`[telegram] not configured — would send waitlist sign-up:\n${text}`)
-    await log({ channel: 'telegram', type: 'waitlist', recipient: 'owner', status: 'skipped' }).catch(() => {})
+    await log({ waitlistId, channel: 'telegram', type: 'waitlist', recipient: 'owner', status: 'skipped' }).catch(() => {})
     return
   }
 
   try {
     await sendMessage(env.telegramChatId, text)
     await log({
+      waitlistId,
       channel: 'telegram',
       type: 'waitlist',
       recipient: `chat:${env.telegramChatId}`,
@@ -274,6 +278,7 @@ export async function notifyOwnerOfWaitlist({ name, phone, offer }) {
     })
   } catch (error) {
     await log({
+      waitlistId,
       channel: 'telegram',
       type: 'waitlist',
       recipient: `chat:${env.telegramChatId}`,

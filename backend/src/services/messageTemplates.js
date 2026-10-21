@@ -58,6 +58,9 @@ export const SAMPLE_VALUES = {
   email: 'amina@example.com',
   phone: '+20 100 000 0000',
   message: 'I would like to know more about the schedule.',
+  type: 'Problem',
+  pageUrl: 'https://example.com/offers/sadat-packaging-labeling',
+  time: '21 Oct 2026, 14:30 (Cairo)',
 }
 
 // Fills a text with the sample values. Used for the dashboard preview.

@@ -5,6 +5,13 @@ const asNumber = (value, fallback) => {
   return Number.isFinite(parsed) ? parsed : fallback
 }
 
+// Lifetimes must be positive: a zero or negative cookie maxAge would sign the
+// owner out immediately instead of applying the documented default.
+const asPositiveNumber = (value, fallback) => {
+  const parsed = Number(value)
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback
+}
+
 const SAME_SITE_VALUES = ['lax', 'strict', 'none']
 
 // Deployment knobs. COOKIE_SAMESITE must be 'none' (plus HTTPS) when the
@@ -25,6 +32,10 @@ export const env = {
   sessionSecret: process.env.SESSION_SECRET ?? 'dev-only-secret-change-me',
   adminEmail: process.env.ADMIN_EMAIL ?? '',
   cookieSameSite: asSameSite(process.env.COOKIE_SAMESITE),
+  // A normal sign-in is a browser-session cookie. "Keep me signed in" writes a
+  // persistent cookie and rolls its expiry forward while the dashboard is used.
+  sessionDefaultHours: asPositiveNumber(process.env.SESSION_DEFAULT_HOURS, 8),
+  sessionRememberDays: asPositiveNumber(process.env.SESSION_REMEMBER_DAYS, 30),
 
   telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? '',
   telegramChatId: process.env.TELEGRAM_CHAT_ID ?? '',
@@ -36,6 +47,8 @@ export const env = {
   // A second copy of every registration, with the recording attached. Unlike
   // the customer emails this is an internal alert, so it is off when empty.
   ownerEmail: process.env.OWNER_EMAIL ?? '',
+  // Where problem reports and comments are emailed. Falls back to ADMIN_EMAIL.
+  ownerNotifyEmail: process.env.OWNER_NOTIFY_EMAIL ?? '',
 
   uploadDir: process.env.UPLOAD_DIR ?? 'uploads',
   maxUploadBytes: asNumber(process.env.MAX_UPLOAD_BYTES, 10 * 1024 * 1024),

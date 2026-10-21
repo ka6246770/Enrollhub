@@ -13,6 +13,7 @@
     "admin:set": "node src/scripts/set-admin.js",
     "telegram:webhook": "node src/scripts/set-webhook.js",
     "retention:voice": "node src/scripts/cleanup-voice.js",
+    "retention:privacy": "node src/scripts/cleanup-applications.js",
     "test:api": "bash test/api-smoke.sh"
   },
   "keywords": [],
@@ -20,6 +21,7 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "connect-pg-simple": "^10.0.0",
     "cors": "^2.8.6",
     "dotenv": "^18.0.8",
     "express": "^5.3.0",

@@ -1,6 +1,6 @@
 import { query } from '../db/database.js'
 import { env } from '../config/env.js'
-import { confirmationEmail, decisionEmail, ownerRegistrationEmail, sendEmail } from './email.js'
+import { confirmationEmail, ownerRegistrationEmail, sendEmail, siteUrl, statusEmail } from './email.js'
 import { notifyNewRegistration } from './telegram.js'
 
 // Re-sends one entry from messages_log. Used by the dashboard's Retry action.
@@ -43,16 +43,20 @@ export async function resendLogEntry(entry) {
       })
     }
 
+    const statusLink = registration.status_token
+      ? `${siteUrl()}/status/${registration.status_token}`
+      : null
     const details = {
       name: registration.name,
       offer: registration.offer_title,
       offerSlug: registration.offer_slug,
+      statusLink,
     }
     let mail = null
     if (entry.type === 'customer_confirmation') {
       mail = await confirmationEmail(details)
-    } else if (entry.type === 'accepted' || entry.type === 'rejected') {
-      mail = await decisionEmail(entry.type, details)
+    } else if (['contacted', 'offered', 'accepted', 'rejected'].includes(entry.type)) {
+      mail = await statusEmail(entry.type, details)
     }
 
     if (!mail) {

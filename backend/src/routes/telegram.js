@@ -25,7 +25,7 @@ telegramRouter.post('/webhook', async (req, res, next) => {
       return res.status(200).json({ ok: true })
     }
 
-    const nextStatus = action === 'accept' ? 'accepted' : 'rejected'
+    const nextStatus = action === 'accept' ? 'offered' : 'rejected'
     const decidedBy = callback.from?.first_name ?? 'owner'
     const result = await applyDecision(Number(id), nextStatus, { notes: `Decided in Telegram by ${decidedBy}` })
 
@@ -40,7 +40,9 @@ telegramRouter.post('/webhook', async (req, res, next) => {
 
     await answerCallback(
       callback.id,
-      nextStatus === 'accepted' ? 'Accepted — customer emailed.' : 'Rejected — customer emailed.',
+      nextStatus === 'offered'
+        ? 'Place offered — the applicant must accept the private link.'
+        : 'Not selected — customer emailed.',
     )
     await markOwnerMessageDecided(
       callback.message?.message_id,

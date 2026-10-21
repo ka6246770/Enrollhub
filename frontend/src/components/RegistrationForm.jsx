@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useVoiceRecording } from '../hooks/useVoiceRecording.js'
 import { button } from '../lib/ui.js'
 import { submitRegistration } from '../services/api.js'
@@ -32,12 +32,13 @@ export function RegistrationForm({ offer }) {
     setSubmitError('')
     setSubmitting(true)
     try {
-      await submitRegistration(formData)
+      const result = await submitRegistration(formData)
       navigate('/thank-you', {
         state: {
           name: formData.get('name'),
           phone: formData.get('phone'),
           offerTitle: offer.title,
+          statusPath: result?.statusPath ?? null,
         },
       })
     } catch (error) {
@@ -68,6 +69,7 @@ export function RegistrationForm({ offer }) {
         fileInputRef={voice.fileInputRef}
         handleChange={voice.handleChange}
         isChecking={voice.isChecking}
+        offerTitle={offer.title}
         play={voice.play}
         recording={voice.recording}
         remove={voice.remove}
@@ -75,7 +77,13 @@ export function RegistrationForm({ offer }) {
 
       <label className="mt-5 flex items-start gap-2.5 text-[12px] leading-relaxed text-muted">
         <input className="mt-0.5 accent-accent" type="checkbox" name="consent" required />
-        <span>I agree that Al-Tayeb Company may store my details and voice note, and contact me by WhatsApp or email about this job. I can withdraw my consent at any time by contacting [SUPPORT EMAIL].</span>
+        <span>
+          I agree that Al-Tayeb Company may store my details and voice note, and contact me by
+          WhatsApp or email about this job. My recording is deleted after 180 days, and I can ask
+          for all my data to be deleted at any time through the{' '}
+          <Link className="font-bold text-brand underline" to="/privacy">privacy policy</Link>{' '}
+          or <Link className="font-bold text-brand underline" to="/contact">contact page</Link>.
+        </span>
       </label>
       {submitError ? (
         <p className="mt-5 border-l-2 border-coral-strong bg-coral px-3 py-2 text-[12px] font-semibold text-coral-ink" role="alert">{submitError}</p>
@@ -83,7 +91,7 @@ export function RegistrationForm({ offer }) {
       <button className={`${button} mt-5 w-full`} type="submit" disabled={submitting}>
         {submitting ? 'Sending…' : 'Send my application'}
       </button>
-      <p className="mt-3 text-center text-[12px] text-muted">We reply on WhatsApp within [X] hours.</p>
+      <p className="mt-3 text-center text-[12px] text-muted">We will contact you on WhatsApp about the next step.</p>
     </form>
   )
 }

@@ -1,14 +1,18 @@
 import path from 'node:path'
+import connectPgSimple from 'connect-pg-simple'
 import cors from 'cors'
 import express from 'express'
 import session from 'express-session'
 import { ZodError } from 'zod'
 import { assertRequiredEnv, capabilities, configWarnings, env, logCapabilities } from './config/env.js'
+import { pool } from './db/database.js'
 import { authRouter } from './routes/auth.js'
 import { messagesRouter } from './routes/messages.js'
 import { offersRouter } from './routes/offers.js'
-import { registrationsRouter, waitlistRouter } from './routes/registrations.js'
+import { registrationsRouter } from './routes/registrations.js'
+import { statusRouter } from './routes/status.js'
 import { telegramRouter } from './routes/telegram.js'
+import { waitlistRouter } from './routes/waitlist.js'
 import { emailDesignStatus } from './services/email.js'
 
 assertRequiredEnv()
@@ -35,18 +39,37 @@ app.use(cors({
 
 app.use(express.json({ limit: '1mb' }))
 app.use(express.urlencoded({ extended: true }))
+
+// Sessions live in Postgres rather than the process's memory, so a server
+// restart does not sign the owner out and a remembered cookie keeps working.
+// `createTableIfMissing` is a safety net; db:migrate also creates the table.
+const PgSession = connectPgSimple(session)
+const sessionStore = new PgSession({
+  pool,
+  tableName: 'session',
+  createTableIfMissing: true,
+  // Used for browser-session cookies (no cookie maxAge): the server keeps the
+  // row for this long after the last request. Remembered sessions use the
+  // cookie's 30-day expiry instead.
+  ttl: env.sessionDefaultHours * 60 * 60,
+})
+
 app.use(session({
   name: 'enrollhub.sid',
   secret: env.sessionSecret,
+  store: sessionStore,
   resave: false,
   saveUninitialized: false,
+  // Re-issue the cookie (and move the database expiry) while the dashboard is
+  // being used, so "Keep me signed in" does not expire mid-use.
+  rolling: true,
   cookie: {
     httpOnly: true,
     // 'none' is required when the frontend and API are on different sites; it
     // only works together with secure (HTTPS) cookies.
     sameSite: env.cookieSameSite,
     secure: env.isProduction || env.cookieSameSite === 'none',
-    maxAge: 8 * 60 * 60 * 1000,
+    maxAge: env.sessionDefaultHours * 60 * 60 * 1000,
   },
 }))
 
@@ -65,6 +88,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/offers', offersRouter)
 app.use('/api/registrations', registrationsRouter)
 app.use('/api/waitlist', waitlistRouter)
+app.use('/api/status', statusRouter)
 app.use('/api/messages', messagesRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/telegram', telegramRouter)

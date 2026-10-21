@@ -65,9 +65,13 @@ const escapeHtml = (value) => String(value ?? '')
 
 // FRONTEND_URL may list several allowed origins (for CORS), but a link inside an
 // email needs exactly one address, so the first one wins.
-function siteUrl() {
+export function siteUrl() {
   const [first] = String(env.frontendUrl).split(',')
   return (first ?? '').trim().replace(/\/+$/, '')
+}
+
+export function statusUrl(token) {
+  return token ? `${siteUrl()}/status/${token}` : null
 }
 
 function fillLayout(file, values) {
@@ -88,7 +92,15 @@ function fillLayout(file, values) {
     siteUrl: escapeHtml(siteUrl()),
   }
 
-  return html.replace(/\{\{(\w+)\}\}/g, (match, token) => (
+  // Defensive fallback for older exported designs or customized templates. The
+  // generated designs no longer contain these tokens; contact is routed to the
+  // site rather than inventing an address or phone number.
+  const filled = html
+    .replaceAll('[YOUR BRAND]', 'Al-Tayeb Company')
+    .replaceAll('[BUSINESS ADDRESS]', 'Egypt')
+    .replaceAll('[SUPPORT EMAIL]', 'Contact us through the website')
+
+  return filled.replace(/\{\{(\w+)\}\}/g, (match, token) => (
     token in tokens ? tokens[token] : match
   ))
 }
@@ -97,10 +109,10 @@ const offerLink = (slug) => (slug ? `${siteUrl()}/offers/${slug}` : `${siteUrl()
 
 // Sends one email and records the outcome. Never throws: email failures are
 // logged, not surfaced to the visitor.
-export async function sendEmail({ to, subject, text, html = null, attachments = null, registrationId = null, type = 'email' }) {
+export async function sendEmail({ to, subject, text, html = null, attachments = null, replyTo = null, registrationId = null, waitlistId = null, type = 'email' }) {
   if (!capabilities.email) {
     console.log(`[email] not configured — would send "${subject}" to ${to}:\n${text}`)
-    await recordMessage({ registrationId, channel: 'email', type, recipient: to, status: 'skipped' }).catch(() => {})
+    await recordMessage({ registrationId, waitlistId, channel: 'email', type, recipient: to, status: 'skipped' }).catch(() => {})
     return null
   }
 
@@ -112,14 +124,16 @@ export async function sendEmail({ to, subject, text, html = null, attachments = 
     // Resend takes the bytes straight from memory; this is only used by the
     // owner's copy, which carries the recording.
     if (attachments?.length) message.attachments = attachments
+    // So the owner can reply to the visitor straight from the report email.
+    if (replyTo) message.replyTo = replyTo
 
     const { data, error } = await getClient().emails.send(message)
     if (error) throw new Error(error.message)
-    await recordMessage({ registrationId, channel: 'email', type, recipient: to, status: 'delivered' })
+    await recordMessage({ registrationId, waitlistId, channel: 'email', type, recipient: to, status: 'delivered' })
     return data
   } catch (error) {
     console.error('[email] failed:', error.message)
-    await recordMessage({ registrationId, channel: 'email', type, recipient: to, status: 'failed', error: error.message }).catch(() => {})
+    await recordMessage({ registrationId, waitlistId, channel: 'email', type, recipient: to, status: 'failed', error: error.message }).catch(() => {})
     return null
   }
 }
@@ -128,27 +142,57 @@ export async function sendEmail({ to, subject, text, html = null, attachments = 
 // every body is rendered from the live template so a dashboard edit applies to
 // the next email. All three are async for that reason, and each returns
 // { subject, text, html }.
-export async function confirmationEmail({ name, offer, offerSlug }) {
-  const text = await renderTemplate('customerConfirmation', { name, offer })
+export async function confirmationEmail({ name, offer, offerSlug, statusLink = null }) {
+  const template = await renderTemplate('customerConfirmation', { name, offer })
+  const text = statusLink
+    ? `${template}\n\nCheck your application status any time: ${statusLink}`
+    : template
   return {
     subject: `We received your registration for ${offer}`,
     text,
-    html: fillLayout(designFiles.customerConfirmation, { body: text, offer, ctaUrl: offerLink(offerSlug) }),
+    html: fillLayout(designFiles.customerConfirmation, {
+      body: text,
+      offer,
+      ctaUrl: statusLink || offerLink(offerSlug),
+    }),
   }
 }
 
-export async function decisionEmail(status, { name, offer, offerSlug }) {
-  const accepted = status === 'accepted'
-  const text = await renderTemplate(accepted ? 'accepted' : 'rejected', { name, offer })
+// One place for every status transition email. `offered` and `contacted` share
+// the positive design; a rejection points at the other open jobs. The private
+// status link is appended to the text so the recipient always has the action.
+export async function statusEmail(status, { name, offer, offerSlug, statusLink = null }) {
+  const keys = {
+    contacted: 'contacted',
+    offered: 'offered',
+    accepted: 'accepted',
+    rejected: 'rejected',
+  }
+  const key = keys[status]
+  if (!key) return null
+
+  const template = await renderTemplate(key, { name, offer })
+  const action = status === 'offered' ? 'Open your private link to accept or decline' : 'View your application status'
+  const text = statusLink ? `${template}\n\n${action}: ${statusLink}` : template
+  const subject = status === 'accepted'
+    ? `You're in — ${offer}`
+    : status === 'rejected'
+      ? `About your registration for ${offer}`
+      : status === 'offered'
+        ? `A place is available — ${offer}`
+        : `We are reviewing your application — ${offer}`
+
   return {
-    subject: accepted ? `You're in — ${offer}` : `About your registration for ${offer}`,
+    subject,
     text,
-    html: fillLayout(accepted ? designFiles.accepted : designFiles.rejected, {
-      body: text,
-      offer,
-      // A rejection points at the other offers rather than the one that said no.
-      ctaUrl: accepted ? offerLink(offerSlug) : `${siteUrl()}/offers`,
-    }),
+    html: fillLayout(
+      status === 'rejected' ? designFiles.rejected : designFiles.accepted,
+      {
+        body: text,
+        offer,
+        ctaUrl: statusLink || (status === 'rejected' ? `${siteUrl()}/offers` : offerLink(offerSlug)),
+      },
+    ),
   }
 }
 
@@ -158,6 +202,45 @@ export async function waitlistEmail({ name, offer, offerSlug }) {
     subject: `You're on the waitlist for ${offer}`,
     text,
     html: fillLayout(designFiles.waitlist, { body: text, offer, ctaUrl: offerLink(offerSlug) }),
+  }
+}
+
+export async function waitlistOfferEmail({ name, offer, offerSlug, statusLink }) {
+  const template = await renderTemplate('waitlistOffer', { name, offer })
+  const text = `${template}\n\nAccept or decline your place: ${statusLink}`
+  return {
+    subject: `A place has opened — ${offer}`,
+    text,
+    html: fillLayout(designFiles.waitlist, { body: text, offer, ctaUrl: statusLink || offerLink(offerSlug) }),
+  }
+}
+
+// The owner's copy of a problem report, comment or question. The text comes
+// from the editable `contactReport` template; the HTML is a minimal wrapper
+// around the escaped text, so no visitor input can inject markup.
+export async function contactReportEmail(report) {
+  const text = await renderTemplate('contactReport', {
+    type: report.typeLabel,
+    name: report.name,
+    email: report.email || '—',
+    message: report.message,
+    pageUrl: report.pageUrl || '—',
+    time: report.time,
+  })
+  const preview = String(report.message).replace(/\s+/g, ' ').trim().slice(0, 60)
+  const html = [
+    '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6;color:#17211c">',
+    '<pre style="margin:0;white-space:pre-wrap;word-break:break-word;font-family:inherit">',
+    escapeHtml(text),
+    '</pre>',
+    '</div>',
+  ].join('')
+
+  return {
+    subject: `[EnrollHub] ${report.typeLabel}: ${preview}`,
+    text,
+    html,
+    replyTo: report.email || null,
   }
 }
 

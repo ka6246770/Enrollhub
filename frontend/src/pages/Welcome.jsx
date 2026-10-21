@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
+import DirectAnswer from '../components/DirectAnswer.jsx'
 import FaqList from '../components/FaqList.jsx'
 import OfferCard from '../components/OfferCard.jsx'
 import PageFrame from '../components/PageFrame.jsx'
 import { Kicker } from '../components/PageHero.jsx'
+import { isClosed, isOpen } from '../data/offers.js'
 import { faq, HOW_IT_WORKS_STEPS } from '../data/sample-data.js'
 import { useOffers } from '../hooks/useOffers.js'
 import { button, container, secondaryButton, sectionHeading } from '../lib/ui.js'
@@ -16,11 +18,12 @@ const BENEFITS = [
 
 export default function Welcome() {
   const offers = useOffers()
-  const open = offers.filter((offer) => offer.status !== 'soldout')
+  const visible = offers.filter((offer) => !isClosed(offer))
+  const open = visible.filter(isOpen)
 
   return (
     <PageFrame>
-      <main className="pb-0" id="main-content">
+      <main className="motion-page pb-0" id="main-content">
         <section className="border-b border-ink/10">
           <div className={`${container} grid gap-10 py-14 min-[900px]:grid-cols-[1.35fr_1fr] min-[900px]:gap-14 min-[900px]:py-20`}>
             <div>
@@ -41,12 +44,14 @@ export default function Welcome() {
             <aside className="self-start border border-ink bg-night text-night-ink">
               <div className="flex items-center justify-between border-b border-white/15 px-5 py-3">
                 <span className="mono-label text-night-muted">Now hiring</span>
-                <span className="mono-label text-white">{open.length} jobs</span>
+                <span className="mono-label text-white">{open.length} {open.length === 1 ? 'job' : 'jobs'}</span>
               </div>
               <div>
-                {offers.map((offer) => (
+                {open.length === 0 ? (
+                  <p className="px-5 py-4 text-[12px] text-night-muted">No jobs are taking applications right now. Check back soon.</p>
+                ) : open.map((offer) => (
                   <Link
-                    className="grid grid-cols-[auto_1fr_auto] items-center gap-4 border-b border-white/10 px-5 py-4 no-underline transition-colors last:border-b-0 hover:bg-white/5"
+                    className="grid grid-cols-[auto_1fr_auto] items-center gap-4 border-b border-white/10 px-5 py-4 no-underline transition-colors last:border-b-0 hover:bg-white/5 motion-reduce:transition-none"
                     key={offer.id}
                     to={`/offers/${offer.slug}`}
                   >
@@ -66,16 +71,22 @@ export default function Welcome() {
           </div>
         </section>
 
+        <div className={`${container} pt-10`}>
+          <DirectAnswer>
+            Al-Tayeb Company is hiring packaging, labeling and steward workers in Sadat City, El-Obour and 10th of Ramadan City. Monthly pay ranges from 6,600 to 11,400 EGP. Roles are open to Egyptian men aged 18–50 with a National ID. Housing is included for workers who relocate.
+          </DirectAnswer>
+        </div>
+
         <section className={`${container} py-14`} id="jobs">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h2 className={sectionHeading}>Open jobs</h2>
+              <h2 className={sectionHeading}>Current jobs</h2>
               <p className="mt-2 max-w-[52ch] text-[14px] text-muted">Every job uses the same short application and a voice note.</p>
             </div>
-            <Link className="text-[12px] font-bold text-brand underline underline-offset-4 hover:no-underline" to="/offers">See all {offers.length} jobs</Link>
+            <Link className="text-[12px] font-bold text-brand underline underline-offset-4 hover:no-underline" to="/offers">See all {visible.length} jobs</Link>
           </div>
-          <div className="mt-7 grid gap-4 min-[640px]:grid-cols-2 min-[1100px]:grid-cols-4">
-            {offers.map((offer) => <OfferCard key={offer.id} offer={offer} />)}
+          <div className="motion-stagger mt-7 grid gap-4 min-[640px]:grid-cols-2 min-[1100px]:grid-cols-4">
+            {visible.map((offer) => <OfferCard key={offer.id} offer={offer} />)}
           </div>
         </section>
 
@@ -124,7 +135,11 @@ export default function Welcome() {
           <div className={`${container} flex flex-wrap items-center justify-between gap-6 py-10`}>
             <div>
               <h2 className="text-[clamp(26px,3.4vw,38px)] font-extrabold leading-[1.02] tracking-[-0.035em]">Ready for your next shift?</h2>
-              <p className="mt-2 max-w-[46ch] text-[14px] text-white/85">Four jobs are open now. Applying takes about three minutes.</p>
+              <p className="mt-2 max-w-[46ch] text-[14px] text-white/85">
+                {open.length > 0
+                  ? `${open.length} ${open.length === 1 ? 'job is' : 'jobs are'} open now. Applying takes about three minutes.`
+                  : 'No jobs are taking applications right now. Check back soon for the next intake.'}
+              </p>
             </div>
             <Link className="inline-flex min-h-11 items-center justify-center rounded-[4px] border border-white bg-white px-5 text-[13px] font-bold text-accent no-underline transition-colors hover:border-night hover:bg-night hover:text-white" to="/offers">
               See the open jobs

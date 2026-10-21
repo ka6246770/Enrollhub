@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import CtaBand from '../components/CtaBand.jsx'
+import DirectAnswer from '../components/DirectAnswer.jsx'
 import PageFrame from '../components/PageFrame.jsx'
 import PageHero from '../components/PageHero.jsx'
 import { REQUIREMENTS } from '../data/offers.js'
@@ -16,7 +17,7 @@ const RECORDING_PROMPTS = [
 export default function About() {
   return (
     <PageFrame>
-      <main className="pb-0" id="main-content">
+      <main className="motion-page pb-0" id="main-content">
         <PageHero
           eyebrow="How it works"
           title="Three steps. No CV, no account."
@@ -24,6 +25,10 @@ export default function About() {
         />
 
         <section className={container}>
+          <DirectAnswer className="mb-10">
+            Applying to Al-Tayeb takes about three minutes and needs no CV or account. You choose a job, enter your details, and record a one-to-two-minute voice note covering your name, age, city, work history and start date. Egyptian men aged 18–50 can apply with a National ID.
+          </DirectAnswer>
+
           <div className="grid gap-7 min-[760px]:grid-cols-3 min-[760px]:gap-8">
             {HOW_IT_WORKS_STEPS.map(([title, text], index) => (
               <article className="border-t border-ink/20 pt-4" key={title}>
