@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS offers (
   title             text NOT NULL,
   description       text NOT NULL DEFAULT '',
   short_description text NOT NULL DEFAULT '',
+  location          text NOT NULL DEFAULT '',
   price             text NOT NULL DEFAULT '',
   duration          text NOT NULL DEFAULT '',
   included          jsonb NOT NULL DEFAULT '[]'::jsonb,
@@ -98,3 +99,7 @@ ALTER TABLE message_templates ALTER COLUMN updated_at DROP DEFAULT;
 -- The waitlist form asks for a phone number first, so the address is optional.
 -- When one is given, that person also gets the confirmation email.
 ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS email text;
+
+-- Job locations were added after the first release; this keeps an existing
+-- database in step with the CREATE TABLE above.
+ALTER TABLE offers ADD COLUMN IF NOT EXISTS location text NOT NULL DEFAULT '';

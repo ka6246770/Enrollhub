@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { MicMark } from '../../components/Brand.jsx'
+import { BrandMark } from '../../components/Brand.jsx'
 import { inputClass, solidButton } from '../../lib/ui.js'
 import { isBackendEnabled, login } from '../../services/api.js'
 
@@ -32,10 +32,10 @@ export default function Login() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-night px-6 py-10">
-      <div className="w-full max-w-[440px] rounded-2xl border border-line bg-white p-8 max-[650px]:p-6">
+      <div className="w-full max-w-[440px] rounded-[4px] border border-line bg-white p-8 max-[650px]:p-6">
         <Link className="flex items-center gap-3 no-underline" to="/">
-          <MicMark className="size-10" />
-          <span className="text-base font-bold text-ink">[YOUR BRAND]</span>
+          <BrandMark className="size-10" />
+          <span className="text-base font-extrabold tracking-[-0.01em] text-ink">AL-TAYEB</span>
         </Link>
         <h1 className="mt-7 text-3xl font-bold tracking-tight">Sign in to dashboard</h1>
         <p className="mt-2 text-sm text-muted">For team members only.</p>

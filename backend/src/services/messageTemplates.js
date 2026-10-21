@@ -52,11 +52,9 @@ export async function renderTemplate(key, vars = {}) {
 // matches what the API would render.
 export const SAMPLE_VALUES = {
   name: 'Amina',
-  offer: 'Your offer',
+  offer: 'Packaging & labeling',
   age: '27',
-  language: 'English',
-  level: 'Intermediate',
-  residence: 'Cairo',
+  residence: 'Tanta',
   email: 'amina@example.com',
   phone: '+20 100 000 0000',
   message: 'I would like to know more about the schedule.',

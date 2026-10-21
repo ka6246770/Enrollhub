@@ -1,13 +1,13 @@
 import { container } from '../lib/ui.js'
 
-// Reusable closing call-to-action band used at the bottom of content pages.
+// Full-bleed closing band, used at the bottom of content pages.
 export function CtaBand({ title, text, children }) {
   return (
-    <section className="mt-12">
-      <div className={`${container} flex flex-wrap items-center justify-between gap-4 rounded-[13px] border border-line bg-white p-5`}>
+    <section className="mt-16 bg-night text-night-ink">
+      <div className={`${container} flex flex-wrap items-center justify-between gap-6 py-10`}>
         <div>
-          <h2 className="text-[15px] font-bold">{title}</h2>
-          <p className="mt-1 text-xs text-muted">{text}</p>
+          <h2 className="text-[clamp(24px,3vw,34px)] font-extrabold leading-[1.05] tracking-[-0.03em]">{title}</h2>
+          <p className="mt-2 max-w-[48ch] text-[14px] leading-[1.6] text-night-ink/70">{text}</p>
         </div>
         <div className="flex flex-wrap gap-3">{children}</div>
       </div>

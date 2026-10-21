@@ -1,44 +1,60 @@
 @import 'tailwindcss';
 
 @theme {
-  --font-sans: 'Manrope', Arial, Helvetica, sans-serif;
-  --font-display: 'Sora', 'Manrope', Arial, Helvetica, sans-serif;
+  /* Overpass was drawn for signage: sturdy, open, and legible at small sizes on
+     a phone. Overpass Mono carries the reference numbers and ticket metadata. */
+  --font-sans: 'Overpass', 'Segoe UI', system-ui, sans-serif;
+  --font-display: 'Overpass', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'Overpass Mono', ui-monospace, SFMono-Regular, monospace;
 
-  --color-page: #f4f7f5;
-  --color-ink: #15231f;
-  --color-muted: #46534f;
-  --color-brand: #08715f;
-  --color-brand-dark: #056453;
-  --color-line: #d4ddd8;
-  --color-soft: #edf5f2;
+  /* Paper, ink, factory green, safety orange. */
+  --color-page: #f1efe8;
+  --color-ink: #17211c;
+  --color-muted: #5b6862;
+  --color-brand: #0f4c3a;
+  --color-brand-dark: #0a3a2c;
+  --color-line: #d6d2c7;
+  --color-soft: #e3ebe5;
 
-  --color-mint: #dceee8;
-  --color-mint-ink: #086553;
-  --color-sand: #faebca;
-  --color-sand-ink: #6d4a00;
-  --color-sand-strong: #d99a2b;
-  --color-coral: #fde5e1;
-  --color-coral-ink: #9c3428;
-  --color-coral-strong: #c0392b;
+  --color-accent: #d9551f;
+  --color-accent-dark: #b8461a;
 
-  --color-plum: #5b57e8;
-  --color-plum-soft: #e6e7fb;
-  --color-plum-ink: #3b34c9;
+  --color-mint: #dbe9de;
+  --color-mint-ink: #0f4c3a;
+  --color-sand: #f6e5c1;
+  --color-sand-ink: #6f4a06;
+  --color-sand-strong: #c98a1f;
+  --color-coral: #f7dfd8;
+  --color-coral-ink: #8e3226;
+  --color-coral-strong: #c14a33;
 
-  --color-night: #0d2620;
-  --color-night-soft: #16352d;
-  --color-night-ink: #e6f0ec;
-  --color-night-muted: #8fa8a0;
+  --color-plum: #2f5468;
+  --color-plum-soft: #dfe8ec;
+  --color-plum-ink: #244355;
+
+  --color-night: #14201b;
+  --color-night-soft: #1e2c25;
+  --color-night-ink: #edf0e9;
+  --color-night-muted: #94a39a;
 }
 
-/* Shared page container: 786px max on desktop, 440px max on small screens. */
 @utility content-width {
-  width: min(100% - 48px, 786px);
+  width: min(100% - 48px, 1120px);
   margin-inline: auto;
 
   @media (max-width: 650px) {
-    width: min(100% - 36px, 440px);
+    width: min(100% - 32px, 640px);
   }
+}
+
+/* Ticket metadata: reference numbers, cities, shift labels. Small, monospaced
+   and tracked out like the paperwork it imitates — not a heading style. */
+@utility mono-label {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  line-height: 1.3;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 @layer base {
@@ -56,15 +72,20 @@
     font-family: var(--font-display);
   }
 
+  ::selection {
+    background: var(--color-accent);
+    color: white;
+  }
+
   /* Visible, consistent keyboard focus ring for links and controls.
      Text inputs opt out with `outline-none` and provide their own focus ring. */
   a:focus-visible,
   button:focus-visible,
   summary:focus-visible,
   [role='switch']:focus-visible {
-    outline: 2px solid var(--color-brand);
+    outline: 2px solid var(--color-accent);
     outline-offset: 2px;
-    border-radius: 6px;
+    border-radius: 3px;
   }
 
   @media (prefers-reduced-motion: reduce) {

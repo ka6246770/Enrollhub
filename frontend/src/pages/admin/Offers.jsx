@@ -52,6 +52,7 @@ export default function Offers() {
   function saveChanges(offer) {
     const patch = {
       title: offer.title,
+      location: offer.location,
       price: offer.price,
       seatsTotal: Number(offer.seatsTotal),
       closesAt: offer.closesAt,
@@ -97,13 +98,14 @@ export default function Offers() {
                   />
                 </label>
               </div>
-              <div className="mt-4 grid grid-cols-4 gap-3 max-[700px]:grid-cols-2 max-[450px]:grid-cols-1">
+              <div className="mt-4 grid grid-cols-5 gap-3 max-[900px]:grid-cols-2 max-[450px]:grid-cols-1">
                 <label className="text-[10px] font-bold text-muted">Title<input className={`${inputClass} mt-1`} name={`title-${offer.id}`} autoComplete="off" value={offer.title} onChange={(event) => updateLocal(offer.id, 'title', event.target.value)} /></label>
-                <label className="text-[10px] font-bold text-muted">Price<input className={`${inputClass} mt-1`} name={`price-${offer.id}`} autoComplete="off" value={offer.price} onChange={(event) => updateLocal(offer.id, 'price', event.target.value)} /></label>
-                <label className="text-[10px] font-bold text-muted">Seat limit<input className={`${inputClass} mt-1`} name={`seats-${offer.id}`} autoComplete="off" type="number" inputMode="numeric" min={offer.seatsTaken} value={offer.seatsTotal} onChange={(event) => updateLocal(offer.id, 'seatsTotal', Number(event.target.value))} /></label>
+                <label className="text-[10px] font-bold text-muted">City<input className={`${inputClass} mt-1`} name={`location-${offer.id}`} autoComplete="off" value={offer.location ?? ''} onChange={(event) => updateLocal(offer.id, 'location', event.target.value)} /></label>
+                <label className="text-[10px] font-bold text-muted">Pay / month<input className={`${inputClass} mt-1`} name={`price-${offer.id}`} autoComplete="off" value={offer.price} onChange={(event) => updateLocal(offer.id, 'price', event.target.value)} /></label>
+                <label className="text-[10px] font-bold text-muted">Place limit<input className={`${inputClass} mt-1`} name={`seats-${offer.id}`} autoComplete="off" type="number" inputMode="numeric" min={offer.seatsTaken} value={offer.seatsTotal} onChange={(event) => updateLocal(offer.id, 'seatsTotal', Number(event.target.value))} /></label>
                 <label className="text-[10px] font-bold text-muted">Closes on<input className={`${inputClass} mt-1`} name={`closes-${offer.id}`} autoComplete="off" type="date" value={offer.closesAt ?? ''} onChange={(event) => updateLocal(offer.id, 'closesAt', event.target.value)} /></label>
               </div>
-              <p className="mt-4 text-xs font-bold tabular-nums">Seats taken: {offer.seatsTaken} of {offer.seatsTotal}</p>
+              <p className="mt-4 text-xs font-bold tabular-nums">Places taken: {offer.seatsTaken} of {offer.seatsTotal}</p>
               <div className="mt-2 h-2.5 rounded-full bg-soft">
                 <div className={`h-full rounded-full ${offer.seatsTaken >= offer.seatsTotal ? 'bg-coral-strong' : 'bg-brand'}`} style={{ width: `${offer.seatsTotal ? Math.min((offer.seatsTaken / offer.seatsTotal) * 100, 100) : 0}%` }} />
               </div>

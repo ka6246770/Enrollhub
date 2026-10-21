@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { adminContainer, adminSkipLink } from '../../lib/ui.js'
 import { getSession, isBackendEnabled, logout } from '../../services/api.js'
-import { MicMark } from '../Brand.jsx'
+import { BrandMark } from '../Brand.jsx'
 
 const ADMIN_LINKS = [
   ['Overview', '/admin', 'grid'],
@@ -49,8 +49,8 @@ function AdminSidebar({ active, email, onSignOut }) {
   return (
     <aside className="fixed inset-y-0 left-0 z-20 hidden w-[248px] flex-col gap-8 bg-night px-5 py-6 text-night-ink min-[900px]:flex">
       <Link className="flex items-center gap-3 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white" to="/admin">
-        <MicMark className="size-9" />
-        <span className="text-sm font-bold text-white">[YOUR BRAND]</span>
+        <BrandMark className="size-9" />
+        <span className="text-sm font-bold text-white">AL-TAYEB</span>
       </Link>
       <nav aria-label="Admin sections" className="grid gap-1.5">
         {ADMIN_LINKS.map(([label, href, icon]) => {
@@ -84,8 +84,8 @@ function MobileAdminNav({ active, onSignOut }) {
     <header className="bg-night px-4 pt-4 text-night-ink min-[900px]:hidden">
       <div className="flex items-center justify-between">
         <Link className="flex items-center gap-2.5 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white" to="/admin">
-          <MicMark className="size-8" />
-          <span className="text-sm font-bold text-white">[YOUR BRAND]</span>
+          <BrandMark className="size-8" />
+          <span className="text-sm font-bold text-white">AL-TAYEB</span>
         </Link>
         <button className="text-[11px] font-bold text-night-ink/70 transition-colors hover:text-white" onClick={onSignOut} type="button">Sign out</button>
       </div>

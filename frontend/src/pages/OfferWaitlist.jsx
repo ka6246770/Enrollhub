@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { Field } from '../components/FormField.jsx'
 import PageFrame from '../components/PageFrame.jsx'
 import { useOffers } from '../hooks/useOffers.js'
-import { button, container, secondaryButton } from '../lib/ui.js'
+import { button, container } from '../lib/ui.js'
 import { joinWaitlist } from '../services/api.js'
 import NotFound from './NotFound.jsx'
 
@@ -17,6 +17,7 @@ export default function OfferWaitlist() {
   if (!offer) return <NotFound />
 
   const openOffers = offers.filter((item) => item.id !== offer.id && item.status !== 'soldout')
+  const reference = String(offer.reference ?? offer.id).padStart(2, '0')
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -41,63 +42,89 @@ export default function OfferWaitlist() {
 
   return (
     <PageFrame>
-      <main className={`${container} max-w-[680px] pb-14 pt-9`} id="main-content">
-        <Link to="/offers" className="text-xs font-bold text-brand no-underline hover:underline">← All offers</Link>
-        <section className="mt-5">
-          <p className="inline-flex min-h-6 items-center rounded-full bg-mint px-3 text-[10px] font-bold uppercase tracking-widest text-mint-ink">Offer {offer.id}</p>
-          <h1 className="mt-3 text-balance text-3xl font-bold tracking-tight">{offer.title}</h1>
-          <p className="mt-3 text-pretty text-sm leading-relaxed text-muted">{offer.description}</p>
-          <div className="mt-4 rounded-xl border border-coral-strong/30 bg-coral p-4">
-            <h2 className="text-base font-bold text-coral-ink">Sold out</h2>
-            <p className="mt-1 text-xs leading-relaxed text-coral-ink">All seats for this offer are taken. Join the waitlist and we will message you on WhatsApp if a seat opens up.</p>
+      <main className={`${container} max-w-[760px] pb-14 pt-8`} id="main-content">
+        <Link className="inline-flex items-center gap-2 text-[12px] font-bold text-muted no-underline hover:text-ink" to="/offers">
+          <span aria-hidden="true">←</span> All jobs
+        </Link>
+
+        <header className="mt-6 border-b border-ink/15 pb-7">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <span className="mono-label text-muted">Ref {reference}</span>
+            <span aria-hidden="true" className="mono-label text-ink/30">/</span>
+            <span className="mono-label text-ink">{offer.location}</span>
+            <span aria-hidden="true" className="mono-label text-ink/30">/</span>
+            <span className="mono-label text-coral-strong">Waitlist</span>
           </div>
-          <div className="mt-5 grid grid-cols-2 gap-3 max-[500px]:grid-cols-1">
-            <div className="rounded-xl border border-line bg-white px-4 py-3">
-              <p className="text-[10px] font-bold uppercase tracking-wide text-muted">Price</p>
-              <p className="mt-1 text-lg font-bold">{offer.price}</p>
-            </div>
-            <div className="rounded-xl border border-line bg-white px-4 py-3">
-              <p className="text-[10px] font-bold uppercase tracking-wide text-muted">Duration</p>
-              <p className="mt-1 text-lg font-bold">{offer.duration}</p>
-            </div>
+          <h1 className="mt-4 text-balance text-[clamp(34px,5vw,50px)] font-extrabold leading-[1.0] tracking-[-0.04em]">{offer.title}</h1>
+          <p className="mt-3 max-w-[58ch] text-[15px] leading-[1.65] text-muted">
+            This job is full right now. Leave your name and number and we will contact you on WhatsApp if a place opens.
+          </p>
+        </header>
+
+        <div className="mt-7 grid gap-4 min-[560px]:grid-cols-2">
+          <div className="border border-ink/15 bg-white px-4 py-3">
+            <p className="mono-label text-muted">Pay per month</p>
+            <p className="mt-1 text-[20px] font-extrabold tracking-[-0.02em] tabular-nums">{offer.price}</p>
           </div>
-          {joined ? (
-            <div className="mt-5 rounded-xl bg-soft p-4 text-sm text-ink" role="status">
-              <h2 className="font-bold">You’re on the waitlist.</h2>
-              <p className="mt-1 text-muted">If a seat opens, we will contact you on WhatsApp.</p>
+          <div className="border border-ink/15 bg-white px-4 py-3">
+            <p className="mono-label text-muted">Shift</p>
+            <p className="mt-1 text-[15px] font-bold">{offer.duration}</p>
+          </div>
+        </div>
+
+        {joined ? (
+          <div className="mt-7 border border-brand/30 bg-mint p-5" role="status">
+            <h2 className="text-[18px] font-extrabold text-mint-ink">You are on the waitlist.</h2>
+            <p className="mt-1.5 text-[13px] leading-relaxed text-mint-ink/85">
+              If a place opens, we will contact you on WhatsApp. You can apply for another open job in the meantime.
+            </p>
+            <Link className="mt-4 inline-flex text-[12px] font-bold text-brand underline underline-offset-4" to="/offers">See the open jobs</Link>
+          </div>
+        ) : (
+          <form className="mt-7 border border-ink/15 bg-white p-5 max-[500px]:p-4" onSubmit={handleSubmit}>
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="text-[20px] font-extrabold tracking-[-0.02em]">Join the waitlist</h2>
+              <span className="mono-label text-muted">Ref {reference}</span>
             </div>
-          ) : (
-            <form className="mt-6" onSubmit={handleSubmit}>
-              <h2 className="text-lg font-bold">Join the waitlist</h2>
-              <div className="mt-4 grid gap-4">
-                <Field label="Name" name="name" placeholder="Your full name" autoComplete="name" required />
-                <Field label="WhatsApp number" name="phone" type="tel" placeholder="+20 1XX XXX XXXX" autoComplete="tel" required />
-                <div>
-                  <Field label="Email (optional)" name="email" type="email" placeholder="you@example.com" autoComplete="email" />
-                  <p className="mt-1.5 text-[11px] leading-relaxed text-muted">Add an address if you would like a confirmation now, and an email if a seat opens.</p>
-                </div>
+            <div className="mt-5 grid gap-4">
+              <Field label="Full name" name="name" placeholder="Your full name" autoComplete="name" required />
+              <Field label="WhatsApp number" name="phone" type="tel" placeholder="+20 1XX XXX XXXX" autoComplete="tel" required />
+              <div>
+                <Field label="Email (optional)" name="email" type="email" placeholder="you@example.com" autoComplete="email" />
+                <p className="mt-1.5 text-[11px] leading-relaxed text-muted">Add an address if you would like a confirmation now, and an email if a place opens.</p>
               </div>
-              <label className="mt-4 flex items-start gap-2.5 text-xs leading-relaxed text-muted">
-                <input className="mt-0.5 accent-brand" type="checkbox" required />
-                <span>I agree to be contacted on WhatsApp if a seat opens for this offer.</span>
-              </label>
-              <button className={`${button} mt-4 w-full`} type="submit" disabled={sending}>
-                {sending ? 'Joining…' : 'Join waitlist'}
-              </button>
-              {error ? <p className="mt-3 text-xs font-semibold text-coral-ink" role="alert">{error}</p> : null}
-            </form>
-          )}
-        </section>
-        {openOffers.length > 0 && (
-          <section className="mt-8">
-            <h2 className="text-xs font-bold">Other offers are still open</h2>
+            </div>
+            <label className="mt-4 flex items-start gap-2.5 text-[12px] leading-relaxed text-muted">
+              <input className="mt-0.5 accent-accent" type="checkbox" required />
+              <span>I agree to be contacted on WhatsApp if a place opens for this job.</span>
+            </label>
+            <button className={`${button} mt-4 w-full`} type="submit" disabled={sending}>
+              {sending ? 'Joining…' : 'Join the waitlist'}
+            </button>
+            {error ? <p className="mt-3 text-[12px] font-semibold text-coral-ink" role="alert">{error}</p> : null}
+          </form>
+        )}
+
+        {openOffers.length > 0 ? (
+          <section className="mt-10 border-t border-ink/15 pt-6">
+            <h2 className="text-[13px] font-bold">Other jobs still open</h2>
             <div className="mt-3 grid gap-2">
               {openOffers.map((item) => (
-                <Link className={`${secondaryButton} w-full`} key={item.id} to={`/offers/${item.slug}`}>See Offer {item.id}</Link>
+                <Link
+                  className="flex flex-wrap items-baseline justify-between gap-2 border border-ink/15 bg-white px-4 py-3 no-underline transition-colors hover:border-ink/40"
+                  key={item.id}
+                  to={`/offers/${item.slug}`}
+                >
+                  <span>
+                    <span className="block text-[13px] font-bold text-ink">{item.title}</span>
+                    <span className="mt-0.5 block text-[11px] text-muted">{item.location} · {item.duration}</span>
+                  </span>
+                  <span className="text-[12px] font-bold tabular-nums text-ink">{item.price}</span>
+                </Link>
               ))}
             </div>
           </section>
-        )}
+        ) : null}
       </main>
     </PageFrame>
   )

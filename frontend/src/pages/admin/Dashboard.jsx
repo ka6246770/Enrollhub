@@ -70,8 +70,6 @@ function makeColumns({ onDecide, pendingId }) {
     { key: 'name', header: 'Name', rowHeader: true, className: 'whitespace-nowrap text-left font-bold', cell: (person) => person.name },
     { key: 'offer', header: 'Offer', cell: (person) => <OfferPill id={person.offerId} /> },
     { key: 'age', header: 'Age', className: 'tabular-nums', cell: (person) => person.age },
-    { key: 'language', header: 'Language', cell: (person) => person.language },
-    { key: 'level', header: 'Level', cell: (person) => person.level },
     { key: 'residence', header: 'Residence', cell: (person) => person.residence },
     { key: 'email', header: 'Email', cell: (person) => person.email },
     { key: 'phone', header: 'Phone', className: 'whitespace-nowrap', cell: (person) => person.phone },
@@ -123,13 +121,11 @@ function makeColumns({ onDecide, pendingId }) {
 }
 
 function exportCsv(rows) {
-  const headings = ['Name', 'Offer', 'Age', 'Language', 'Level', 'Residence', 'Email', 'Phone', 'Status']
+  const headings = ['Name', 'Offer', 'Age', 'Residence', 'Email', 'Phone', 'Status']
   const values = rows.map((person) => [
     person.name,
     `Offer ${person.offerId}`,
     person.age,
-    person.language,
-    person.level,
     person.residence,
     person.email,
     person.phone,
@@ -215,7 +211,7 @@ export default function Dashboard({ section = 'Overview' }) {
       <PageHeading
         eyebrow="Dashboard"
         title="Overview"
-        subtitle={isBackendEnabled ? 'Live data from the EnrollHub API.' : 'Preview data — no backend is configured.'}
+        subtitle={isBackendEnabled ? 'Live data from the API.' : 'Preview data — no backend is configured.'}
       >
         <div className="flex items-center gap-2">
           {failedMessages > 0 ? (
@@ -225,7 +221,7 @@ export default function Dashboard({ section = 'Overview' }) {
             </span>
           ) : null}
           <input className={`${inputClass} w-56 max-[500px]:w-36`} type="search" aria-label="Search registrations" placeholder="Search name, email, phone…" value={query} onChange={(event) => updateParam('q', event.target.value)} />
-          <button className={outlineButton} type="button" onClick={() => exportCsv(filtered)}>Export CSV</button>
+          <button className={`${outlineButton} whitespace-nowrap`} type="button" onClick={() => exportCsv(filtered)}>Export CSV</button>
         </div>
       </PageHeading>
 

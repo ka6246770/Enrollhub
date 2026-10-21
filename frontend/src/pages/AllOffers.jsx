@@ -2,43 +2,65 @@ import { Link } from 'react-router-dom'
 import OfferCard from '../components/OfferCard.jsx'
 import PageFrame from '../components/PageFrame.jsx'
 import PageHero from '../components/PageHero.jsx'
-import { HOW_IT_WORKS_STEPS } from '../data/sample-data.js'
+import { isSoldOut, seatsLeft } from '../data/offers.js'
 import { useOffers } from '../hooks/useOffers.js'
-import { container, secondaryButton, sectionHeading } from '../lib/ui.js'
+import { container } from '../lib/ui.js'
 
 export default function AllOffers() {
   const offers = useOffers()
-  const openCount = offers.filter((offer) => offer.status !== 'soldout').length
+  const openCount = offers.filter((offer) => !isSoldOut(offer)).length
 
   return (
     <PageFrame>
-      <main className="pb-12" id="main-content">
+      <main className="pb-0" id="main-content">
         <PageHero
-          eyebrow="Offers"
-          title="All offers"
-          intro={`${openCount} of ${offers.length} offers are open for registration. Every offer uses the same simple form and a 1 to 2 minute voice note.`}
+          eyebrow="Open jobs"
+          title="Four jobs, three cities."
+          intro={`${openCount} of ${offers.length} jobs are taking applications. Compare the pay, the shift and what comes with the room before you choose.`}
         />
+
         <section className={container}>
-          <div className="grid grid-cols-3 gap-3.5 max-[650px]:grid-cols-1">
-            {offers.map((offer) => <OfferCard key={offer.id} offer={offer} />)}
-          </div>
-        </section>
-        <section className="mt-14 max-[650px]:mt-10">
-          <div className={container}>
-            <h2 className={sectionHeading}>How it works</h2>
-            <div className="grid grid-cols-3 gap-3.5 max-[650px]:grid-cols-1">
-              {HOW_IT_WORKS_STEPS.map(([title, text], index) => (
-                <article className="rounded-[13px] bg-soft p-4" key={title}>
-                  <h3 className="mb-2 text-[13px] font-bold">{index + 1}. {title}</h3>
-                  <p className="text-pretty text-[11px] leading-relaxed text-muted">{text}</p>
-                </article>
+          {/* A shift board on wide screens, tickets on a phone. */}
+          <div className="hidden border border-ink/15 bg-white min-[820px]:block">
+            <div className="grid grid-cols-[56px_1.5fr_0.9fr_1fr_1fr_104px] items-center gap-4 border-b border-ink bg-ink px-5 py-3">
+              {['Ref', 'Role', 'City', 'Pay / month', 'Shift', ''].map((heading) => (
+                <span className="mono-label text-white/70" key={heading}>{heading}</span>
               ))}
             </div>
-            <div className="mt-4 flex flex-wrap gap-3">
-              <Link className={secondaryButton} to="/about">How it works in detail</Link>
-              <Link className={secondaryButton} to="/faq">Read the FAQ</Link>
-            </div>
+            {offers.map((offer) => {
+              const soldOut = isSoldOut(offer)
+              const seats = seatsLeft(offer)
+              return (
+                <div className="grid grid-cols-[56px_1.5fr_0.9fr_1fr_1fr_104px] items-center gap-4 border-b border-ink/10 px-5 py-4 transition-colors last:border-b-0 hover:bg-soft/60" key={offer.id}>
+                  <span className="mono-label text-muted">{String(offer.reference ?? offer.id).padStart(2, '0')}</span>
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                      <Link className="text-[15px] font-bold text-ink no-underline hover:text-brand" to={soldOut ? `/offers/${offer.slug}/waitlist` : `/offers/${offer.slug}`}>
+                        {offer.title}
+                      </Link>
+                      <span className={`mono-label ${soldOut ? 'text-coral-strong' : 'text-muted'}`}>
+                        {soldOut ? 'Filled' : `${seats} left`}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-[13px] font-semibold">{offer.location}</span>
+                  <span className="text-[14px] font-bold tabular-nums">{offer.price}</span>
+                  <span className="text-[12px] leading-snug text-muted">{offer.duration}</span>
+                  <Link className="inline-flex min-h-8 items-center justify-center border border-ink bg-ink px-3 text-[11px] font-bold text-white no-underline transition-colors hover:border-accent hover:bg-accent" to={soldOut ? `/offers/${offer.slug}/waitlist` : `/offers/${offer.slug}`}>
+                    {soldOut ? 'Waitlist' : 'See job'}
+                  </Link>
+                </div>
+              )
+            })}
           </div>
+
+          <div className="grid gap-4 min-[640px]:grid-cols-2 min-[820px]:hidden">
+            {offers.map((offer) => <OfferCard key={offer.id} offer={offer} />)}
+          </div>
+
+          <p className="mt-4 text-[12px] leading-relaxed text-muted">
+            Pay is monthly, before any bonuses or incentives. Housing, transport and meals are included where the job says so.
+          </p>
         </section>
       </main>
     </PageFrame>

@@ -77,7 +77,7 @@ section() { printf '\n%s\n' "$1"; }
 
 section 'Public offers'
 check 'GET /offers' 200 "$(status "$API/offers")"
-check 'GET /offers/offer-1' 200 "$(status "$API/offers/offer-1")"
+check 'GET /offers/sadat-packaging-labeling' 200 "$(status "$API/offers/sadat-packaging-labeling")"
 check 'GET /offers/does-not-exist' 404 "$(status "$API/offers/does-not-exist")"
 
 # Discover slugs instead of hardcoding them: a full offer rejects registrations
@@ -169,11 +169,12 @@ need_reg 'accept a registration' && check 'accept a registration' 200 "$(status 
 need_reg 'invalid status' && check 'invalid status' 400 "$(status -b "$JAR" -X PATCH "$API/registrations/$REG_ID" \
   -H 'Content-Type: application/json' -d '{"status":"banana"}')"
 
-PRICE_BEFORE="$(status -b "$JAR" "$API/offers/offer-1" >/dev/null; json 'd.price')"
-check 'update an offer' 200 "$(status -b "$JAR" -X PATCH "$API/offers/1" \
+PRICE_BEFORE="$(status -b "$JAR" "$API/offers/sadat-packaging-labeling" >/dev/null; json 'd.price')"
+OFFER_ID="$(status -b "$JAR" "$API/offers/sadat-packaging-labeling" >/dev/null; json 'd.id')"
+check 'update an offer' 200 "$(status -b "$JAR" -X PATCH "$API/offers/$OFFER_ID" \
   -H 'Content-Type: application/json' -d '{"price":"[SMOKE PRICE]"}')"
 # Put the price back so the dev data stays as it was.
-curl -s -o /dev/null -b "$JAR" -X PATCH "$API/offers/1" -H 'Content-Type: application/json' \
+curl -s -o /dev/null -b "$JAR" -X PATCH "$API/offers/$OFFER_ID" -H 'Content-Type: application/json' \
   -d "{\"price\":\"$PRICE_BEFORE\"}"
 
 section 'Message templates'
@@ -193,11 +194,11 @@ check 'edit a message text' 200 "$(status -b "$JAR" -X PATCH "$API/messages/temp
 check_in 'the edit is stored' "$(json 'd.body')" 'Hi {name}, SMOKE-MARKER for {offer}.'
 # `preview` is rendered through the same lookup a real send uses, so this proves
 # the next message picks the edit up rather than only that it was saved.
-check_in 'the preview uses the edit' "$(json 'd.preview')" 'Hi Amina, SMOKE-MARKER for Your offer.'
+check_in 'the preview uses the edit' "$(json 'd.preview')" 'Hi Amina, SMOKE-MARKER for Packaging & labeling.'
 # Put the default back so the dev database is left as it was.
 check 'restore the message text' 200 "$(status -b "$JAR" -X PATCH "$API/messages/templates/accepted" \
-  -H 'Content-Type: application/json' -d '{"body":"Hi {name}, good news — your seat for {offer} is confirmed. We will send the schedule and joining details shortly."}')"
-check_in 'the default is restored' "$(json 'd.body')" 'Hi {name}, good news — your seat for {offer} is confirmed. We will send the schedule and joining details shortly.'
+  -H 'Content-Type: application/json' -d '{"body":"Hi {name}, good news — your place on {offer} is confirmed. We will send the schedule and joining details shortly."}')"
+check_in 'the default is restored' "$(json 'd.body')" 'Hi {name}, good news — your place on {offer} is confirmed. We will send the schedule and joining details shortly.'
 
 section 'Telegram webhook'
 check 'unknown callback is ignored' 200 "$(status -X POST "$API/telegram/webhook" -H 'Content-Type: application/json' \

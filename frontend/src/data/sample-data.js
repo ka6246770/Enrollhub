@@ -7,9 +7,7 @@ export const users = [
     name: 'Sample Name 1',
     offerId: 1,
     age: 24,
-    language: 'Arabic',
-    level: 'Beginner',
-    residence: 'Cairo, Egypt',
+    residence: 'Sadat City',
     email: 'sample1@example.com',
     phone: '+20 100 000 0001',
     voiceRecording: null,
@@ -22,11 +20,9 @@ export const users = [
     name: 'Sample Name 2',
     offerId: 2,
     age: 31,
-    language: 'English',
-    level: 'Advanced',
-    residence: 'Dubai, UAE',
+    residence: 'Tanta',
     email: 'sample2@example.com',
-    phone: '+971 50 000 0002',
+    phone: '+20 100 000 0002',
     voiceRecording: null,
     whatsappConfirmed: true,
     status: 'contacted',
@@ -37,9 +33,7 @@ export const users = [
     name: 'Sample Name 3',
     offerId: 3,
     age: 19,
-    language: 'French',
-    level: 'Intermediate',
-    residence: 'Alexandria, Egypt',
+    residence: 'Alexandria',
     email: 'sample3@example.com',
     phone: '+20 100 000 0003',
     voiceRecording: null,
@@ -49,35 +43,40 @@ export const users = [
   },
 ]
 
-export const testimonials = [
-  { quote: '[Testimonial placeholder. Replace with a real quote and permission to publish it.]', author: '[Name, city]' },
-  { quote: '[Testimonial placeholder. Replace with a real quote and permission to publish it.]', author: '[Name, city]' },
-  { quote: '[Testimonial placeholder. Replace with a real quote and permission to publish it.]', author: '[Name, city]' },
-]
-
 export const faq = [
   {
-    question: 'How do I register?',
+    question: 'How do I apply?',
     answer:
-      'Pick an offer, fill in the form, upload your voice recording, and accept the consent checkbox. You will see a confirmation page straight away.',
+      'Pick a job, fill in your details, and add a voice note of one to two minutes. It takes about three minutes, and you will see a confirmation page straight away.',
   },
   {
-    question: 'What should I say in my voice recording?',
+    question: 'What should I say in the voice note?',
     answer:
-      'Say your full name, why you are interested in the offer, your current level and what you hope to achieve, and anything else you would like us to know. Record for 1 to 2 minutes in a quiet place.',
+      'Your name and age, the city you live in, any factory or warehouse work you have done, and when you can start. Say whether you need housing. One to two minutes is enough.',
+  },
+  {
+    question: 'Who can apply?',
+    answer:
+      'These roles are for Egyptian men aged 18 to 50. A National ID card is the only document required.',
+  },
+  {
+    question: 'Do I need factory experience?',
+    answer:
+      'None of the four jobs asks for previous experience. You need to be able to work a full factory shift.',
+  },
+  {
+    question: 'Is housing really included?',
+    answer:
+      'Yes, for anyone relocating from another area. Each job lists what comes with the room: mattresses, water heaters, transport, meals and so on. Tell us where you live now and whether you need housing.',
   },
   {
     question: 'When will I hear back?',
-    answer: 'We review every registration and reply within [X] hours on WhatsApp or by email.',
+    answer: 'We review every application and reply on WhatsApp within [X] hours. Keep your phone on.',
   },
   {
-    question: 'Is my personal information safe?',
+    question: 'What if the job is full?',
     answer:
-      'We only use your details to review your registration and contact you about the offer. Read our Privacy Policy for more details.',
-  },
-  {
-    question: 'What if the offer is sold out?',
-    answer: 'You can join the waitlist. If a seat opens up, we will contact you on WhatsApp.',
+      'Join the waitlist. If a place opens, we will contact you on WhatsApp — and you can apply for another open job at the same time.',
   },
 ]
 
@@ -87,13 +86,8 @@ export const messages = [
   { id: 3, recipient: 'Sample Name 3', message: 'Customer confirmation', time: 'Oct 10, 22:15', status: 'Failed' },
 ]
 
-export const templates = {
-  customer: 'Hi {name}, thanks for registering for {offer}. We will contact you within [X] hours.',
-  forward: '[FIXED TEXT: to be written by you]',
-}
-
 export const HOW_IT_WORKS_STEPS = [
-  ['Pick an offer', 'Compare the details and choose what fits you.'],
-  ['Register and record', 'Fill in the form and upload a 1 to 2 minute voice note.'],
-  ['Get a WhatsApp reply', 'We confirm your seat on WhatsApp within [X] hours.'],
+  ['Pick a job', 'Compare the city, shift and monthly pay, then open the job you want.'],
+  ['Send a voice note', 'Fill in your details and record one to two minutes about yourself.'],
+  ['We call you on WhatsApp', 'We review every application and reply within [X] hours.'],
 ]

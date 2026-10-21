@@ -1,22 +1,22 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
-const BRAND = '[YOUR BRAND]'
+const BRAND = 'Al-Tayeb'
 
 const TITLES = {
-  '/': `${BRAND} | Offers`,
-  '/offers': `${BRAND} | All offers`,
+  '/': `${BRAND} | Factory jobs with housing included`,
+  '/offers': `${BRAND} | Open factory jobs`,
   '/about': `${BRAND} | How it works`,
   '/faq': `${BRAND} | Frequently asked questions`,
   '/contact': `${BRAND} | Contact`,
-  '/thank-you': `${BRAND} | Registration received`,
-  '/privacy': `${BRAND} | Privacy Policy`,
-  '/terms': `${BRAND} | Terms of Use`,
+  '/thank-you': `${BRAND} | Application received`,
+  '/privacy': `${BRAND} | Privacy policy`,
+  '/terms': `${BRAND} | Terms of use`,
   '/admin/login': `${BRAND} | Dashboard sign in`,
   '/admin': `${BRAND} | Dashboard`,
   '/admin/dashboard': `${BRAND} | Dashboard`,
   '/admin/registrations': `${BRAND} | Registrations`,
-  '/admin/offers': `${BRAND} | Manage offers`,
+  '/admin/offers': `${BRAND} | Manage jobs`,
   '/admin/messages': `${BRAND} | Messages`,
 }
 
@@ -30,7 +30,7 @@ export function useDocumentTitle() {
       (pathname.endsWith('/waitlist')
         ? `${BRAND} | Join the waitlist`
         : pathname.startsWith('/offers/')
-          ? `${BRAND} | Register for an offer`
+          ? `${BRAND} | Apply for a job`
           : `${BRAND} | Page not found`)
   }, [pathname])
 }

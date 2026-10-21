@@ -2,25 +2,33 @@ import { Link } from 'react-router-dom'
 import { button, container } from '../lib/ui.js'
 import Brand from './Brand.jsx'
 
+const LINKS = [
+  ['Jobs', '/offers'],
+  ['How it works', '/about'],
+  ['FAQ', '/faq'],
+  ['Contact', '/contact'],
+]
+
 export function Header() {
   return (
-    <header className="border-b border-line bg-white">
-      <div className={`${container} flex min-h-[57px] flex-wrap items-center justify-between gap-x-5 gap-y-2 py-2.5`}>
+    <header className="bg-night text-night-ink">
+      <div className={`${container} flex min-h-[68px] items-center justify-between gap-4 py-3`}>
         <Brand />
-        <nav
-          aria-label="Main navigation"
-          className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] font-bold"
-        >
-          <Link className="no-underline hover:text-brand" to="/offers">Offers</Link>
-          <Link className="no-underline hover:text-brand" to="/about">How it works</Link>
-          <Link className="no-underline hover:text-brand" to="/faq">FAQ</Link>
-          <Link className="no-underline hover:text-brand" to="/contact">Contact</Link>
-          <Link className="inline-flex min-h-[33px] items-center rounded-[9px] border border-line bg-white px-3.5 text-brand no-underline transition-colors hover:border-brand motion-reduce:transition-none" to="/admin/login">
-            Sign in
-          </Link>
-          <Link className={`${button} min-h-[33px] px-3.5`} to="/offers">
-            Choose an offer
-          </Link>
+        <nav aria-label="Main navigation" className="hidden items-center gap-6 text-[12px] font-semibold min-[760px]:flex">
+          {LINKS.map(([label, href]) => (
+            <Link className="text-night-ink/80 no-underline transition-colors hover:text-white" key={href} to={href}>{label}</Link>
+          ))}
+          <Link className="text-night-ink/50 no-underline transition-colors hover:text-white" to="/admin/login">Team sign in</Link>
+          <Link className={`${button} min-h-9 px-4 text-[12px]`} to="/offers">Apply now</Link>
+        </nav>
+        <Link className={`${button} min-h-9 px-4 text-[12px] min-[760px]:hidden`} to="/offers">Apply now</Link>
+      </div>
+      <div className="border-t border-white/10 min-[760px]:hidden">
+        <nav aria-label="Main navigation" className={`${container} flex gap-5 overflow-x-auto py-2.5 text-[12px] font-semibold`}>
+          {LINKS.map(([label, href]) => (
+            <Link className="shrink-0 text-night-ink/80 no-underline transition-colors hover:text-white" key={href} to={href}>{label}</Link>
+          ))}
+          <Link className="shrink-0 text-night-ink/50 no-underline transition-colors hover:text-white" to="/admin/login">Sign in</Link>
         </nav>
       </div>
     </header>

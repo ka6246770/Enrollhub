@@ -1,20 +1,52 @@
 import { Link } from 'react-router-dom'
 import { container } from '../lib/ui.js'
+import Brand from './Brand.jsx'
 
 export function Footer() {
   return (
-    <footer className="mt-14 border-t border-line bg-white py-6">
-      <div className={`${container} flex flex-wrap items-center justify-between gap-4 text-xs text-muted`}>
-        <p>© [YEAR] [BRAND NAME]. All rights reserved.</p>
-        <nav aria-label="Footer navigation" className="flex flex-wrap gap-4">
-          <Link className="hover:text-brand" to="/offers">Offers</Link>
-          <Link className="hover:text-brand" to="/about">How it works</Link>
-          <Link className="hover:text-brand" to="/faq">FAQ</Link>
-          <Link className="hover:text-brand" to="/contact">Contact</Link>
-          <Link className="hover:text-brand" to="/privacy">Privacy Policy</Link>
-          <Link className="hover:text-brand" to="/terms">Terms of Use</Link>
-          <Link className="hover:text-brand" to="/admin/login">Team sign in</Link>
+    <footer className="mt-16 bg-night text-night-ink">
+      <div className={`${container} grid gap-10 py-12 min-[760px]:grid-cols-[1.7fr_1fr_1fr_1fr]`}>
+        <div>
+          <Brand />
+          <p className="mt-4 max-w-[34ch] text-[13px] leading-[1.7] text-night-ink/70">
+            Factory recruitment for Al-Tayeb Company: packaging, labeling and steward roles in Sadat City, El-Obour and 10th of Ramadan.
+          </p>
+        </div>
+
+        <nav aria-label="Jobs">
+          <p className="mono-label text-night-muted">Jobs</p>
+          <div className="mt-4 grid gap-2.5 text-[13px] font-semibold">
+            <Link className="text-night-ink/80 no-underline hover:text-white" to="/offers">All open jobs</Link>
+            <Link className="text-night-ink/80 no-underline hover:text-white" to="/about">How it works</Link>
+            <Link className="text-night-ink/80 no-underline hover:text-white" to="/faq">FAQ</Link>
+          </div>
         </nav>
+
+        <nav aria-label="Company">
+          <p className="mono-label text-night-muted">Company</p>
+          <div className="mt-4 grid gap-2.5 text-[13px] font-semibold">
+            <Link className="text-night-ink/80 no-underline hover:text-white" to="/contact">Contact</Link>
+            <Link className="text-night-ink/80 no-underline hover:text-white" to="/privacy">Privacy policy</Link>
+            <Link className="text-night-ink/80 no-underline hover:text-white" to="/terms">Terms of use</Link>
+            <Link className="text-night-ink/60 no-underline hover:text-white" to="/admin/login">Team sign in</Link>
+          </div>
+        </nav>
+
+        <div>
+          <p className="mono-label text-night-muted">Contact</p>
+          <div className="mt-4 grid gap-2.5 text-[13px] font-semibold">
+            <p className="text-night-ink/80">[WHATSAPP NUMBER]</p>
+            <p className="break-words text-night-ink/80">[SUPPORT EMAIL]</p>
+            <p className="text-night-ink/80">[BUSINESS ADDRESS]</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-white/10">
+        <div className={`${container} flex flex-wrap items-center justify-between gap-3 py-5 text-[11px] text-night-muted`}>
+          <p>© {new Date().getFullYear()} Al-Tayeb Company. All rights reserved.</p>
+          <p>Open to Egyptian nationals only. National ID required.</p>
+        </div>
       </div>
     </footer>
   )

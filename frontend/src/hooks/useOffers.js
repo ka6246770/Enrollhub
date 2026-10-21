@@ -12,11 +12,13 @@ import { fetchOffers } from '../services/api.js'
 //
 // The API returns camelCase; `data/offers.js` and every public component use the
 // snake_case shape, so the values are converted here and nowhere else.
-function toPublicShape(offer) {
+function toPublicShape(offer, index) {
   return {
     id: offer.id,
+    reference: index + 1,
     slug: offer.slug,
     title: offer.title,
+    location: offer.location,
     description: offer.description,
     shortDescription: offer.shortDescription,
     price: offer.price,

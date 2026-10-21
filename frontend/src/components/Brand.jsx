@@ -1,28 +1,28 @@
 import { Link } from 'react-router-dom'
 
-// The microphone mark used by the public header, the dashboard sidebar, and
-// the sign-in screen, so the logo stays identical everywhere.
-export function MicMark({ className = 'size-9' }) {
+// A packing-box mark. The work on this site is packaging and labeling, and the
+// isometric box stays legible at 28px without a wordmark.
+export function BrandMark({ className = 'size-9' }) {
   return (
-    <span className={`grid shrink-0 place-items-center rounded-[10px] bg-brand text-white ${className}`}>
+    <span className={`grid shrink-0 place-items-center rounded-[3px] bg-accent text-ink ${className}`}>
       <svg
         aria-hidden="true"
-        className="size-[55%] stroke-current stroke-[1.6] [stroke-linecap:round] [stroke-linejoin:round]"
+        className="size-[62%] stroke-current stroke-[1.7] [stroke-linecap:round] [stroke-linejoin:round]"
         viewBox="0 0 24 24"
         fill="none"
       >
-        <rect x="9" y="3" width="6" height="12" rx="3" />
-        <path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 17v4m-3 0h6" />
+        <path d="M4 8.5 12 4l8 4.5v7L12 20l-8-4.5v-7Z" />
+        <path d="M4 8.5 12 13l8-4.5M12 13v7" />
       </svg>
     </span>
   )
 }
 
-export function Brand() {
+export function Brand({ className = '' }) {
   return (
-    <Link className="inline-flex items-center gap-2.5 text-sm font-bold no-underline text-ink" to="/">
-      <MicMark className="size-8" />
-      <span>[YOUR BRAND]</span>
+    <Link className={`inline-flex items-center gap-2.5 no-underline ${className}`} to="/">
+      <BrandMark className="size-8" />
+      <span className="text-[15px] font-extrabold tracking-[-0.015em] text-white">AL-TAYEB</span>
     </Link>
   )
 }
