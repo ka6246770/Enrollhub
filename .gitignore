@@ -11,11 +11,34 @@ emails/out/
 
 # Environment files (never commit real secrets)
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
 
 # Uploaded voice recordings
 uploads/
+
+# Local caches and test output
+.cache/
+.vite/
+.turbo/
+.eslintcache
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+*.tsbuildinfo
+
+# Editor and temporary files
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+*.tmp
+*.bak
+*.pid
+Thumbs.db
+desktop.ini
 
 # Logs and OS files
 *.log
