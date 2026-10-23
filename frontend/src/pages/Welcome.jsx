@@ -65,7 +65,7 @@ export default function Welcome() {
                 ))}
               </div>
               <div className="border-t border-white/15 px-5 py-3">
-                <Link className="text-[12px] font-bold text-white underline underline-offset-4 hover:no-underline" to="/offers">Compare all jobs</Link>
+                <Link className="inline-flex min-h-6 items-center text-[12px] font-bold text-white underline underline-offset-4 hover:no-underline" to="/offers">Compare all jobs</Link>
               </div>
             </aside>
           </div>
@@ -83,7 +83,7 @@ export default function Welcome() {
               <h2 className={sectionHeading}>Current jobs</h2>
               <p className="mt-2 max-w-[52ch] text-[14px] text-muted">Every job uses the same short application and a voice note.</p>
             </div>
-            <Link className="text-[12px] font-bold text-brand-text underline underline-offset-4 hover:no-underline" to="/offers">See all {visible.length} jobs</Link>
+            <Link className="inline-flex min-h-6 items-center text-[12px] font-bold text-brand-text underline underline-offset-4 hover:no-underline" to="/offers">See all {visible.length} jobs</Link>
           </div>
           <div className="motion-stagger mt-7 grid gap-4 min-[640px]:grid-cols-2 min-[1100px]:grid-cols-4">
             {visible.map((offer) => <OfferCard key={offer.id} offer={offer} />)}
@@ -114,7 +114,7 @@ export default function Welcome() {
           <div className="mt-7 grid gap-6 min-[760px]:grid-cols-3 min-[760px]:gap-8">
             {HOW_IT_WORKS_STEPS.map(([title, text], index) => (
               <article className="border-t border-ink/20 pt-4" key={title}>
-                <span className="mono-label text-accent">Step {index + 1}</span>
+                <span className="mono-label text-accent-text">Step {index + 1}</span>
                 <h3 className="mt-2 text-[17px] font-bold">{title}</h3>
                 <p className="mt-1.5 text-[13px] leading-[1.65] text-muted">{text}</p>
               </article>
@@ -126,7 +126,7 @@ export default function Welcome() {
           <div>
             <h2 className={sectionHeading}>Questions before you apply</h2>
             <p className="mt-3 max-w-[34ch] text-[14px] leading-[1.65] text-muted">The things people ask us on the phone, answered here first.</p>
-            <Link className="mt-5 inline-block text-[12px] font-bold text-brand-text underline underline-offset-4 hover:no-underline" to="/faq">All questions</Link>
+            <Link className="mt-5 inline-flex min-h-6 items-center text-[12px] font-bold text-brand-text underline underline-offset-4 hover:no-underline" to="/faq">All questions</Link>
           </div>
           <FaqList items={faq.slice(0, 4)} />
         </section>

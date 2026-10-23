@@ -90,7 +90,7 @@ export default function Login() {
             {submitting ? 'Signing in…' : 'Sign in'}
           </button>
           {error ? <p className="rounded-lg bg-coral px-3 py-2 text-xs font-semibold text-coral-ink" role="alert">{error}</p> : null}
-          <button className="text-center text-xs font-bold text-brand-text underline hover:no-underline" onClick={() => setNotice('Password reset is not configured. Ask the site owner to create a new admin password with the backend admin command.')} type="button">Forgot password?</button>
+          <button className="min-h-6 text-center text-xs font-bold text-brand-text underline hover:no-underline" onClick={() => setNotice('Password reset is not configured. Ask the site owner to create a new admin password with the backend admin command.')} type="button">Forgot password?</button>
           {notice && <p className="text-center text-xs text-muted" role="status">{notice}</p>}
         </form>
         <p className="mt-5 text-center text-[10px] leading-relaxed text-muted">

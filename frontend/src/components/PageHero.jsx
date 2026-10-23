@@ -6,7 +6,7 @@ export function Kicker({ children, className = '' }) {
   return (
     <p className={`flex items-center gap-3 ${className}`}>
       <span aria-hidden="true" className="h-px w-7 bg-accent" />
-      <span className="mono-label text-accent">{children}</span>
+      <span className="mono-label text-accent-text">{children}</span>
     </p>
   )
 }

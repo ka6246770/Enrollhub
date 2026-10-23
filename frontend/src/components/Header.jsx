@@ -18,9 +18,9 @@ export function Header() {
         <div className="flex items-center gap-4">
           <nav aria-label="Main navigation" className="hidden items-center gap-6 text-[12px] font-semibold min-[760px]:flex">
             {LINKS.map(([label, href]) => (
-              <Link className="text-night-ink/80 no-underline transition-colors hover:text-white" key={href} to={href}>{label}</Link>
+              <Link className="inline-flex min-h-6 min-w-6 items-center justify-center text-night-ink/80 no-underline transition-colors hover:text-white" key={href} to={href}>{label}</Link>
             ))}
-            <Link className="text-night-ink/50 no-underline transition-colors hover:text-white" to="/admin/login">Team sign in</Link>
+            <Link className="inline-flex min-h-6 items-center text-night-ink/50 no-underline transition-colors hover:text-white" to="/admin/login">Team sign in</Link>
           </nav>
           <div className="flex items-center gap-2">
             <ThemeToggle />
@@ -31,9 +31,9 @@ export function Header() {
       <div className="border-t border-white/10 min-[760px]:hidden">
         <nav aria-label="Main navigation" className={`${container} flex gap-5 overflow-x-auto py-2.5 text-[12px] font-semibold`}>
           {LINKS.map(([label, href]) => (
-            <Link className="shrink-0 text-night-ink/80 no-underline transition-colors hover:text-white" key={href} to={href}>{label}</Link>
+            <Link className="inline-flex min-h-6 min-w-6 shrink-0 items-center justify-center text-night-ink/80 no-underline transition-colors hover:text-white" key={href} to={href}>{label}</Link>
           ))}
-          <Link className="shrink-0 text-night-ink/50 no-underline transition-colors hover:text-white" to="/admin/login">Sign in</Link>
+          <Link className="inline-flex min-h-6 shrink-0 items-center text-night-ink/50 no-underline transition-colors hover:text-white" to="/admin/login">Sign in</Link>
         </nav>
       </div>
     </header>

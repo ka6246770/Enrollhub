@@ -44,11 +44,11 @@ export function OfferCard({ offer }) {
       </div>
 
       <Link
-        className="flex items-center justify-between border-t border-ink bg-ink px-5 py-3.5 text-[12px] font-bold text-white no-underline transition-colors group-hover:bg-action motion-reduce:transition-none"
+        className="flex items-center justify-between border-t border-ink bg-night px-5 py-3.5 text-[12px] font-bold text-white no-underline transition-colors group-hover:bg-action motion-reduce:transition-none"
         to={target}
       >
         {actionLabel}
-        <span className="mono-label text-white/60">{reference}</span>
+        <span className="mono-label text-white/60 group-hover:text-white">{reference}</span>
       </Link>
     </article>
   )

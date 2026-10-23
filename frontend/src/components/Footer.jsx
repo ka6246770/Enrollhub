@@ -3,6 +3,11 @@ import { site } from '../config/site.js'
 import { container } from '../lib/ui.js'
 import Brand from './Brand.jsx'
 
+// Footer links sit in a stacked list, so a 28px row gives each one a larger
+// tap area while the 10px gap between rows stays the same.
+const footerLink = 'inline-flex min-h-7 items-center text-night-ink/80 no-underline hover:text-white'
+const footerMutedLink = 'inline-flex min-h-7 items-center text-night-ink/60 no-underline hover:text-white'
+
 export function Footer() {
   const { pathname, search, hash } = useLocation()
   const from = `${pathname}${search}${hash}`
@@ -20,20 +25,20 @@ export function Footer() {
         <nav aria-label="Jobs">
           <p className="mono-label text-night-muted">Jobs</p>
           <div className="mt-4 grid gap-2.5 text-[13px] font-semibold">
-            <Link className="text-night-ink/80 no-underline hover:text-white" to="/offers">All open jobs</Link>
-            <Link className="text-night-ink/80 no-underline hover:text-white" to="/about">How it works</Link>
-            <Link className="text-night-ink/80 no-underline hover:text-white" to="/faq">FAQ</Link>
+            <Link className={footerLink} to="/offers">All open jobs</Link>
+            <Link className={footerLink} to="/about">How it works</Link>
+            <Link className={footerLink} to="/faq">FAQ</Link>
           </div>
         </nav>
 
         <nav aria-label="Company">
           <p className="mono-label text-night-muted">Company</p>
           <div className="mt-4 grid gap-2.5 text-[13px] font-semibold">
-            <Link className="text-night-ink/80 no-underline hover:text-white" to="/contact">Contact</Link>
-            <Link className="text-night-ink/80 no-underline hover:text-white" state={{ from }} to="/contact?type=problem">Report a problem</Link>
-            <Link className="text-night-ink/80 no-underline hover:text-white" to="/privacy">Privacy policy</Link>
-            <Link className="text-night-ink/80 no-underline hover:text-white" to="/terms">Terms of use</Link>
-            <Link className="text-night-ink/60 no-underline hover:text-white" to="/admin/login">Team sign in</Link>
+            <Link className={footerLink} to="/contact">Contact</Link>
+            <Link className={footerLink} state={{ from }} to="/contact?type=problem">Report a problem</Link>
+            <Link className={footerLink} to="/privacy">Privacy policy</Link>
+            <Link className={footerLink} to="/terms">Terms of use</Link>
+            <Link className={footerMutedLink} to="/admin/login">Team sign in</Link>
           </div>
         </nav>
 
@@ -41,18 +46,18 @@ export function Footer() {
           <p className="mono-label text-night-muted">Contact</p>
           <div className="mt-4 grid gap-2.5 text-[13px] font-semibold">
             {site.contact.telephone ? (
-              <a className="text-night-ink/80 no-underline hover:text-white" href={`https://wa.me/${site.contact.telephone.replace(/[^\d]/g, '')}`} rel="noreferrer" target="_blank">
+              <a className={footerLink} href={`https://wa.me/${site.contact.telephone.replace(/[^\d]/g, '')}`} rel="noreferrer" target="_blank">
                 {site.contact.telephone}
               </a>
             ) : null}
             {site.contact.email ? (
-              <a className="break-words text-night-ink/80 no-underline hover:text-white" href={`mailto:${site.contact.email}`}>
+              <a className={`${footerLink} break-words`} href={`mailto:${site.contact.email}`}>
                 {site.contact.email}
               </a>
             ) : null}
             {site.contact.address ? <p className="text-night-ink/80">{site.contact.address}</p> : null}
             {!site.contact.telephone && !site.contact.email && !site.contact.address ? (
-              <Link className="text-night-ink/80 no-underline hover:text-white" to="/contact">Use the contact form</Link>
+              <Link className={footerLink} to="/contact">Use the contact form</Link>
             ) : null}
           </div>
         </div>

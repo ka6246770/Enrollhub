@@ -48,7 +48,7 @@ export default function Thanks() {
           <ol className="grid gap-4 border-t border-ink/10 px-5 py-5">
             {steps.map(([title, description], index) => (
               <li className="flex gap-3" key={title}>
-                <span aria-hidden="true" className="mono-label grid size-6 shrink-0 place-items-center bg-ink text-white">{index + 1}</span>
+                <span aria-hidden="true" className="mono-label grid size-6 shrink-0 place-items-center bg-night text-white">{index + 1}</span>
                 <div>
                   <h2 className="text-[14px] font-bold leading-snug">{title}</h2>
                   <p className="mt-0.5 text-[12px] leading-relaxed text-muted">{description}</p>

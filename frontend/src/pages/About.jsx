@@ -32,7 +32,7 @@ export default function About() {
           <div className="grid gap-7 min-[760px]:grid-cols-3 min-[760px]:gap-8">
             {HOW_IT_WORKS_STEPS.map(([title, text], index) => (
               <article className="border-t border-ink/20 pt-4" key={title}>
-                <span className="mono-label text-accent">Step {String(index + 1).padStart(2, '0')}</span>
+                <span className="mono-label text-accent-text">Step {String(index + 1).padStart(2, '0')}</span>
                 <h2 className="mt-2 text-[19px] font-extrabold tracking-[-0.02em]">{title}</h2>
                 <p className="mt-2 text-[13px] leading-[1.7] text-muted">{text}</p>
               </article>

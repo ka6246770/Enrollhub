@@ -41,7 +41,7 @@ export default function Privacy() {
   return (
     <PageFrame>
       <main className={`${container} motion-page max-w-[760px] pb-14 pt-12`} id="main-content">
-        <p className="mono-label text-accent">Legal</p>
+        <p className="mono-label text-accent-text">Legal</p>
         <h1 className="mt-3 text-balance text-[clamp(32px,4.5vw,44px)] font-extrabold leading-[1.02] tracking-[-0.035em]">Privacy policy</h1>
         <p className="mt-3 max-w-[56ch] text-[14px] leading-relaxed text-muted">
           How Al-Tayeb Company handles application, waitlist and contact information.

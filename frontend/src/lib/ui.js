@@ -3,8 +3,13 @@
 
 export const container = 'content-width'
 
+// A white ring alone disappears on paper; an ink ring alone disappears on the
+// dark header. Two bands cover both: the ink shadow fills the offset gap and
+// the white outline sits just outside it.
+const focusRingOnSolid = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:shadow-[0_0_0_2px_var(--color-ink)]'
+
 export const button =
-  'inline-flex min-h-11 items-center justify-center gap-2 rounded-[4px] border border-action bg-action px-5 text-center text-[13px] font-bold text-white no-underline transition-colors hover:border-action-dark hover:bg-action-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none disabled:cursor-not-allowed disabled:opacity-50'
+  `inline-flex min-h-11 items-center justify-center gap-2 rounded-[4px] border border-action bg-action px-5 text-center text-[13px] font-bold text-white no-underline transition-colors hover:border-action-dark hover:bg-action-dark ${focusRingOnSolid} motion-reduce:transition-none disabled:cursor-not-allowed disabled:opacity-50`
 
 export const secondaryButton =
   'inline-flex min-h-11 items-center justify-center gap-2 rounded-[4px] border border-ink/30 bg-transparent px-5 text-center text-[13px] font-bold text-ink no-underline transition-colors hover:border-ink hover:bg-surface/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none'
@@ -32,7 +37,7 @@ export const outlineButton =
   'inline-flex min-h-9 items-center justify-center rounded-[4px] border border-line bg-surface px-3 text-xs font-bold text-ink no-underline transition-colors hover:border-brand hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
 
 export const solidButton =
-  'inline-flex min-h-9 items-center justify-center rounded-[4px] border border-brand bg-brand px-3 text-xs font-bold text-white no-underline transition-colors hover:border-brand-dark hover:bg-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
+  `inline-flex min-h-9 items-center justify-center rounded-[4px] border border-brand bg-brand px-3 text-xs font-bold text-white no-underline transition-colors hover:border-brand-dark hover:bg-brand-dark ${focusRingOnSolid}`
 
 export const inputClass =
   'min-h-10 w-full rounded-[4px] border border-line bg-surface px-3 text-xs outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/15'

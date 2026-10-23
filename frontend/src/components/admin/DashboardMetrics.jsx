@@ -76,7 +76,7 @@ export function ActivityPanel({ days }) {
               style={{ height: `${day.count === 0 ? 4 : Math.max(10, Math.round((day.count / peak) * 100))}%` }}
               title={`${day.label}: ${day.count}`}
             />
-            <span className={`text-[9px] ${day.isToday ? 'font-bold text-accent' : 'text-muted'}`}>{day.label}</span>
+            <span className={`text-[9px] ${day.isToday ? 'font-bold text-accent-text' : 'text-muted'}`}>{day.label}</span>
           </div>
         ))}
       </div>
