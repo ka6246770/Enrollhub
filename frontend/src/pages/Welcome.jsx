@@ -26,7 +26,7 @@ export default function Welcome() {
       <main className="motion-page pb-0" id="main-content">
         <section className="border-b border-ink/10">
           <div className={`${container} grid gap-10 py-14 min-[900px]:grid-cols-[1.35fr_1fr] min-[900px]:gap-14 min-[900px]:py-20`}>
-            <div>
+            <div className="motion-hero">
               <Kicker>Hiring in Sadat City, El-Obour and 10th of Ramadan</Kicker>
               <h1 className="mt-6 max-w-[13ch] text-balance text-[clamp(42px,7vw,76px)] font-extrabold leading-[0.96] tracking-[-0.05em]">
                 Factory work. Housing included.
@@ -41,7 +41,7 @@ export default function Welcome() {
               <p className="mt-6 text-[12px] font-semibold text-muted">National ID only. Open to Egyptian nationals.</p>
             </div>
 
-            <aside className="self-start border border-ink bg-night text-night-ink">
+            <aside className="motion-panel self-start border border-ink bg-night text-night-ink">
               <div className="flex items-center justify-between border-b border-white/15 px-5 py-3">
                 <span className="mono-label text-night-muted">Now hiring</span>
                 <span className="mono-label text-white">{isLoading ? 'Loading jobs…' : `${open.length} ${open.length === 1 ? 'job' : 'jobs'}`}</span>
@@ -106,7 +106,7 @@ export default function Welcome() {
             <p className="mt-3 max-w-[54ch] text-[14px] leading-[1.65] text-night-muted">
               What comes with the job depends on the factory. Open a job to see the exact package.
             </p>
-            <div className="mt-8 grid gap-x-8 gap-y-7 min-[700px]:grid-cols-2 min-[1000px]:grid-cols-4">
+            <div className="motion-stagger mt-8 grid gap-x-8 gap-y-7 min-[700px]:grid-cols-2 min-[1000px]:grid-cols-4">
               {BENEFITS.map(([title, text]) => (
                 <div className="border-t border-white/20 pt-4" key={title}>
                   <h3 className="text-[15px] font-bold">{title}</h3>
@@ -119,7 +119,7 @@ export default function Welcome() {
 
         <section className={`${container} py-14`}>
           <h2 className={sectionHeading}>How it works</h2>
-          <div className="mt-7 grid gap-6 min-[760px]:grid-cols-3 min-[760px]:gap-8">
+          <div className="motion-stagger mt-7 grid gap-6 min-[760px]:grid-cols-3 min-[760px]:gap-8">
             {HOW_IT_WORKS_STEPS.map(([title, text], index) => (
               <article className="border-t border-ink/20 pt-4" key={title}>
                 <span className="mono-label text-accent-text">Step {index + 1}</span>

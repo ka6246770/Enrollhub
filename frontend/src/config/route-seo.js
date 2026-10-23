@@ -149,6 +149,12 @@ const THANKS = {
   noindex: true,
 }
 
+const APPLY = {
+  title: 'Apply for this job | Al-Tayeb',
+  description: 'Apply for an Al-Tayeb factory job. Enter your details and record a short voice note; no CV or account is needed.',
+  noindex: true,
+}
+
 const WAITLIST = {
   title: 'Join the waitlist | Al-Tayeb',
   description: 'Join the waitlist for a filled Al-Tayeb factory job. Leave your name and WhatsApp number and we will contact you if a place opens.',
@@ -190,6 +196,7 @@ export function getRouteSeo(pathname = '/') {
   // The offer detail page builds its own metadata from live offer data.
   // Returning undefined prevents this static map from overwriting it.
   if (/^\/offers\/[^/]+$/.test(path)) return undefined
+  if (/^\/offers\/[^/]+\/apply$/.test(path)) return APPLY
   if (/^\/offers\/[^/]+\/waitlist$/.test(path)) return WAITLIST
 
   return PAGES[path] ?? NOT_FOUND

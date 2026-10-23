@@ -39,6 +39,9 @@ export const outlineButton =
 export const solidButton =
   `inline-flex min-h-9 items-center justify-center rounded-[4px] border border-brand bg-brand px-3 text-xs font-bold text-white no-underline transition-colors hover:border-brand-dark hover:bg-brand-dark ${focusRingOnSolid}`
 
+export const dangerButton =
+  'inline-flex min-h-9 items-center justify-center rounded-[4px] border border-danger bg-danger px-3 text-xs font-bold text-danger-ink no-underline transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral-strong disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none'
+
 export const inputClass =
   'min-h-10 w-full rounded-[4px] border border-line bg-surface px-3 text-xs outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/15'
 

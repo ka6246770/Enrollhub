@@ -148,7 +148,7 @@ export function PageHeading({ eyebrow, title, subtitle, children }) {
 
 export function StatCard({ title, value, hint }) {
   return (
-    <article className="rounded-xl border border-line bg-surface p-4">
+    <article className="motion-card rounded-xl border border-line bg-surface p-4">
       <p className="text-[10px] font-bold uppercase tracking-wide text-muted">{title}</p>
       <p className="mt-2 text-2xl font-bold tabular-nums">{value}</p>
       {hint && <p className="mt-1 text-[10px] text-muted">{hint}</p>}

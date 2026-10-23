@@ -124,9 +124,10 @@
   text-transform: uppercase;
 }
 
-/* Motion is used in three deliberate places: the page settles in once, a list
-   of job tickets reveals together, and action panels/dialogs confirm a change.
-   Everything is opt-in only when the visitor has not asked for reduced motion. */
+/* Motion is used in a few deliberate places: the page settles in once, a hero
+   and a list of job tickets reveal in sequence, action panels/dialogs confirm a
+   change, and cards lift slightly under the pointer. Everything is opt-in only
+   when the visitor has not asked for reduced motion. */
 @keyframes page-enter {
   from {
     opacity: 0;
@@ -136,6 +137,22 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes hero-enter {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rule-enter {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }
 
 /* Starts at 0.55, not 0: when live offers replace the bundled preview the list
@@ -195,8 +212,26 @@
     animation: page-enter 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
+  .motion-hero > * {
+    animation: hero-enter 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .motion-hero > *:nth-child(2) { animation-delay: 70ms; }
+  .motion-hero > *:nth-child(3) { animation-delay: 140ms; }
+  .motion-hero > *:nth-child(4) { animation-delay: 210ms; }
+  .motion-hero > *:nth-child(5) { animation-delay: 280ms; }
+  .motion-hero > *:nth-child(n + 6) { animation-delay: 340ms; }
+
+  .motion-rule {
+    transform-origin: left center;
+    animation: rule-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
   .motion-stagger > * {
-    animation: item-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    /* `backwards`, not `both`: the finished keyframe must not keep overriding
+       the hover transform on cards. The final keyframe equals the resting style,
+       so releasing it causes no visible jump. */
+    animation: item-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
   }
 
   .motion-stagger > *:nth-child(2) { animation-delay: 55ms; }
@@ -214,6 +249,24 @@
     animation: notice-enter 280ms ease-out both;
   }
 
+  /* A quiet lift on job tickets and dashboard cards. The shadow is only a
+     depth cue; the border and background still carry the state colours. */
+  .motion-card {
+    transition:
+      transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 300ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 200ms ease-out;
+  }
+
+  .motion-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px -24px rgb(23 33 28 / 0.45);
+  }
+
+  :root[data-theme='dark'] .motion-card:hover {
+    box-shadow: 0 18px 40px -20px rgb(0 0 0 / 0.8);
+  }
+
   dialog[open] {
     animation: dialog-enter 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
@@ -229,12 +282,17 @@
   }
 
   .motion-page,
+  .motion-hero > *,
+  .motion-rule,
   .motion-stagger > *,
   .motion-panel,
   .motion-notice,
+  .motion-card,
   dialog[open],
   dialog[open]::backdrop {
     animation: none !important;
+    transition: none !important;
+    transform: none !important;
   }
 }
 

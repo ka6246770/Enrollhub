@@ -51,9 +51,9 @@ export function RegistrationForm({ offer }) {
   }
 
   return (
-    <form className="mt-8 border border-ink/15 bg-surface p-6 max-[500px]:p-4" onSubmit={handleSubmit}>
+    <form className="motion-panel mt-8 border border-ink/15 bg-surface p-6 max-[500px]:p-4" onSubmit={handleSubmit}>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-[22px] font-extrabold tracking-[-0.02em]">Apply for this job</h2>
+        <h2 className="text-[22px] font-extrabold tracking-[-0.02em]">Your details and voice note</h2>
         <span className="mono-label text-muted">About 3 minutes</span>
       </div>
       <p className="mt-2 text-[13px] leading-relaxed text-muted">No account and no CV. Fill in your details and record a short voice note.</p>
