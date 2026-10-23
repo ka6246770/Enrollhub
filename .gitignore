@@ -17,6 +17,12 @@ emails/out/
 # Uploaded voice recordings
 uploads/
 
+# Neon CLI local project link (IDs only, still machine-specific)
+.neon
+
+# Agent skills are installed per machine under ~/.config/opencode/skills/
+.agents/
+
 # Local caches and test output
 .cache/
 .vite/
