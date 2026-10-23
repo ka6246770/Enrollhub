@@ -165,7 +165,7 @@ export function AttentionPanel({ people, offers, onManage, onViewAll }) {
   return (
     <article className="rounded-xl border border-line bg-surface p-5">
       <PanelHeading hint="New applications and follow-ups due" title="Needs attention">
-        <button className="text-[10px] font-bold text-brand-text underline underline-offset-4 hover:no-underline" onClick={onViewAll} type="button">
+        <button className="inline-flex min-h-6 items-center text-[10px] font-bold text-brand-text underline underline-offset-4 hover:no-underline" onClick={onViewAll} type="button">
           View all
         </button>
       </PanelHeading>

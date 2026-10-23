@@ -77,8 +77,8 @@ function AdminSidebar({ active, email, onSignOut }) {
       <div className="mt-auto grid gap-3">
         {email ? <p className="truncate text-[10px] text-night-ink/60" title={email}>{email}</p> : null}
         <div className="flex items-center justify-between gap-3">
-          <Link className="text-xs font-bold text-night-ink/70 no-underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white motion-reduce:transition-none" to="/">← View site</Link>
-          <button className="text-xs font-bold text-night-ink/70 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white motion-reduce:transition-none" onClick={onSignOut} type="button">Sign out</button>
+          <Link className="inline-flex min-h-6 items-center text-xs font-bold text-night-ink/70 no-underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white motion-reduce:transition-none" to="/">← View site</Link>
+          <button className="inline-flex min-h-6 items-center text-xs font-bold text-night-ink/70 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white motion-reduce:transition-none" onClick={onSignOut} type="button">Sign out</button>
         </div>
       </div>
     </aside>
