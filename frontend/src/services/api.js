@@ -11,7 +11,12 @@
 import { offers } from '../data/offers.js'
 import { messages as sampleMessages, users as sampleUsers } from '../data/sample-data.js'
 
-const API_URL = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '')
+// An empty VITE_API_URL keeps the sample-data demo in local development. A
+// production build is served from the same origin as the API (vercel.json
+// rewrites /api/* to the backend service), so it falls back to /api instead of
+// silently shipping a demo that never saves anything.
+const configuredUrl = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '')
+const API_URL = configuredUrl || (import.meta.env.PROD ? '/api' : '')
 const hasBackend = Boolean(API_URL)
 
 export const isBackendEnabled = hasBackend

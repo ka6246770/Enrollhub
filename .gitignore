@@ -13,6 +13,8 @@ emails/out/
 .env
 .env.*
 !.env.example
+# Production API path is not a secret: same origin, rewritten by vercel.json.
+!frontend/.env.production
 
 # Uploaded voice recordings
 uploads/

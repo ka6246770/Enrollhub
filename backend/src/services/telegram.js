@@ -141,8 +141,8 @@ export async function notifyNewRegistration({ registration, offer, voice }) {
   const text = await buildOwnerText(registration, offer)
   const replyMarkup = {
     inline_keyboard: [[
-      { text: '📩 Offer place', callback_data: `reg:${registration.id}:accept` },
-      { text: '❌ Not selected', callback_data: `reg:${registration.id}:reject` },
+      { text: '✅ Accept', callback_data: `reg:${registration.id}:accept` },
+      { text: '❌ Reject', callback_data: `reg:${registration.id}:reject` },
     ]],
   }
 

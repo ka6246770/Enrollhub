@@ -183,6 +183,8 @@ registrationsRouter.post('/', formLimiter, uploadVoice, verifyAudioSignature, as
         text: ownerCopy.text,
         html: ownerCopy.html,
         attachments: ownerCopy.attachments,
+        // Lets the owner answer the applicant straight from the report email.
+        replyTo: registration.email,
         registrationId: registration.id,
         type: 'owner_email',
       })
