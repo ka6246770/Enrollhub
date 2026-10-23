@@ -15,7 +15,17 @@ import { messages as sampleMessages, users as sampleUsers } from '../data/sample
 // production build is served from the same origin as the API (vercel.json
 // rewrites /api/* to the backend service), so it falls back to /api instead of
 // silently shipping a demo that never saves anything.
-const configuredUrl = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '')
+//
+// The local API is configured as http://localhost:3001. Opening the site at
+// 127.0.0.1 would make that call cross-site and the browser would drop the
+// session cookie, so in development the API follows whichever host the page
+// itself is using.
+function matchPageHostInDev(url) {
+  if (!import.meta.env.DEV || !url.startsWith('http://localhost')) return url
+  return url.replace('://localhost', `://${window.location.hostname}`)
+}
+
+const configuredUrl = matchPageHostInDev((import.meta.env.VITE_API_URL ?? '').replace(/\/$/, ''))
 const API_URL = configuredUrl || (import.meta.env.PROD ? '/api' : '')
 const hasBackend = Boolean(API_URL)
 

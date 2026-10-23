@@ -135,7 +135,7 @@ export default function Welcome() {
           <div className={`${container} flex flex-wrap items-center justify-between gap-6 py-10`}>
             <div>
               <h2 className="text-[clamp(26px,3.4vw,38px)] font-extrabold leading-[1.02] tracking-[-0.035em]">Ready for your next shift?</h2>
-              <p className="mt-2 max-w-[46ch] text-[14px] text-white/85">
+              <p className="mt-2 max-w-[46ch] text-[14px] text-white">
                 {open.length > 0
                   ? `${open.length} ${open.length === 1 ? 'job is' : 'jobs are'} open now. Applying takes about three minutes.`
                   : 'No jobs are taking applications right now. Check back soon for the next intake.'}

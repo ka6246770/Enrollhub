@@ -39,7 +39,7 @@
   --color-sand-strong: #c98a1f;
   --color-coral: #f7dfd8;
   --color-coral-ink: #8e3226;
-  --color-coral-strong: #c14a33;
+  --color-coral-strong: #b8422b;
   /* Destructive action: dark red with white text in daylight, hot coral with
      dark text at night. */
   --color-danger: #b23a24;
@@ -248,6 +248,7 @@
     text-rendering: optimizeLegibility;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    overflow-wrap: break-word;
   }
 
   h1,
