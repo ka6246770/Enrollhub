@@ -266,3 +266,17 @@ BEGIN
     UPDATE registrations SET reference_code = candidate WHERE id = application.id;
   END LOOP;
 END $$;
+
+-- The owner's running notes on one application. This is separate from the
+-- legacy single `registrations.notes` summary: every entry keeps its author
+-- and time, and the newest entry is shown first.
+CREATE TABLE IF NOT EXISTS registration_notes (
+  id              serial PRIMARY KEY,
+  registration_id integer NOT NULL REFERENCES registrations(id) ON DELETE CASCADE,
+  author          text NOT NULL,
+  body            text NOT NULL CHECK (char_length(btrim(body)) BETWEEN 1 AND 1000),
+  created_at      timestamptz NOT NULL DEFAULT now(),
+  updated_at      timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS registration_notes_registration_idx
+  ON registration_notes (registration_id, created_at DESC);

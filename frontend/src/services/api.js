@@ -182,6 +182,24 @@ export async function deleteRegistration(id) {
   return request(`/registrations/${id}`, { method: 'DELETE' })
 }
 
+// --- Private registration notes (admin only) -------------------------------
+
+export async function fetchRegistrationNotes(registrationId) {
+  return request(`/admin/registrations/${registrationId}/notes`)
+}
+
+export async function createRegistrationNote(registrationId, body) {
+  return request(`/admin/registrations/${registrationId}/notes`, { method: 'POST', body: { body } })
+}
+
+export async function updateRegistrationNote(noteId, body) {
+  return request(`/admin/notes/${noteId}`, { method: 'PATCH', body: { body } })
+}
+
+export async function deleteRegistrationNote(noteId) {
+  return request(`/admin/notes/${noteId}`, { method: 'DELETE' })
+}
+
 export async function updateWaitlist(id, patch) {
   return request(`/waitlist/${id}`, { method: 'PATCH', body: patch })
 }
@@ -243,6 +261,10 @@ const api = {
   updateRegistration,
   createRegistrationStatusLink,
   deleteRegistration,
+  fetchRegistrationNotes,
+  createRegistrationNote,
+  updateRegistrationNote,
+  deleteRegistrationNote,
   updateWaitlist,
   offerWaitlist,
   deleteWaitlistEntry,

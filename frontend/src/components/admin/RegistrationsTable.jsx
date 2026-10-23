@@ -83,6 +83,32 @@ function makeColumns({ onDecide, onManage, pendingId, today }) {
       ),
     },
     {
+      key: 'notes',
+      header: 'Notes',
+      cell: (person) => {
+        const count = person.noteCount ?? 0
+        return (
+          <button
+            aria-label={`${person.name}: ${count} ${count === 1 ? 'note' : 'notes'} — open notes`}
+            className="relative grid size-8 place-items-center rounded-full bg-soft text-muted transition-colors hover:bg-mint hover:text-brand-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            onClick={() => onManage(person)}
+            title={count === 0 ? 'No notes yet' : `${count} notes`}
+            type="button"
+          >
+            <svg aria-hidden="true" className="size-3.5 stroke-current stroke-[1.7] [stroke-linecap:round] [stroke-linejoin:round]" fill="none" viewBox="0 0 24 24">
+              <path d="M7 3h7l4 4v14H7z" />
+              <path d="M14 3v5h5M10 13h5M10 17h5" />
+            </svg>
+            {count > 0 ? (
+              <span className="absolute -right-1 -top-1 grid min-w-4 place-items-center rounded-full bg-brand px-1 text-[9px] font-bold leading-4 text-white">
+                {count > 99 ? '99+' : count}
+              </span>
+            ) : null}
+          </button>
+        )
+      },
+    },
+    {
       key: 'followUp',
       header: 'Follow-up',
       className: 'whitespace-nowrap',

@@ -27,6 +27,8 @@ REG_ID=""
 REG_STATUS_PATH=""
 REG_TOKEN=""
 REG_REFERENCE=""
+NOTE_ID=""
+NOTE_TWO_ID=""
 PRIVACY_REG_ID=""
 PRIVACY_REG_STATUS_PATH=""
 WAITLIST_EMAIL="waiter.$STAMP@example.com"
@@ -316,6 +318,61 @@ if [ -n "$REG_TOKEN" ]; then
     -H 'Content-Type: application/json' -d '{"decision":"decline"}')"
 else
   SKIP=$((SKIP + 5)); printf '  skip  private acceptance checks → no private token\n'
+fi
+
+section 'Private notes'
+if need_reg 'private notes'; then
+  check 'notes need a session' 401 "$(status "$API/admin/registrations/$REG_ID/notes")"
+  check 'adding a note needs a session' 401 "$(status -X POST "$API/admin/registrations/$REG_ID/notes" \
+    -H 'Content-Type: application/json' -d '{"body":"Hidden"}')"
+
+  check 'add the first note' 201 "$(status -b "$JAR" -X POST "$API/admin/registrations/$REG_ID/notes" \
+    -H 'Content-Type: application/json' -d '{"body":"  Called about the shift.  "}')"
+  NOTE_ID="$(json 'd.id')"
+  check 'the note is trimmed' 'Called about the shift.' "$(json 'd.body')"
+  check 'the note records the signed-in admin' "$ADMIN_EMAIL" "$(json 'd.author')"
+
+  check 'add a second note' 201 "$(status -b "$JAR" -X POST "$API/admin/registrations/$REG_ID/notes" \
+    -H 'Content-Type: application/json' -d '{"body":"SMOKE-SECRET-NOTE wants a discount."}')"
+  NOTE_TWO_ID="$(json 'd.id')"
+
+  check 'list notes' 200 "$(status -b "$JAR" "$API/admin/registrations/$REG_ID/notes")"
+  check 'the newest note comes first' "$NOTE_TWO_ID" "$(json 'd[0]?.id')"
+  check 'both notes are listed' 2 "$(json 'd.length')"
+
+  check 'an empty note is rejected' 400 "$(status -b "$JAR" -X POST "$API/admin/registrations/$REG_ID/notes" \
+    -H 'Content-Type: application/json' -d '{"body":"   "}')"
+  LONG_NOTE="$(head -c 1001 /dev/zero | tr '\0' 'x')"
+  check 'a note over 1000 characters is rejected' 400 "$(status -b "$JAR" -X POST "$API/admin/registrations/$REG_ID/notes" \
+    -H 'Content-Type: application/json' -d "{\"body\":\"$LONG_NOTE\"}")"
+
+  status -b "$JAR" "$API/registrations?q=$EMAIL" >/dev/null
+  check 'the list includes the note count' 2 "$(json "d.find((r) => r.id === $REG_ID)?.noteCount")"
+  check 'the list includes note text for search' 'yes' \
+    "$(json "d.find((r) => r.id === $REG_ID)?.noteText?.includes('SMOKE-SECRET-NOTE') ? 'yes' : 'no'")"
+  check 'server search finds a note body' "$REG_ID" \
+    "$(status -b "$JAR" "$API/registrations?q=SMOKE-SECRET-NOTE" >/dev/null; json 'd[0]?.id')"
+
+  status -H 'X-Forwarded-For: 198.51.100.34' -X POST "$API/status/lookup" \
+    -H 'Content-Type: application/json' -d "{\"reference\":\"$REG_REFERENCE\",\"email\":\"$EMAIL\"}" >/dev/null
+  check 'public tracking hides notes' 'clean' \
+    "$(json "JSON.stringify(d).includes('SMOKE-SECRET-NOTE') ? 'leak' : 'clean'")"
+  check 'the private status page hides notes' 'clean' \
+    "$(status "$API/status/$REG_TOKEN" >/dev/null; json "JSON.stringify(d).includes('SMOKE-SECRET-NOTE') ? 'leak' : 'clean'")"
+
+  check 'edit a note' 200 "$(status -b "$JAR" -X PATCH "$API/admin/notes/$NOTE_ID" \
+    -H 'Content-Type: application/json' -d '{"body":"Called twice."}')"
+  check 'the edit is stored' 'Called twice.' "$(json 'd.body')"
+  check 'a note cannot be edited to empty' 400 "$(status -b "$JAR" -X PATCH "$API/admin/notes/$NOTE_ID" \
+    -H 'Content-Type: application/json' -d '{"body":"   "}')"
+
+  check 'delete the second note' 204 "$(status -b "$JAR" -X DELETE "$API/admin/notes/$NOTE_TWO_ID")"
+  check 'one note remains' 1 "$(status -b "$JAR" "$API/admin/registrations/$REG_ID/notes" >/dev/null; json 'd.length')"
+  check 'delete a note that is gone' 404 "$(status -b "$JAR" -X DELETE "$API/admin/notes/$NOTE_TWO_ID")"
+  check 'delete the first note' 204 "$(status -b "$JAR" -X DELETE "$API/admin/notes/$NOTE_ID")"
+  check 'the note list is empty again' 0 "$(status -b "$JAR" "$API/admin/registrations/$REG_ID/notes" >/dev/null; json 'd.length')"
+else
+  SKIP=$((SKIP + 24)); printf '  skip  private notes → no setup registration\n'
 fi
 
 section 'Waitlist follow-up'

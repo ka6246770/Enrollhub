@@ -104,6 +104,13 @@ export default function Dashboard({ section = 'Overview' }) {
     setNotice(`${person.name}'s personal data and recording were deleted.`)
   }
 
+  function handleNotesChanged(personId, noteCount, noteText) {
+    setData((current) => (current ?? []).map((row) => (
+      row.id === personId ? { ...row, noteCount, noteText } : row
+    )))
+    setEditing((current) => (current && current.id === personId ? { ...current, noteCount, noteText } : current))
+  }
+
   function showAttention() {
     updateParam('attention', '1')
     document.getElementById('registrations')?.scrollIntoView({ block: 'start' })
@@ -115,7 +122,7 @@ export default function Dashboard({ section = 'Overview' }) {
   const attentionRows = rows.filter((person) => needsAttention(person, today))
 
   const filtered = rows.filter((person) => {
-    const haystack = `${person.name} ${person.email} ${person.phone} ${person.residence ?? ''}`.toLowerCase()
+    const haystack = `${person.name} ${person.email} ${person.phone} ${person.residence ?? ''} ${person.noteText ?? ''} ${person.notes ?? ''}`.toLowerCase()
     const matchesSearch = haystack.includes(query.toLowerCase())
     const matchesStatus = status === 'All' || person.status.toLowerCase() === status.toLowerCase()
     const matchesOffer = !offer || person.offerSlug === offer
@@ -161,7 +168,7 @@ export default function Dashboard({ section = 'Overview' }) {
               aria-label="Search registrations"
               className={inputClass}
               onChange={(event) => updateParam('q', event.target.value)}
-              placeholder="Search name, email, phone…"
+              placeholder="Search name, email, phone, notes…"
               type="search"
               value={query}
             />
@@ -220,6 +227,7 @@ export default function Dashboard({ section = 'Overview' }) {
           key={editing.id}
           onClose={() => setEditing(null)}
           onDeleted={handleDeleted}
+          onNotesChanged={handleNotesChanged}
           onUpdated={handleUpdated}
           person={editing}
         />

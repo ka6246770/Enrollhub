@@ -45,6 +45,8 @@ function mapRegistration(row) {
     hasRecording: Boolean(row.voice_path),
     status: row.status,
     notes: row.notes,
+    ...(row.note_count !== undefined ? { noteCount: row.note_count } : {}),
+    ...(row.note_text !== undefined ? { noteText: row.note_text } : {}),
     followUpAt: row.follow_up_at,
     statusToken: row.status_token,
     reference: row.reference_code,
@@ -111,7 +113,11 @@ registrationsRouter.get('/', requireAdmin, async (req, res, next) => {
     }
     if (req.query.q) {
       params.push(`%${String(req.query.q)}%`)
-      clauses.push(`(r.name ILIKE $${params.length} OR r.email ILIKE $${params.length} OR r.phone ILIKE $${params.length})`)
+      clauses.push(`(r.name ILIKE $${params.length} OR r.email ILIKE $${params.length} OR r.phone ILIKE $${params.length}
+        OR EXISTS (
+          SELECT 1 FROM registration_notes n
+          WHERE n.registration_id = r.id AND n.body ILIKE $${params.length}
+        ))`)
     }
 
     const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : ''
@@ -120,7 +126,10 @@ registrationsRouter.get('/', requireAdmin, async (req, res, next) => {
     // single-owner business sees in a season; paging is the next step if it is
     // ever reached (the newest rows are the ones that matter).
     const { rows } = await query(
-      `SELECT r.*, o.slug FROM registrations r JOIN offers o ON o.id = r.offer_id ${where} ORDER BY r.created_at DESC LIMIT 1000`,
+      `SELECT r.*, o.slug,
+              (SELECT count(*)::int FROM registration_notes n WHERE n.registration_id = r.id) AS note_count,
+              COALESCE((SELECT string_agg(n.body, ' ') FROM registration_notes n WHERE n.registration_id = r.id), '') AS note_text
+       FROM registrations r JOIN offers o ON o.id = r.offer_id ${where} ORDER BY r.created_at DESC LIMIT 1000`,
       params,
     )
     res.json(rows.map(mapRegistration))
