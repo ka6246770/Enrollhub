@@ -2,7 +2,7 @@ import { assertRequiredEnv } from '../config/env.js'
 import { pool } from './database.js'
 import { seedTemplates } from '../services/messageTemplates.js'
 
-// The four Al-Tayeb job offers.
+// The four Al-Tayeb job offers used to seed an empty database.
 //
 // Re-running upserts them by slug, which means it also RESETS `seats_taken` and
 // `status` to the values below. That is what you want while developing, and
@@ -10,8 +10,7 @@ import { seedTemplates } from '../services/messageTemplates.js'
 // The message texts are seeded too, with ON CONFLICT DO NOTHING so an edit made
 // in the dashboard survives.
 //
-// Keep this in step with `frontend/src/data/offers.js`, which is the instant
-// first paint before `GET /offers` answers.
+// The database is the only source of offers: the frontend has no bundled copy.
 const OFFERS = [
   {
     slug: 'sadat-packaging-labeling',

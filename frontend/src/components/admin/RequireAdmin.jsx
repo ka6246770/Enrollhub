@@ -1,15 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
-import { getSession, isBackendEnabled } from '../../services/api.js'
+import { getSession } from '../../services/api.js'
 
-// Keeps the dashboard screens behind a signed-in admin. Without a backend the
-// app is a UI preview, so the guard steps aside and lets the sample data show.
+// Keeps the dashboard screens behind a signed-in admin.
 export default function RequireAdmin({ children }) {
   const location = useLocation()
-  const [state, setState] = useState(isBackendEnabled ? 'checking' : 'preview')
+  const [state, setState] = useState('checking')
 
   useEffect(() => {
-    if (!isBackendEnabled) return undefined
     let active = true
     getSession()
       .then((session) => {
@@ -23,7 +21,7 @@ export default function RequireAdmin({ children }) {
     }
   }, [])
 
-  if (state === 'preview' || state === 'signed-in') return children
+  if (state === 'signed-in') return children
 
   if (state === 'signed-out') {
     return <Navigate replace state={{ from: location.pathname }} to="/admin/login" />

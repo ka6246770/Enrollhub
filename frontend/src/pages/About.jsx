@@ -4,7 +4,7 @@ import DirectAnswer from '../components/DirectAnswer.jsx'
 import PageFrame from '../components/PageFrame.jsx'
 import PageHero from '../components/PageHero.jsx'
 import { REQUIREMENTS } from '../data/offers.js'
-import { HOW_IT_WORKS_STEPS } from '../data/sample-data.js'
+import { HOW_IT_WORKS_STEPS } from '../data/site-content.js'
 import { button, container, secondaryOnDark, sectionHeading } from '../lib/ui.js'
 
 const RECORDING_PROMPTS = [

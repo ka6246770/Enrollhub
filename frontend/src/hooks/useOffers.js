@@ -1,17 +1,12 @@
 import { useEffect, useState } from 'react'
-import { offers as staticOffers } from '../data/offers.js'
-import { fetchOffers, isBackendEnabled } from '../services/api.js'
+import { fetchOffers } from '../services/api.js'
 
-// Public offer pages read from this hook.
+// Public offer pages read from this hook. Offers come from `GET /offers`, so
+// dashboard edits, real seat counts and automatic sold-out states are always
+// what visitors see.
 //
-// The static offers in `data/offers.js` render immediately, so the first paint
-// is instant and the site still reads correctly when the API is unreachable.
-// The live offers from `GET /offers` then replace them, which is what makes
-// dashboard edits, real seat counts and automatic sold-out states visible to
-// visitors.
-//
-// The API returns camelCase; `data/offers.js` and every public component use the
-// snake_case shape, so the values are converted here and nowhere else.
+// The API returns camelCase; the public components use the snake_case shape,
+// so the values are converted here and nowhere else.
 function toPublicShape(offer, index) {
   return {
     id: offer.id,
@@ -36,10 +31,10 @@ function toPublicShape(offer, index) {
 }
 
 export function useOffers() {
-  const [offers, setOffers] = useState(staticOffers)
-  // Only a live API can add slugs the bundled preview does not have. Pages use
-  // this to show a loading line instead of a false 404 for a shared job link.
-  const [isLoading, setIsLoading] = useState(isBackendEnabled)
+  const [offers, setOffers] = useState([])
+  // Pages use this to show a loading line instead of a false 404 for a shared
+  // job link while the first request is still running.
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     let active = true
@@ -48,7 +43,8 @@ export function useOffers() {
         if (active && Array.isArray(live)) setOffers(live.map(toPublicShape))
       })
       .catch(() => {
-        // Keep the static content; a missing API must not blank the site.
+        // Leave the list empty: a public page must not invent jobs that are not
+        // in the database. The page's own empty state handles this case.
       })
       .finally(() => {
         if (active) setIsLoading(false)

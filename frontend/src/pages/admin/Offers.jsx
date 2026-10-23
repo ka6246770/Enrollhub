@@ -4,7 +4,7 @@ import { AdminLayout, PageHeading } from '../../components/admin/AdminLayout.jsx
 import { StatusBadge } from '../../components/admin/StatusBadge.jsx'
 import { useAsyncResource } from '../../hooks/useAsyncResource.js'
 import { inputClass, outlineButton, solidButton } from '../../lib/ui.js'
-import { createOffer, deleteOffer, fetchOffers, isBackendEnabled, updateOffer } from '../../services/api.js'
+import { createOffer, deleteOffer, fetchOffers, updateOffer } from '../../services/api.js'
 
 const dangerButton =
   'inline-flex min-h-9 items-center justify-center rounded-[4px] border border-danger bg-danger px-3 text-xs font-bold text-danger-ink no-underline transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral-strong disabled:cursor-not-allowed disabled:opacity-50'
@@ -201,7 +201,7 @@ export default function Offers() {
       <PageHeading
         eyebrow="Dashboard"
         title="Offers"
-        subtitle={isBackendEnabled ? 'Changes are saved to the database and used by the public pages.' : 'Preview data — changes are not saved.'}
+        subtitle="Changes are saved to the database and used by the public pages."
       >
         <button
           aria-controls="add-offer-form"

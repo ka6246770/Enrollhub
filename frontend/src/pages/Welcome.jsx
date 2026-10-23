@@ -5,7 +5,7 @@ import OfferCard from '../components/OfferCard.jsx'
 import PageFrame from '../components/PageFrame.jsx'
 import { Kicker } from '../components/PageHero.jsx'
 import { isClosed, isOpen } from '../data/offers.js'
-import { faq, HOW_IT_WORKS_STEPS } from '../data/sample-data.js'
+import { faq, HOW_IT_WORKS_STEPS } from '../data/site-content.js'
 import { useOffers } from '../hooks/useOffers.js'
 import { button, container, secondaryButton, sectionHeading } from '../lib/ui.js'
 
@@ -17,7 +17,7 @@ const BENEFITS = [
 ]
 
 export default function Welcome() {
-  const { offers } = useOffers()
+  const { offers, isLoading } = useOffers()
   const visible = offers.filter((offer) => !isClosed(offer))
   const open = visible.filter(isOpen)
 
@@ -44,10 +44,12 @@ export default function Welcome() {
             <aside className="self-start border border-ink bg-night text-night-ink">
               <div className="flex items-center justify-between border-b border-white/15 px-5 py-3">
                 <span className="mono-label text-night-muted">Now hiring</span>
-                <span className="mono-label text-white">{open.length} {open.length === 1 ? 'job' : 'jobs'}</span>
+                <span className="mono-label text-white">{isLoading ? 'Loading jobs…' : `${open.length} ${open.length === 1 ? 'job' : 'jobs'}`}</span>
               </div>
               <div>
-                {open.length === 0 ? (
+                {isLoading ? (
+                  <p className="px-5 py-4 text-[12px] text-night-muted">Loading jobs…</p>
+                ) : open.length === 0 ? (
                   <p className="px-5 py-4 text-[12px] text-night-muted">No jobs are taking applications right now. Check back soon.</p>
                 ) : open.map((offer) => (
                   <Link
@@ -83,11 +85,17 @@ export default function Welcome() {
               <h2 className={sectionHeading}>Current jobs</h2>
               <p className="mt-2 max-w-[52ch] text-[14px] text-muted">Every job uses the same short application and a voice note.</p>
             </div>
-            <Link className="inline-flex min-h-6 items-center text-[12px] font-bold text-brand-text underline underline-offset-4 hover:no-underline" to="/offers">See all {visible.length} jobs</Link>
+            <Link className="inline-flex min-h-6 items-center text-[12px] font-bold text-brand-text underline underline-offset-4 hover:no-underline" to="/offers">See all jobs</Link>
           </div>
-          <div className="motion-stagger mt-7 grid gap-4 min-[640px]:grid-cols-2 min-[1100px]:grid-cols-4">
-            {visible.map((offer) => <OfferCard key={offer.id} offer={offer} />)}
-          </div>
+          {isLoading || visible.length === 0 ? (
+            <p className="mt-7 border border-dashed border-ink/20 bg-surface p-6 text-[13px] text-muted">
+              {isLoading ? 'Loading jobs…' : 'No jobs are taking applications right now. Check back soon.'}
+            </p>
+          ) : (
+            <div className="motion-stagger mt-7 grid gap-4 min-[640px]:grid-cols-2 min-[1100px]:grid-cols-4">
+              {visible.map((offer) => <OfferCard key={offer.id} offer={offer} />)}
+            </div>
+          )}
         </section>
 
         <section className="bg-night text-night-ink">

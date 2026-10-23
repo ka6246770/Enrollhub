@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { BrandMark } from '../../components/Brand.jsx'
 import { inputClass, solidButton } from '../../lib/ui.js'
-import { getSession, isBackendEnabled, login } from '../../services/api.js'
+import { getSession, login } from '../../services/api.js'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -14,7 +14,6 @@ export default function Login() {
   // A saved cookie is enough to skip the form. This also covers revisiting a
   // bookmarked /admin/login while already signed in.
   useEffect(() => {
-    if (!isBackendEnabled) return undefined
     let active = true
     getSession()
       .then((session) => {
@@ -94,9 +93,7 @@ export default function Login() {
           {notice && <p className="text-center text-xs text-muted" role="status">{notice}</p>}
         </form>
         <p className="mt-5 text-center text-[10px] leading-relaxed text-muted">
-          {isBackendEnabled
-            ? 'Sign in with the admin account created by `npm run admin:set`. “Keep me signed in” lasts 30 days and renews while you use the dashboard.'
-            : 'Preview mode: any email and password open the dashboard, because no backend is configured.'}
+          Sign in with the admin account created by `npm run admin:set`. “Keep me signed in” lasts 30 days and renews while you use the dashboard.
         </p>
       </div>
     </main>

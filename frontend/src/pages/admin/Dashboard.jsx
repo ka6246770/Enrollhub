@@ -13,7 +13,6 @@ import {
   fetchAllOffers,
   fetchMessages,
   fetchRegistrations,
-  isBackendEnabled,
   updateRegistration,
 } from '../../services/api.js'
 
@@ -143,7 +142,7 @@ export default function Dashboard({ section = 'Overview' }) {
       <PageHeading
         eyebrow="Dashboard"
         title="Overview"
-        subtitle={`${formatDate(today)} · ${isBackendEnabled ? 'Live data from the API.' : 'Preview data — no backend is configured.'}`}
+        subtitle={`${formatDate(today)} · Live data from the API.`}
       >
         <div className="flex flex-wrap items-center justify-end gap-2 max-[560px]:w-full">
           {failedMessages > 0 ? (

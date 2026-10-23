@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { adminContainer, adminSkipLink } from '../../lib/ui.js'
-import { getSession, isBackendEnabled, logout } from '../../services/api.js'
+import { getSession, logout } from '../../services/api.js'
 import { BrandMark } from '../Brand.jsx'
 import ThemeToggle from '../ThemeToggle.jsx'
 
@@ -30,11 +30,10 @@ function NavIcon({ name }) {
 }
 
 // Reads the cached session (see services/api.js) so the sidebar can show who is
-// signed in. The admin email is only shown when a backend is configured.
+// signed in.
 function useAdminEmail() {
   const [email, setEmail] = useState('')
   useEffect(() => {
-    if (!isBackendEnabled) return undefined
     let active = true
     getSession()
       .then((session) => {

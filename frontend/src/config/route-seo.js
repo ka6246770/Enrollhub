@@ -3,7 +3,7 @@
 // GEO: the FAQ and article schema here are generated from the same visible copy
 // used by the pages, which keeps answers citation-ready and consistent.
 
-import { faq } from '../data/sample-data.js'
+import { faq } from '../data/site-content.js'
 import { site } from './site.js'
 import {
   buildArticleSchema,
