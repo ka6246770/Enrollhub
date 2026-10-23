@@ -126,7 +126,7 @@ export function OfferPanel({ offers, rows }) {
   return (
     <article className="rounded-xl border border-line bg-surface p-5">
       <PanelHeading hint="Top jobs by number of applications" title="By offer">
-        <span className="mono-label text-muted">{offers.length} jobs</span>
+        <span className="mono-label text-muted">{offers.length} {offers.length === 1 ? 'job' : 'jobs'}</span>
       </PanelHeading>
       {ranked.length === 0 ? (
         <p className="mt-5 text-xs text-muted">No jobs yet.</p>

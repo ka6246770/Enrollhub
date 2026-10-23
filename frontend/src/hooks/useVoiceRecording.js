@@ -81,6 +81,7 @@ export function useVoiceRecording() {
   const timerRef = useRef(0)
   const startedAtRef = useRef(0)
   const recordedSecondsRef = useRef(0)
+  const discardRef = useRef(false)
 
   const clearTimer = useCallback(() => {
     if (timerRef.current) {
@@ -132,9 +133,11 @@ export function useVoiceRecording() {
     setError('')
     setElapsed(0)
     recordedSecondsRef.current = 0
+    discardRef.current = false
     checkIdRef.current += 1
     if (fileInputRef.current) fileInputRef.current.value = ''
     setRecording(null)
+    stopAudio()
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -165,6 +168,10 @@ export function useVoiceRecording() {
         recordedSecondsRef.current = seconds
         setElapsed(seconds)
 
+        if (discardRef.current) {
+          discardRef.current = false
+          return
+        }
         if (!blob.size) {
           setError('The recording was empty. Please try again or upload a file.')
           return
@@ -251,7 +258,10 @@ export function useVoiceRecording() {
   )
 
   const remove = useCallback(() => {
-    if (isRecording) stopRecording()
+    if (isRecording) {
+      discardRef.current = true
+      stopRecording()
+    }
     checkIdRef.current += 1
     recordedSecondsRef.current = 0
     setRecording(null)

@@ -8,7 +8,7 @@ import { useOffers } from '../hooks/useOffers.js'
 import { container } from '../lib/ui.js'
 
 export default function AllOffers() {
-  const offers = useOffers()
+  const { offers } = useOffers()
   const visible = offers.filter((offer) => !isClosed(offer))
   const openCount = visible.filter(isOpen).length
   const directAnswer = visible.length === 0

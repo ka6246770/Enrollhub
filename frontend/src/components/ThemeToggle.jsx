@@ -14,7 +14,7 @@ export function ThemeToggle({ className = '' }) {
     <button
       aria-label={label}
       aria-pressed={isDark}
-      className={`grid size-9 shrink-0 place-items-center rounded-full border border-white/25 text-night-ink transition-colors hover:border-white/60 hover:bg-surface/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white motion-reduce:transition-none ${className}`}
+      className={`grid size-9 shrink-0 place-items-center rounded-full border border-white/25 text-night-ink transition-colors hover:border-white/60 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white motion-reduce:transition-none ${className}`}
       onClick={toggleTheme}
       title={label}
       type="button"

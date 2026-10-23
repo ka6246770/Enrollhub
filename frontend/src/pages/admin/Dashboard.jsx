@@ -10,8 +10,8 @@ import { dateOnly, lastSevenDays, needsAttention, statusCounts } from '../../lib
 import { formatDate, isWithinLastDays, todayIso } from '../../lib/format.js'
 import { inputClass, outlineButton } from '../../lib/ui.js'
 import {
+  fetchAllOffers,
   fetchMessages,
-  fetchOffers,
   fetchRegistrations,
   isBackendEnabled,
   updateRegistration,
@@ -51,7 +51,7 @@ export default function Dashboard({ section = 'Overview' }) {
 
   const { data: registrations, setData, loading, error } = useAsyncResource(useCallback(() => fetchRegistrations(), []))
   const { data: messages } = useAsyncResource(useCallback(() => fetchMessages(), []))
-  const { data: offers } = useAsyncResource(useCallback(() => fetchOffers(), []))
+  const { data: offers } = useAsyncResource(useCallback(() => fetchAllOffers(), []))
 
   const query = searchParams.get('q') ?? ''
   const status = searchParams.get('status') ?? 'All'
@@ -154,17 +154,19 @@ export default function Dashboard({ section = 'Overview' }) {
               to="/admin/messages"
             >
               <svg aria-hidden="true" className="size-[18px] stroke-current stroke-[1.7] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24" fill="none"><path d="M6 9a6 6 0 0 1 12 0c0 4 1.5 5.5 1.5 5.5h-15S6 13 6 9Zm3.5 8.5a2.5 2.5 0 0 0 5 0" /></svg>
-              <span className="absolute -right-1 -top-1 grid size-4 place-items-center rounded-full bg-coral-strong text-[9px] font-bold text-white">{failedMessages}</span>
+              <span className="absolute -right-1 -top-1 grid size-4 place-items-center rounded-full bg-danger text-[9px] font-bold text-danger-ink">{failedMessages}</span>
             </Link>
           ) : null}
-          <input
-            aria-label="Search registrations"
-            className={`${inputClass} w-56 max-[560px]:w-full max-[560px]:flex-1`}
-            onChange={(event) => updateParam('q', event.target.value)}
-            placeholder="Search name, email, phone…"
-            type="search"
-            value={query}
-          />
+          <div className="w-56 max-[560px]:w-full max-[560px]:flex-1">
+            <input
+              aria-label="Search registrations"
+              className={inputClass}
+              onChange={(event) => updateParam('q', event.target.value)}
+              placeholder="Search name, email, phone…"
+              type="search"
+              value={query}
+            />
+          </div>
           <button className={`${outlineButton} whitespace-nowrap`} onClick={() => exportCsv(filtered)} type="button">Export CSV</button>
         </div>
       </PageHeading>

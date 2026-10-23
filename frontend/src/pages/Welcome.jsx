@@ -17,7 +17,7 @@ const BENEFITS = [
 ]
 
 export default function Welcome() {
-  const offers = useOffers()
+  const { offers } = useOffers()
   const visible = offers.filter((offer) => !isClosed(offer))
   const open = visible.filter(isOpen)
 

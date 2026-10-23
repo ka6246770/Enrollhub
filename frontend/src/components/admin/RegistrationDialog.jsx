@@ -198,7 +198,7 @@ export default function RegistrationDialog({ person, onClose, onDeleted, onUpdat
           </p>
           {confirmDelete ? (
             <div className="mt-3 flex flex-wrap gap-2">
-              <button className="inline-flex min-h-9 items-center justify-center rounded-[4px] border border-coral-strong bg-coral-strong px-3 text-xs font-bold text-white disabled:opacity-50" disabled={deleting} onClick={remove} type="button">
+              <button className="inline-flex min-h-9 items-center justify-center rounded-[4px] border border-danger bg-danger px-3 text-xs font-bold text-danger-ink disabled:opacity-50" disabled={deleting} onClick={remove} type="button">
                 {deleting ? 'Deleting…' : 'Yes, delete permanently'}
               </button>
               <button className={outlineButton} disabled={deleting} onClick={() => setConfirmDelete(false)} type="button">Cancel</button>

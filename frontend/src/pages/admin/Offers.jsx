@@ -7,7 +7,7 @@ import { inputClass, outlineButton, solidButton } from '../../lib/ui.js'
 import { createOffer, deleteOffer, fetchOffers, isBackendEnabled, updateOffer } from '../../services/api.js'
 
 const dangerButton =
-  'inline-flex min-h-9 items-center justify-center rounded-[4px] border border-coral-strong bg-coral-strong px-3 text-xs font-bold text-white no-underline transition-colors hover:border-coral-ink hover:bg-coral-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral-strong disabled:cursor-not-allowed disabled:opacity-50'
+  'inline-flex min-h-9 items-center justify-center rounded-[4px] border border-danger bg-danger px-3 text-xs font-bold text-danger-ink no-underline transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral-strong disabled:cursor-not-allowed disabled:opacity-50'
 
 function statusCopy(status) {
   if (status === 'paused') return { label: 'Paused', tone: 'warning' }

@@ -155,6 +155,12 @@ export async function fetchOffers() {
   return hasBackend ? request('/offers') : demoOffers.filter((offer) => offer.status !== 'closed')
 }
 
+// Admin-only: archived offers stay in this list because registrations still
+// point at them. Used by the dashboard so every application can name its job.
+export async function fetchAllOffers() {
+  return hasBackend ? request('/offers/all') : demoOffers
+}
+
 export async function fetchRegistrations(params) {
   return hasBackend ? request(`/registrations${toQuery(params)}`) : demoRegistrations
 }
@@ -612,6 +618,7 @@ function toQuery(params = {}) {
 
 const api = {
   fetchOffers,
+  fetchAllOffers,
   fetchRegistrations,
   fetchWaitlist,
   fetchMessages,

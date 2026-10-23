@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Field } from '../components/FormField.jsx'
+import JobLoading from '../components/JobLoading.jsx'
 import PageFrame from '../components/PageFrame.jsx'
 import Seo from '../components/Seo.jsx'
 import { isClosed, isOpen, isPaused } from '../data/offers.js'
@@ -14,8 +15,13 @@ export default function OfferWaitlist() {
   const [joined, setJoined] = useState(false)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
-  const offers = useOffers()
+  const { offers, isLoading } = useOffers()
   const offer = offers.find((item) => item.slug === slug)
+
+  // Same first-paint guard as the job page: do not call a shared waitlist link
+  // missing while the API is still answering.
+  if (!offer && isLoading) return <JobLoading />
+
   if (!offer || isClosed(offer)) return <NotFound />
 
   const paused = isPaused(offer)

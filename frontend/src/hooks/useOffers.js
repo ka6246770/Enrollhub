@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { offers as staticOffers } from '../data/offers.js'
-import { fetchOffers } from '../services/api.js'
+import { fetchOffers, isBackendEnabled } from '../services/api.js'
 
 // Public offer pages read from this hook.
 //
@@ -37,6 +37,9 @@ function toPublicShape(offer, index) {
 
 export function useOffers() {
   const [offers, setOffers] = useState(staticOffers)
+  // Only a live API can add slugs the bundled preview does not have. Pages use
+  // this to show a loading line instead of a false 404 for a shared job link.
+  const [isLoading, setIsLoading] = useState(isBackendEnabled)
 
   useEffect(() => {
     let active = true
@@ -47,12 +50,15 @@ export function useOffers() {
       .catch(() => {
         // Keep the static content; a missing API must not blank the site.
       })
+      .finally(() => {
+        if (active) setIsLoading(false)
+      })
     return () => {
       active = false
     }
   }, [])
 
-  return offers
+  return { offers, isLoading }
 }
 
 export default useOffers

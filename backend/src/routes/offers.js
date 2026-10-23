@@ -49,6 +49,17 @@ offersRouter.get('/', async (req, res, next) => {
   }
 })
 
+offersRouter.get('/all', requireAdmin, async (req, res, next) => {
+  try {
+    // Archived offers keep their registrations, so the dashboard still needs
+    // their titles. The public list deliberately hides them.
+    const { rows } = await query(`${OFFER_SELECT} ORDER BY o.id DESC`)
+    res.json(rows.map(mapOffer))
+  } catch (error) {
+    next(error)
+  }
+})
+
 offersRouter.get('/:slug', async (req, res, next) => {
   try {
     await closeExpiredOffers()

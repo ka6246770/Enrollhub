@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom'
 import DirectAnswer from '../components/DirectAnswer.jsx'
 import FaqList from '../components/FaqList.jsx'
+import JobLoading from '../components/JobLoading.jsx'
 import PageFrame from '../components/PageFrame.jsx'
 import RegistrationForm from '../components/RegistrationForm.jsx'
 import Seo from '../components/Seo.jsx'
@@ -28,8 +29,13 @@ function clampDescription(value, max = 160) {
 
 export default function Offer() {
   const { slug } = useParams()
-  const offers = useOffers()
+  const { offers, isLoading } = useOffers()
   const offer = offers.find((item) => item.slug === slug)
+
+  // A shared link can arrive before the live offers have loaded. Showing a 404
+  // during that gap would be wrong, so wait for the first API answer.
+  if (!offer && isLoading) return <JobLoading />
+
   if (!offer || isClosed(offer)) return <NotFound />
 
   const paused = isPaused(offer)
