@@ -16,6 +16,17 @@ export function query(text, params) {
   return pool.query(text, params)
 }
 
+// Schema changes and dumps need a direct connection: Neon's pooler runs in
+// transaction mode and does not keep session state between statements.
+export function directPool() {
+  if (env.databaseUrlUnpooled === env.databaseUrl) return pool
+  const direct = new pg.Pool({ connectionString: env.databaseUrlUnpooled })
+  direct.on('error', (error) => {
+    console.error('Unexpected database error (direct connection)', error)
+  })
+  return direct
+}
+
 // Every outbound notification is recorded, so the dashboard can show what was
 // delivered, failed, or skipped (for example when an integration is not set up).
 export function recordMessage({

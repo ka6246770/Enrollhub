@@ -28,6 +28,10 @@ export const env = {
   port: asNumber(process.env.PORT, 3001),
   frontendUrl: process.env.FRONTEND_URL ?? 'http://localhost:5173',
   databaseUrl: process.env.DATABASE_URL ?? '',
+  // Neon's pooled URL drops session state between statements, so migrations and
+  // dumps use the direct URL when one is configured.
+  databaseUrlUnpooled:
+    process.env.DATABASE_URL_UNPOOLED ?? process.env.DIRECT_URL ?? process.env.DATABASE_URL ?? '',
 
   sessionSecret: process.env.SESSION_SECRET ?? 'dev-only-secret-change-me',
   adminEmail: process.env.ADMIN_EMAIL ?? '',
