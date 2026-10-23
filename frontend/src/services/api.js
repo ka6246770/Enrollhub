@@ -92,6 +92,16 @@ export async function fetchPublicStatus(token) {
   return request(`/status/${encodeURIComponent(token)}`)
 }
 
+// Public reference lookup. It needs both the code and the email; neither one
+// alone is enough to open someone's status.
+export async function lookupRegistrationStatus(payload) {
+  return request('/status/lookup', { method: 'POST', body: payload })
+}
+
+export async function resendReference(email) {
+  return request('/status/resend-reference', { method: 'POST', body: { email } })
+}
+
 export async function respondToStatus(token, decision) {
   return request(`/status/${encodeURIComponent(token)}/respond`, { method: 'POST', body: { decision } })
 }
@@ -217,6 +227,8 @@ const api = {
   fetchMessageStatus,
   fetchVoiceClip,
   fetchPublicStatus,
+  lookupRegistrationStatus,
+  resendReference,
   respondToStatus,
   getSession,
   login,

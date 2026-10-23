@@ -7,6 +7,7 @@ const LINKS = [
   ['Jobs', '/offers'],
   ['How it works', '/about'],
   ['FAQ', '/faq'],
+  ['Track', '/track'],
   ['Contact', '/contact'],
 ]
 

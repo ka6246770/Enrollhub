@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import Brand from '../components/Brand.jsx'
-import { button, container } from '../lib/ui.js'
+import { button, container, secondaryButton } from '../lib/ui.js'
 
 export default function Thanks() {
   const location = useLocation()
@@ -8,6 +8,7 @@ export default function Thanks() {
   const phone = String(location.state?.phone ?? '').trim()
   const offerTitle = location.state?.offerTitle || 'the job you applied for'
   const statusPath = location.state?.statusPath || ''
+  const reference = String(location.state?.reference ?? '').trim()
   const steps = [
     ['Check WhatsApp', phone ? `We will message ${phone} about the next step.` : 'We will message the WhatsApp number you gave us about the next step.'],
     ['Keep your phone on', 'We may ask a few questions before the team makes a decision.'],
@@ -42,6 +43,12 @@ export default function Thanks() {
             <dd className="font-semibold">{name || 'Your application'}</dd>
             <dt className="text-muted">Job</dt>
             <dd className="font-semibold">{offerTitle}</dd>
+            {reference ? (
+              <>
+                <dt className="text-muted">Reference</dt>
+                <dd className="font-mono font-semibold tracking-[0.06em]">{reference}</dd>
+              </>
+            ) : null}
             <dt className="text-muted">WhatsApp</dt>
             <dd className="font-semibold tabular-nums">{phone || 'Number provided'}</dd>
           </dl>
@@ -57,6 +64,19 @@ export default function Thanks() {
             ))}
           </ol>
         </div>
+
+        {reference ? (
+          <div className="mt-6 border border-ink/15 bg-surface p-4">
+            <h2 className="text-[14px] font-bold">Your reference code</h2>
+            <p className="mt-1 text-[12px] leading-relaxed text-muted">
+              Keep this code. You need it together with your email address to check your status later.
+            </p>
+            <p className="mt-3 break-all rounded bg-soft px-3 py-2 font-mono text-[15px] font-bold tracking-[0.08em] text-ink">{reference}</p>
+            <Link className={`${secondaryButton} mt-3 w-full`} to={`/track?ref=${encodeURIComponent(reference)}`}>
+              Track my application
+            </Link>
+          </div>
+        ) : null}
 
         {statusPath ? (
           <div className="mt-6 border border-brand/30 bg-mint p-4">

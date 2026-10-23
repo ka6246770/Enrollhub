@@ -26,6 +26,7 @@ export function Footer() {
           <p className="mono-label text-night-muted">Jobs</p>
           <div className="mt-4 grid gap-2.5 text-[13px] font-semibold">
             <Link className={footerLink} to="/offers">All open jobs</Link>
+            <Link className={footerLink} to="/track">Track application</Link>
             <Link className={footerLink} to="/about">How it works</Link>
             <Link className={footerLink} to="/faq">FAQ</Link>
           </div>

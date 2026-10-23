@@ -13,6 +13,7 @@ import OfferWaitlist from './pages/OfferWaitlist.jsx'
 import Privacy from './pages/Privacy.jsx'
 import Terms from './pages/Terms.jsx'
 import Thanks from './pages/Thanks.jsx'
+import Track from './pages/Track.jsx'
 import Welcome from './pages/Welcome.jsx'
 
 // Admin screens are only needed after sign-in, so load each one on demand and
@@ -48,6 +49,7 @@ export default function App() {
           <Route path="/faq" element={<Faq />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/thank-you" element={<Thanks />} />
+          <Route path="/track" element={<Track />} />
           <Route path="/status/:token" element={<Status />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />

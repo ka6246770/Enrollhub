@@ -149,6 +149,12 @@ const THANKS = {
   noindex: true,
 }
 
+const TRACK = {
+  title: 'Track your application | EnrollHub',
+  description: 'Check your EnrollHub application with your reference code and email.',
+  noindex: true,
+}
+
 const APPLY = {
   title: 'Apply for this job | Al-Tayeb',
   description: 'Apply for an Al-Tayeb factory job. Enter your details and record a short voice note; no CV or account is needed.',
@@ -182,6 +188,7 @@ const PAGES = {
   '/privacy': PRIVACY,
   '/terms': TERMS,
   '/thank-you': THANKS,
+  '/track': TRACK,
 }
 
 export function getRouteSeo(pathname = '/') {

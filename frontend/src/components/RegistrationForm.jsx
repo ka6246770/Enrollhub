@@ -42,6 +42,7 @@ export function RegistrationForm({ offer }) {
           phone: formData.get('phone'),
           offerTitle: offer.title,
           statusPath: result?.statusPath ?? null,
+          reference: result?.reference ?? null,
         },
       })
     } catch (error) {

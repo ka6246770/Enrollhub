@@ -33,3 +33,12 @@ export const lookupLimiter = rateLimit({
   limit: 120,
   handler: reject('Too many status checks from this address. Please wait a few minutes and try again.'),
 })
+
+// Public reference lookup: 10 tries per 15 minutes. Paired with the reference
+// code, this makes guessing another person's code and email impractical.
+export const trackingLimiter = rateLimit({
+  ...shared,
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  handler: reject('Too many status checks. Please wait 15 minutes and try again.'),
+})

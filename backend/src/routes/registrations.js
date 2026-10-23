@@ -47,6 +47,7 @@ function mapRegistration(row) {
     notes: row.notes,
     followUpAt: row.follow_up_at,
     statusToken: row.status_token,
+    reference: row.reference_code,
     offeredAt: row.offered_at,
     respondedAt: row.responded_at,
     whatsappConfirmed: row.whatsapp_confirmed,
@@ -70,7 +71,12 @@ registrationsRouter.post('/', formLimiter, uploadVoice, verifyAudioSignature, as
       form: req.body,
       voice: req.file,
     })
-    res.status(201).json({ ok: true, id: registration.id, statusPath: `/status/${statusToken}` })
+    res.status(201).json({
+      ok: true,
+      id: registration.id,
+      reference: registration.reference_code,
+      statusPath: `/status/${statusToken}`,
+    })
   } catch (error) {
     next(error)
   }
@@ -159,7 +165,7 @@ registrationsRouter.patch('/:id', requireAdmin, async (req, res, next) => {
     const { rows } = await query(
       `UPDATE registrations SET ${sets.join(', ')} WHERE id = $1
        RETURNING id, offer_id, name, age, language, level, residence, email, phone, voice_path,
-                 status, notes, follow_up_at, status_token, offered_at, responded_at,
+                 status, notes, follow_up_at, status_token, reference_code, offered_at, responded_at,
                  whatsapp_confirmed, created_at, updated_at,
                  (SELECT slug FROM offers WHERE offers.id = registrations.offer_id) AS slug`,
       params,

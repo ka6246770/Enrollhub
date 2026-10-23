@@ -236,3 +236,33 @@ BEGIN
       CHECK (status IN ('waiting', 'contacted', 'offered', 'accepted', 'declined'));
   END IF;
 END $$;
+
+-- Public status tracking uses a reference code plus the email that applied.
+-- The code is not a secret on its own, but it stops anyone who merely knows an
+-- email from opening someone else's status. Codes avoid 0/O and 1/I so a person
+-- reading one from an email cannot confuse the characters.
+ALTER TABLE registrations ADD COLUMN IF NOT EXISTS reference_code text;
+CREATE UNIQUE INDEX IF NOT EXISTS registrations_reference_code_idx
+  ON registrations (reference_code)
+  WHERE reference_code IS NOT NULL;
+
+-- Backfill existing applications once. The inner loop retries on the
+-- astronomically unlikely collision; the outer loop is safe to re-run because it
+-- only touches rows that still have no code.
+DO $$
+DECLARE
+  application record;
+  candidate text;
+  alphabet constant text := '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+BEGIN
+  FOR application IN SELECT id FROM registrations WHERE reference_code IS NULL LOOP
+    LOOP
+      candidate := 'ENR-' || (
+        SELECT string_agg(substr(alphabet, (floor(random() * length(alphabet)) + 1)::int, 1), '')
+        FROM generate_series(1, 8)
+      );
+      EXIT WHEN NOT EXISTS (SELECT 1 FROM registrations WHERE reference_code = candidate);
+    END LOOP;
+    UPDATE registrations SET reference_code = candidate WHERE id = application.id;
+  END LOOP;
+END $$;

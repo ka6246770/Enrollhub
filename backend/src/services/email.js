@@ -142,11 +142,17 @@ export async function sendEmail({ to, subject, text, html = null, attachments = 
 // every body is rendered from the live template so a dashboard edit applies to
 // the next email. All three are async for that reason, and each returns
 // { subject, text, html }.
-export async function confirmationEmail({ name, offer, offerSlug, statusLink = null }) {
+export async function confirmationEmail({ name, offer, offerSlug, reference = null, statusLink = null }) {
   const template = await renderTemplate('customerConfirmation', { name, offer })
-  const text = statusLink
-    ? `${template}\n\nCheck your application status any time: ${statusLink}`
-    : template
+  const lines = [template]
+  if (reference) {
+    lines.push(
+      `Your reference code: ${reference}`,
+      `Track your application any time: ${siteUrl()}/track?ref=${encodeURIComponent(reference)} (use the email address you applied with).`,
+    )
+  }
+  if (statusLink) lines.push(`Check your application status any time: ${statusLink}`)
+  const text = lines.join('\n\n')
   return {
     subject: `We received your registration for ${offer}`,
     text,
@@ -154,6 +160,29 @@ export async function confirmationEmail({ name, offer, offerSlug, statusLink = n
       body: text,
       offer,
       ctaUrl: statusLink || offerLink(offerSlug),
+    }),
+  }
+}
+
+// "Email me my reference code" sends every code on record for the address in a
+// single message. The route keeps the reply generic; this builder only runs
+// when at least one registration matched.
+export async function referenceReminderEmail({ name = null, codes = [] }) {
+  const lines = [
+    `Hello${name ? ` ${name}` : ''},`,
+    'You asked us to resend your EnrollHub reference code.',
+    ...codes.map((item) => `${item.offer}: ${item.reference}`),
+    `Track your application: ${siteUrl()}/track`,
+    'Open the tracking page and enter one of the codes above with the email address you applied with.',
+  ]
+  const text = lines.join('\n\n')
+  return {
+    subject: 'Your EnrollHub reference code',
+    text,
+    html: fillLayout(designFiles.customerConfirmation, {
+      body: text,
+      offer: codes[0]?.offer ?? 'EnrollHub',
+      ctaUrl: `${siteUrl()}/track`,
     }),
   }
 }

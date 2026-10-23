@@ -10,6 +10,7 @@ import { env } from '../config/env.js'
 import { pool, query } from '../db/database.js'
 import { confirmationEmail, ownerRegistrationEmail, sendEmail, siteUrl } from './email.js'
 import { closeExpiredOffers } from './offers.js'
+import { createReferenceCode } from './referenceCode.js'
 import { notifyNewRegistration, storeVoiceFile } from './telegram.js'
 import { createStatusToken } from './tokens.js'
 
@@ -70,6 +71,7 @@ async function findBookableOffer(client, slug) {
 // not leave seats_taken behind.
 async function saveRegistration(client, { offer, input, voiceMime }) {
   const statusToken = createStatusToken('reg')
+  const referenceCode = createReferenceCode()
 
   try {
     await client.query('BEGIN')
@@ -86,8 +88,8 @@ async function saveRegistration(client, { offer, input, voiceMime }) {
     }
 
     const { rows: insertedRows } = await client.query(
-      `INSERT INTO registrations (offer_id, name, age, language, level, residence, email, phone, voice_mime, status_token)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      `INSERT INTO registrations (offer_id, name, age, language, level, residence, email, phone, voice_mime, status_token, reference_code)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
        RETURNING *`,
       [
         offer.id,
@@ -100,6 +102,7 @@ async function saveRegistration(client, { offer, input, voiceMime }) {
         input.phone,
         voiceMime,
         statusToken,
+        referenceCode,
       ],
     )
 
@@ -142,6 +145,7 @@ async function emailApplicantConfirmation({ registration, offer, statusToken }) 
     name: registration.name,
     offer: offer.title,
     offerSlug: offer.slug,
+    reference: registration.reference_code,
     statusLink: `${siteUrl()}/status/${statusToken}`,
   })
   await sendEmail({
