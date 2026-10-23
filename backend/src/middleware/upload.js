@@ -11,12 +11,18 @@ const ALLOWED_MIME = new Set([
   'audio/wav',
   'audio/x-wav',
   'audio/wave',
+  // In-browser MediaRecorder output. Safari produces MP4/M4A, already above.
+  'audio/webm',
+  'video/webm',
+  'audio/ogg',
+  'video/ogg',
+  'application/ogg',
 ])
 
-const ALLOWED_EXTENSION = new Set(['.mp3', '.m4a', '.wav'])
+const ALLOWED_EXTENSION = new Set(['.mp3', '.m4a', '.wav', '.webm', '.ogg', '.oga'])
 
 // Kept in memory so the route can both store the file and forward it to
-// Telegram without writing twice. Phase E can add magic-byte sniffing.
+// Telegram without writing twice.
 export const uploadVoice = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: env.maxUploadBytes, files: 1 },
@@ -26,7 +32,7 @@ export const uploadVoice = multer({
       cb(null, true)
       return
     }
-    const error = new Error('Choose an MP3, M4A, or WAV audio file.')
+    const error = new Error('Choose an MP3, M4A, WAV, WebM, or OGG audio file.')
     error.status = 400
     cb(error)
   },
@@ -43,9 +49,12 @@ export function verifyAudioSignature(req, res, next) {
   const isMp3 = tag(0, 'ID3') || (buffer[0] === 0xff && (buffer[1] & 0xe0) === 0xe0)
   const isWav = tag(0, 'RIFF') && tag(8, 'WAVE')
   const isMp4 = tag(4, 'ftyp') // .m4a is an MP4 container
+  // WebM/Matroska starts with the EBML header; OGG starts with its capture tag.
+  const isWebm = buffer[0] === 0x1a && buffer[1] === 0x45 && buffer[2] === 0xdf && buffer[3] === 0xa3
+  const isOgg = tag(0, 'OggS')
 
-  if (!isMp3 && !isWav && !isMp4) {
-    const error = new Error('That file does not look like an MP3, M4A, or WAV recording.')
+  if (!isMp3 && !isWav && !isMp4 && !isWebm && !isOgg) {
+    const error = new Error('That file does not look like an audio recording.')
     error.status = 400
     return next(error)
   }

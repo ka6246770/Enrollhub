@@ -116,7 +116,7 @@ export default function WaitlistDialog({ entry, onClose, onDeleted, onUpdated })
           <p><span className="font-bold text-ink">Response:</span> {formatDateTime(entry.respondedAt)}</p>
         </div>
 
-        {notice ? <p className="rounded-lg bg-soft p-3 text-xs font-semibold text-brand" role="status">{notice}</p> : null}
+        {notice ? <p className="rounded-lg bg-soft p-3 text-xs font-semibold text-brand-text" role="status">{notice}</p> : null}
         {error ? <p className="rounded-lg bg-coral p-3 text-xs font-semibold text-coral-ink" role="alert">{error}</p> : null}
 
         <div className="grid gap-4 min-[600px]:grid-cols-2">

@@ -27,7 +27,7 @@ export default function ShareJob({ offer }) {
   }
 
   return (
-    <section aria-label="Share this job" className="mt-4 border border-ink/15 bg-white/60 p-4">
+    <section aria-label="Share this job" className="mt-4 border border-ink/15 bg-surface/60 p-4">
       <p className="mono-label text-muted">Share this job</p>
       <div className="mt-3 grid gap-2 min-[420px]:grid-cols-2">
         <a className={`${secondaryButton} min-h-9 px-3 text-[11px]`} href={whatsapp} rel="noreferrer" target="_blank">

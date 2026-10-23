@@ -217,13 +217,13 @@ export default function Offers() {
 
       {loading ? <p className="mt-4 text-xs font-bold text-muted" role="status">Loading offers…</p> : null}
       {error ? <p className="mt-4 rounded-lg bg-coral p-3 text-xs font-semibold text-coral-ink" role="alert">{error}</p> : null}
-      {notice ? <p className="motion-notice mt-4 rounded-lg bg-soft p-3 text-xs font-semibold text-brand" role="status">{notice}</p> : null}
+      {notice ? <p className="motion-notice mt-4 rounded-lg bg-soft p-3 text-xs font-semibold text-brand-text" role="status">{notice}</p> : null}
       {actionError ? <p className="motion-notice mt-4 rounded-lg bg-coral p-3 text-xs font-semibold text-coral-ink" role="alert">{actionError}</p> : null}
 
       {showAdd ? (
         <section
           aria-labelledby="add-offer-heading"
-          className="motion-panel mt-5 rounded-xl border border-line bg-white p-5"
+          className="motion-panel mt-5 rounded-xl border border-line bg-surface p-5"
           id="add-offer-form"
         >
           <h2 className="text-sm font-bold" id="add-offer-heading">New offer</h2>
@@ -353,7 +353,7 @@ export default function Offers() {
 
       <div className="motion-stagger mt-5 grid gap-4">
         {!loading && offers.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-line bg-white p-5 text-xs text-muted">
+          <p className="rounded-xl border border-dashed border-line bg-surface p-5 text-xs text-muted">
             No offers yet. Use Add offer to create the first one.
           </p>
         ) : null}
@@ -370,7 +370,7 @@ export default function Offers() {
               : 'bg-brand'
 
           return (
-            <article className="rounded-xl border border-line bg-white p-5" key={offer.id}>
+            <article className="rounded-xl border border-line bg-surface p-5" key={offer.id}>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-2.5">
                   <h2 className="font-bold">Offer {offer.id}</h2>
@@ -494,7 +494,7 @@ export default function Offers() {
       <dialog
         aria-describedby="remove-offer-description"
         aria-labelledby="remove-offer-title"
-        className="m-auto max-h-[calc(100vh-2rem)] w-[min(92vw,440px)] overflow-y-auto rounded-xl border border-line bg-white p-0 text-ink shadow-2xl backdrop:bg-night/60"
+        className="m-auto max-h-[calc(100vh-2rem)] w-[min(92vw,440px)] overflow-y-auto rounded-xl border border-line bg-surface p-0 text-ink shadow-2xl backdrop:bg-night/60"
         onCancel={(event) => {
           if (removeBusy) {
             event.preventDefault()

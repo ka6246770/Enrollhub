@@ -30,12 +30,12 @@ export default function AllOffers() {
 
           {/* A shift board on wide screens, tickets on a phone. */}
           {visible.length === 0 ? (
-            <p className="border border-dashed border-ink/20 bg-white p-6 text-[13px] text-muted">
+            <p className="border border-dashed border-ink/20 bg-surface p-6 text-[13px] text-muted">
               No jobs are listed right now. Please check back soon.
             </p>
           ) : (
             <>
-              <div className="motion-stagger hidden border border-ink/15 bg-white min-[820px]:block">
+              <div className="motion-stagger hidden border border-ink/15 bg-surface min-[820px]:block">
                 <div className="grid grid-cols-[56px_1.5fr_0.9fr_1fr_1fr_104px] items-center gap-4 border-b border-ink bg-ink px-5 py-3">
                   {['Ref', 'Role', 'City', 'Pay / month', 'Shift', ''].map((heading) => (
                     <span className="mono-label text-white/70" key={heading}>{heading}</span>
@@ -57,7 +57,7 @@ export default function AllOffers() {
                               keeping this desktop row as text avoids duplicate
                               headings in the same document. */}
                           <span className="text-[15px] font-bold leading-snug">
-                            <Link className="text-ink no-underline hover:text-brand" to={target}>
+                            <Link className="text-ink no-underline hover:text-brand-text" to={target}>
                               {offer.title}
                             </Link>
                           </span>
@@ -69,7 +69,7 @@ export default function AllOffers() {
                       <span className="text-[13px] font-semibold">{offer.location}</span>
                       <span className="text-[14px] font-bold tabular-nums">{offer.price}</span>
                       <span className="text-[12px] leading-snug text-muted">{offer.duration}</span>
-                      <Link className="inline-flex min-h-8 items-center justify-center border border-ink bg-ink px-3 text-[11px] font-bold text-white no-underline transition-colors hover:border-accent hover:bg-accent motion-reduce:transition-none" to={target}>
+                      <Link className="inline-flex min-h-8 items-center justify-center border border-ink bg-ink px-3 text-[11px] font-bold text-white no-underline transition-colors hover:border-action hover:bg-action motion-reduce:transition-none" to={target}>
                         {actionLabel}
                       </Link>
                     </div>

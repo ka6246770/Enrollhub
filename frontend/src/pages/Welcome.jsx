@@ -83,7 +83,7 @@ export default function Welcome() {
               <h2 className={sectionHeading}>Current jobs</h2>
               <p className="mt-2 max-w-[52ch] text-[14px] text-muted">Every job uses the same short application and a voice note.</p>
             </div>
-            <Link className="text-[12px] font-bold text-brand underline underline-offset-4 hover:no-underline" to="/offers">See all {visible.length} jobs</Link>
+            <Link className="text-[12px] font-bold text-brand-text underline underline-offset-4 hover:no-underline" to="/offers">See all {visible.length} jobs</Link>
           </div>
           <div className="motion-stagger mt-7 grid gap-4 min-[640px]:grid-cols-2 min-[1100px]:grid-cols-4">
             {visible.map((offer) => <OfferCard key={offer.id} offer={offer} />)}
@@ -126,12 +126,12 @@ export default function Welcome() {
           <div>
             <h2 className={sectionHeading}>Questions before you apply</h2>
             <p className="mt-3 max-w-[34ch] text-[14px] leading-[1.65] text-muted">The things people ask us on the phone, answered here first.</p>
-            <Link className="mt-5 inline-block text-[12px] font-bold text-brand underline underline-offset-4 hover:no-underline" to="/faq">All questions</Link>
+            <Link className="mt-5 inline-block text-[12px] font-bold text-brand-text underline underline-offset-4 hover:no-underline" to="/faq">All questions</Link>
           </div>
           <FaqList items={faq.slice(0, 4)} />
         </section>
 
-        <section className="mt-14 bg-accent text-white">
+        <section className="mt-14 bg-action text-white">
           <div className={`${container} flex flex-wrap items-center justify-between gap-6 py-10`}>
             <div>
               <h2 className="text-[clamp(26px,3.4vw,38px)] font-extrabold leading-[1.02] tracking-[-0.035em]">Ready for your next shift?</h2>
@@ -141,7 +141,7 @@ export default function Welcome() {
                   : 'No jobs are taking applications right now. Check back soon for the next intake.'}
               </p>
             </div>
-            <Link className="inline-flex min-h-11 items-center justify-center rounded-[4px] border border-white bg-white px-5 text-[13px] font-bold text-accent no-underline transition-colors hover:border-night hover:bg-night hover:text-white" to="/offers">
+            <Link className="inline-flex min-h-11 items-center justify-center rounded-[4px] border border-white bg-white px-5 text-[13px] font-bold text-night no-underline transition-colors hover:border-night hover:bg-night hover:text-white" to="/offers">
               See the open jobs
             </Link>
           </div>

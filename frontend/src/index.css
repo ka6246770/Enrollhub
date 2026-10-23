@@ -9,15 +9,25 @@
 
   /* Paper, ink, factory green, safety orange. */
   --color-page: #f1efe8;
+  --color-surface: #fffdf8;
+  --color-surface-2: #f7f4ec;
   --color-ink: #17211c;
   --color-muted: #5b6862;
   --color-brand: #0f4c3a;
   --color-brand-dark: #0a3a2c;
+  /* Brand used as text or an icon: has to stay readable on `page` in both
+     themes, while `brand` also has to carry white button text. */
+  --color-brand-text: #0f4c3a;
   --color-line: #d6d2c7;
   --color-soft: #e3ebe5;
 
-  --color-accent: #d9551f;
-  --color-accent-dark: #b8461a;
+  --color-accent: #cc4b16;
+  --color-accent-dark: #a83c10;
+  /* Solid action surface. In daylight this matches the accent; at night it is
+     darker so white button text keeps its contrast while decorative accents
+     stay bright. */
+  --color-action: #cc4b16;
+  --color-action-dark: #a83c10;
 
   --color-mint: #dbe9de;
   --color-mint-ink: #0f4c3a;
@@ -27,6 +37,10 @@
   --color-coral: #f7dfd8;
   --color-coral-ink: #8e3226;
   --color-coral-strong: #c14a33;
+  /* Destructive action: dark red with white text in daylight, hot coral with
+     dark text at night. */
+  --color-danger: #b23a24;
+  --color-danger-ink: #ffffff;
 
   --color-plum: #2f5468;
   --color-plum-soft: #dfe8ec;
@@ -36,6 +50,55 @@
   --color-night-soft: #1e2c25;
   --color-night-ink: #edf0e9;
   --color-night-muted: #94a39a;
+}
+
+/* Night shift. Every token above is redefined here, so components never need a
+   `dark:` variant: the same `bg-page`, `text-ink`, `border-line` classes follow
+   the theme. The palette keeps the paper/factory identity but shifts it to a
+   dimly lit control room: green-black surfaces, warm sage text, safety orange
+   for action. */
+:root[data-theme='dark'] {
+  --color-page: #0d1411;
+  --color-surface: #151f1a;
+  --color-surface-2: #1c2823;
+  --color-ink: #eef2ec;
+  --color-muted: #9aaca2;
+  --color-brand: #1c7a5b;
+  --color-brand-dark: #165f47;
+  --color-brand-text: #7fd9b4;
+  --color-line: #2c3a33;
+  --color-soft: #1b2b24;
+
+  --color-accent: #f07a45;
+  --color-accent-dark: #d4653a;
+  --color-action: #b84a1a;
+  --color-action-dark: #9d3e14;
+
+  --color-mint: #17372b;
+  --color-mint-ink: #a6e7c7;
+  --color-sand: #362910;
+  --color-sand-ink: #f0cf8b;
+  --color-sand-strong: #d9a33f;
+  --color-coral: #3a201a;
+  --color-coral-ink: #f4b7aa;
+  --color-coral-strong: #e0704f;
+  --color-danger: #e0704f;
+  --color-danger-ink: #1a0d08;
+
+  --color-plum: #7fb5cb;
+  --color-plum-soft: #1b2e38;
+  --color-plum-ink: #a9d2e2;
+
+  --color-night: #080e0b;
+  --color-night-soft: #16231d;
+  --color-night-ink: #eef2ec;
+  --color-night-muted: #93a49b;
+
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
 }
 
 @utility content-width {

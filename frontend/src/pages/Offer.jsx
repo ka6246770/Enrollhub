@@ -92,7 +92,7 @@ export default function Offer() {
               <span aria-hidden="true" className="mono-label text-ink/30">/</span>
               <span className="mono-label text-ink">{offer.location}</span>
               <span aria-hidden="true" className="mono-label text-ink/30">/</span>
-              <span className={`mono-label ${paused ? 'text-sand-ink' : soldOut ? 'text-coral-strong' : 'text-brand'}`}>
+              <span className={`mono-label ${paused ? 'text-sand-ink' : soldOut ? 'text-coral-strong' : 'text-brand-text'}`}>
                 {statusLabel}
               </span>
             </div>
@@ -121,7 +121,7 @@ export default function Offer() {
                   <ul className="mt-4 grid gap-x-8 gap-y-2.5 min-[600px]:grid-cols-2">
                     {offer.included.map((item) => (
                       <li className="flex gap-2.5 text-[13px] leading-relaxed" key={item}>
-                        <span aria-hidden="true" className="mt-px grid size-4 shrink-0 place-items-center bg-mint text-[10px] font-bold text-brand">✓</span>
+                        <span aria-hidden="true" className="mt-px grid size-4 shrink-0 place-items-center bg-mint text-[10px] font-bold text-brand-text">✓</span>
                         {item}
                       </li>
                     ))}
@@ -144,7 +144,7 @@ export default function Offer() {
             </div>
 
             <aside className="max-[899px]:order-first min-[900px]:sticky min-[900px]:top-6 min-[900px]:self-start">
-              <div className="border border-ink bg-white">
+              <div className="border border-ink bg-surface">
                 <div className="flex items-center justify-between border-b border-dashed border-ink/25 px-5 py-3">
                   <span className="mono-label text-muted">Job ticket</span>
                   <span className="mono-label text-ink">{reference}</span>
@@ -185,7 +185,7 @@ export default function Offer() {
           </div>
         </div>
 
-        <section className="border-t border-ink/10 bg-white/45">
+        <section className="border-t border-ink/10 bg-surface/45">
           <div className={`${container} max-w-[820px] scroll-mt-6 py-12`} id="apply">
             {paused ? (
               <div className="motion-panel border border-sand-strong/30 bg-sand p-6">

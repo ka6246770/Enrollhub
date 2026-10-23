@@ -15,7 +15,7 @@ export function OfferCard({ offer }) {
   const actionLabel = paused ? 'View job' : soldOut ? 'Join the waitlist' : 'See the job'
 
   return (
-    <article className="group flex h-full flex-col border border-ink/15 bg-white transition-colors hover:border-ink/45 motion-reduce:transition-none">
+    <article className="group flex h-full flex-col border border-ink/15 bg-surface transition-colors hover:border-ink/45 motion-reduce:transition-none">
       <div className="flex items-center justify-between gap-3 border-b border-dashed border-ink/20 px-5 py-2.5">
         <span className="mono-label text-muted">Ref {reference}</span>
         <span className="mono-label text-ink">{offer.location}</span>
@@ -44,7 +44,7 @@ export function OfferCard({ offer }) {
       </div>
 
       <Link
-        className="flex items-center justify-between border-t border-ink bg-ink px-5 py-3.5 text-[12px] font-bold text-white no-underline transition-colors group-hover:bg-accent motion-reduce:transition-none"
+        className="flex items-center justify-between border-t border-ink bg-ink px-5 py-3.5 text-[12px] font-bold text-white no-underline transition-colors group-hover:bg-action motion-reduce:transition-none"
         to={target}
       >
         {actionLabel}

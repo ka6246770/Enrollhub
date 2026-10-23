@@ -51,7 +51,7 @@ export default function Terms() {
           ))}
         </div>
         <p className="mt-5 text-[13px] leading-relaxed text-muted">
-          Questions about these terms? Use the <Link className="font-bold text-brand underline" to="/contact">contact page</Link>.
+          Questions about these terms? Use the <Link className="font-bold text-brand-text underline" to="/contact">contact page</Link>.
         </p>
         <p className="mt-3 text-[11px] text-muted">Last updated: <time dateTime="2026-10-21">21 October 2026</time></p>
       </main>

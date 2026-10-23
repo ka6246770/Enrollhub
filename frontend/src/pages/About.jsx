@@ -47,12 +47,12 @@ export default function About() {
               It is not an interview. We only need to hear your voice, confirm your details, and pass the right notes to the factory.
             </p>
           </div>
-          <div className="border border-dashed border-ink/30 bg-white p-5">
+          <div className="border border-dashed border-ink/30 bg-surface p-5">
             <p className="mono-label text-muted">Record 1 to 2 minutes</p>
             <ol className="mt-4 grid gap-3">
               {RECORDING_PROMPTS.map((prompt, index) => (
                 <li className="flex gap-3 text-[14px] leading-relaxed" key={prompt}>
-                  <span aria-hidden="true" className="mono-label mt-1 text-brand">{String(index + 1).padStart(2, '0')}</span>
+                  <span aria-hidden="true" className="mono-label mt-1 text-brand-text">{String(index + 1).padStart(2, '0')}</span>
                   {prompt}
                 </li>
               ))}

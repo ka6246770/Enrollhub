@@ -55,7 +55,7 @@ export default function Privacy() {
           ))}
         </div>
         <p className="mt-5 text-[13px] leading-relaxed text-muted">
-          To exercise any of these rights, use the <Link className="font-bold text-brand underline" to="/contact">contact page</Link>.
+          To exercise any of these rights, use the <Link className="font-bold text-brand-text underline" to="/contact">contact page</Link>.
           Choose “Question” or “Problem” and include the phone number or email address you used to apply.
         </p>
         <p className="mt-3 text-[11px] text-muted">Last updated: <time dateTime="2026-10-21">21 October 2026</time></p>

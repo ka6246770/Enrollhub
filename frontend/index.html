@@ -5,6 +5,24 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#14201b" />
+    <script>
+      // Applies the saved (or system) theme before the first paint, so a dark
+      // visitor never sees a flash of the light page. useTheme.js takes over
+      // once React mounts.
+      (function () {
+        try {
+          var saved = localStorage.getItem('enrollhub-theme')
+          var dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches
+          var theme = dark ? 'dark' : 'light'
+          document.documentElement.dataset.theme = theme
+          document.documentElement.style.colorScheme = theme
+          var meta = document.querySelector('meta[name="theme-color"]')
+          if (meta) meta.setAttribute('content', dark ? '#0d1411' : '#f1efe8')
+        } catch (error) {
+          document.documentElement.dataset.theme = 'light'
+        }
+      })()
+    </script>
 
     <!-- SEO: baseline metadata is deliberately generic so every SPA route that
          receives this shell is not labelled with a misleading page title.

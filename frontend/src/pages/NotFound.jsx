@@ -30,7 +30,7 @@ export default function NotFound() {
             <Link className={secondaryButton} to="/">Go home</Link>
           </div>
           <p className="mt-7 text-[11px] text-muted">
-            Looking for the dashboard? <Link className="font-semibold text-brand underline underline-offset-2" to="/admin/login">Team sign in</Link>
+            Looking for the dashboard? <Link className="font-semibold text-brand-text underline underline-offset-2" to="/admin/login">Team sign in</Link>
           </p>
         </section>
       </main>

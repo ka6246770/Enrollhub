@@ -27,7 +27,7 @@ export default function AdminDialog({ open, onClose, title, description, childre
     <dialog
       aria-describedby={description ? descriptionId : undefined}
       aria-labelledby={titleId}
-      className={`m-auto max-h-[92vh] overflow-y-auto rounded-xl border border-line bg-white p-0 text-ink shadow-2xl backdrop:bg-night/60 ${wide ? 'w-[min(94vw,880px)]' : 'w-[min(94vw,660px)]'}`}
+      className={`m-auto max-h-[92vh] overflow-y-auto rounded-xl border border-line bg-surface p-0 text-ink shadow-2xl backdrop:bg-night/60 ${wide ? 'w-[min(94vw,880px)]' : 'w-[min(94vw,660px)]'}`}
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose()
       }}

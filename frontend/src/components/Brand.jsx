@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 // isometric box stays legible at 28px without a wordmark.
 export function BrandMark({ className = 'size-9' }) {
   return (
-    <span className={`grid shrink-0 place-items-center rounded-[3px] bg-accent text-ink ${className}`}>
+    <span className={`grid shrink-0 place-items-center rounded-[3px] bg-accent text-night ${className}`}>
       <svg
         aria-hidden="true"
         className="size-[62%] stroke-current stroke-[1.7] [stroke-linecap:round] [stroke-linejoin:round]"

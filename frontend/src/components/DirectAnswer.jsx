@@ -26,7 +26,7 @@ export function DirectAnswer({
   return (
     <section
       aria-labelledby={`${id}-heading`}
-      className={`border-l-4 border-accent bg-white/60 px-5 py-4 ${className}`}
+      className={`border-l-4 border-accent bg-surface/60 px-5 py-4 ${className}`}
       data-geo-direct-answer=""
     >
       <h2 className="mono-label text-accent" id={`${id}-heading`}>{title}</h2>

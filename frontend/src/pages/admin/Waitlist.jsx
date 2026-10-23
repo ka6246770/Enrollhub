@@ -50,12 +50,12 @@ function OfferResults({ results, rows, onDismiss }) {
       <ul className="mt-4 grid gap-2">
         {results.map((result) => {
           if (result.skipped) {
-            return <li className="rounded-lg bg-white px-3 py-2 text-xs text-muted" key={result.id}>{result.name}: {result.reason}</li>
+            return <li className="rounded-lg bg-surface px-3 py-2 text-xs text-muted" key={result.id}>{result.name}: {result.reason}</li>
           }
           const entry = rows.find((row) => row.id === result.id)
           const whatsapp = whatsappHref({ ...entry, name: result.name }, result.statusUrl)
           return (
-            <li className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white px-3 py-2" key={result.id}>
+            <li className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-surface px-3 py-2" key={result.id}>
               <div className="min-w-0">
                 <p className="text-xs font-bold">{result.name}</p>
                 <p className="truncate font-mono text-[10px] text-muted">{result.statusUrl}</p>
@@ -322,7 +322,7 @@ export default function Waitlist() {
       </PageHeading>
 
       {loadError ? <p className="mt-4 rounded-lg bg-coral p-3 text-xs font-semibold text-coral-ink" role="alert">{loadError}</p> : null}
-      {notice ? <p className="mt-4 rounded-lg bg-soft p-3 text-xs font-semibold text-brand" role="status">{notice}</p> : null}
+      {notice ? <p className="mt-4 rounded-lg bg-soft p-3 text-xs font-semibold text-brand-text" role="status">{notice}</p> : null}
       {error ? <p className="mt-4 rounded-lg bg-coral p-3 text-xs font-semibold text-coral-ink" role="alert">{error}</p> : null}
 
       <section aria-label="Waitlist metrics" className="mt-5 grid grid-cols-4 gap-3 max-[750px]:grid-cols-2">
@@ -342,7 +342,7 @@ export default function Waitlist() {
             {STATUS_FILTERS.map((filter) => (
               <button
                 aria-pressed={status === filter}
-                className={`rounded-full px-3 py-1.5 text-[10px] font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand motion-reduce:transition-none ${status === filter ? 'bg-brand text-white' : 'bg-white text-muted hover:bg-soft'}`}
+                className={`rounded-full px-3 py-1.5 text-[10px] font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand motion-reduce:transition-none ${status === filter ? 'bg-brand text-white' : 'bg-surface text-muted hover:bg-soft'}`}
                 key={filter}
                 onClick={() => updateParam('status', filter === 'All' ? '' : filter)}
                 type="button"
@@ -353,7 +353,7 @@ export default function Waitlist() {
           </div>
         </div>
 
-        <div className="mb-3 grid gap-2 rounded-xl border border-line bg-white p-3 min-[850px]:grid-cols-[minmax(180px,1fr)_minmax(160px,220px)_auto]">
+        <div className="mb-3 grid gap-2 rounded-xl border border-line bg-surface p-3 min-[850px]:grid-cols-[minmax(180px,1fr)_minmax(160px,220px)_auto]">
           <input
             aria-label="Search waitlist by name, phone, or email"
             className={inputClass}
@@ -369,7 +369,7 @@ export default function Waitlist() {
           <button className={outlineButton} disabled={!filtersActive} onClick={() => setSearchParams({}, { replace: true })} type="button">Clear filters</button>
         </div>
 
-        <div className="mb-3 flex flex-wrap items-end gap-2 rounded-xl border border-line bg-white p-3">
+        <div className="mb-3 flex flex-wrap items-end gap-2 rounded-xl border border-line bg-surface p-3">
           <p className="mr-auto text-xs font-semibold text-muted">
             {selected.length ? `${selected.length} selected · ${selectedOfferable.length} can be offered` : 'Select contacts above, then offer a place.'}
           </p>

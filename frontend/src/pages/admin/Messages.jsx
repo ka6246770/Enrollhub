@@ -124,7 +124,7 @@ export default function Messages() {
         ))}
       </div>
 
-      {notice ? <p className="mt-4 rounded-lg bg-soft p-3 text-xs font-semibold text-brand" role="status">{notice}</p> : null}
+      {notice ? <p className="mt-4 rounded-lg bg-soft p-3 text-xs font-semibold text-brand-text" role="status">{notice}</p> : null}
       {actionError ? <p className="mt-4 rounded-lg bg-coral p-3 text-xs font-semibold text-coral-ink" role="alert">{actionError}</p> : null}
       {error ? <p className="mt-4 rounded-lg bg-coral p-3 text-xs font-semibold text-coral-ink" role="alert">{error}</p> : null}
 
@@ -163,7 +163,7 @@ export default function Messages() {
             {MESSAGE_FILTERS.map((choice) => (
               <button
                 aria-pressed={filter === choice}
-                className={`rounded-full px-3 py-1.5 text-[10px] font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand motion-reduce:transition-none ${filter === choice ? 'bg-brand text-white' : 'bg-white text-muted hover:bg-soft'}`}
+                className={`rounded-full px-3 py-1.5 text-[10px] font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand motion-reduce:transition-none ${filter === choice ? 'bg-brand text-white' : 'bg-surface text-muted hover:bg-soft'}`}
                 key={choice}
                 onClick={() => setFilter(choice)}
                 type="button"

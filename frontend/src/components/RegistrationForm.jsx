@@ -27,6 +27,9 @@ export function RegistrationForm({ offer }) {
     // new FormData(form) already carries every field, including the `recording`
     // file input rendered by VoiceUpload.
     const formData = new FormData(form)
+    // A recorded clip is a File created by MediaRecorder, not an entry in the
+    // file input, so it replaces any uploaded file explicitly.
+    if (voice.recording) formData.set('recording', voice.recording, voice.recording.name)
     formData.append('offerSlug', offer.slug)
 
     setSubmitError('')
@@ -48,7 +51,7 @@ export function RegistrationForm({ offer }) {
   }
 
   return (
-    <form className="mt-8 border border-ink/15 bg-white p-6 max-[500px]:p-4" onSubmit={handleSubmit}>
+    <form className="mt-8 border border-ink/15 bg-surface p-6 max-[500px]:p-4" onSubmit={handleSubmit}>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="text-[22px] font-extrabold tracking-[-0.02em]">Apply for this job</h2>
         <span className="mono-label text-muted">About 3 minutes</span>
@@ -65,14 +68,21 @@ export function RegistrationForm({ offer }) {
 
       <VoiceUpload
         audioRef={voice.audioRef}
+        canRecord={voice.canRecord}
+        elapsed={voice.elapsed}
         error={voice.error}
         fileInputRef={voice.fileInputRef}
         handleChange={voice.handleChange}
         isChecking={voice.isChecking}
+        isRecording={voice.isRecording}
+        maxSeconds={voice.maxSeconds}
+        minSeconds={voice.minSeconds}
         offerTitle={offer.title}
         play={voice.play}
         recording={voice.recording}
         remove={voice.remove}
+        startRecording={voice.startRecording}
+        stopRecording={voice.stopRecording}
       />
 
       <label className="mt-5 flex items-start gap-2.5 text-[12px] leading-relaxed text-muted">
@@ -81,8 +91,8 @@ export function RegistrationForm({ offer }) {
           I agree that Al-Tayeb Company may store my details and voice note, and contact me by
           WhatsApp or email about this job. My recording is deleted after 180 days, and I can ask
           for all my data to be deleted at any time through the{' '}
-          <Link className="font-bold text-brand underline" to="/privacy">privacy policy</Link>{' '}
-          or <Link className="font-bold text-brand underline" to="/contact">contact page</Link>.
+          <Link className="font-bold text-brand-text underline" to="/privacy">privacy policy</Link>{' '}
+          or <Link className="font-bold text-brand-text underline" to="/contact">contact page</Link>.
         </span>
       </label>
       {submitError ? (

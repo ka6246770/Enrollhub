@@ -64,16 +64,24 @@ export async function markOwnerMessageDecided(messageId, registration, offer, de
   }
 }
 
+// Telegram plays MP3/M4A inline. Other formats it accepts (WebM, OGG, WAV) are
+// delivered as a document so the owner still receives the recording.
+const PLAYABLE_AUDIO_MIME = new Set(['audio/mpeg', 'audio/mp3', 'audio/mp4', 'audio/m4a', 'audio/x-m4a'])
+
 export async function sendAudio(chatId, voice, caption) {
+  const asDocument = !PLAYABLE_AUDIO_MIME.has(voice.mimetype)
+  const method = asDocument ? 'sendDocument' : 'sendAudio'
+  const field = asDocument ? 'document' : 'audio'
+
   const form = new FormData()
   form.append('chat_id', String(chatId))
   form.append('caption', caption)
-  form.append('audio', new Blob([voice.buffer], { type: voice.mimetype }), voice.originalname)
+  form.append(field, new Blob([voice.buffer], { type: voice.mimetype }), voice.originalname)
 
-  const response = await fetch(apiUrl('sendAudio'), { method: 'POST', body: form })
+  const response = await fetch(apiUrl(method), { method: 'POST', body: form })
   const data = await response.json().catch(() => ({}))
   if (!response.ok || data.ok === false) {
-    throw new Error(data.description || `Telegram sendAudio failed (status ${response.status})`)
+    throw new Error(data.description || `Telegram ${method} failed (status ${response.status})`)
   }
   return data.result
 }
