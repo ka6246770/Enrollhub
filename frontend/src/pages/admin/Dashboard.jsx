@@ -6,8 +6,9 @@ import { ActivityPanel, AttentionPanel, OfferPanel, PipelinePanel, StatGrid } fr
 import RegistrationsTable from '../../components/admin/RegistrationsTable.jsx'
 import RegistrationDialog from '../../components/admin/RegistrationDialog.jsx'
 import { useAsyncResource } from '../../hooks/useAsyncResource.js'
+import { useAutoRefresh } from '../../hooks/useAutoRefresh.js'
 import { dateOnly, lastSevenDays, needsAttention, statusCounts } from '../../lib/dashboard.js'
-import { formatDate, isWithinLastDays, todayIso } from '../../lib/format.js'
+import { formatDate, formatTime, isWithinLastDays, todayIso } from '../../lib/format.js'
 import { inputClass, outlineButton } from '../../lib/ui.js'
 import {
   fetchAllOffers,
@@ -15,6 +16,10 @@ import {
   fetchRegistrations,
   updateRegistration,
 } from '../../services/api.js'
+
+// New applications arrive while the dashboard is open, so the page refreshes
+// itself instead of asking admins to reload.
+const AUTO_REFRESH_SECONDS = 15
 
 function exportCsv(rows) {
   const headings = ['Name', 'Offer', 'Applied', 'Age', 'Residence', 'Email', 'Phone', 'Status', 'Follow-up', 'Notes']
@@ -48,9 +53,21 @@ export default function Dashboard({ section = 'Overview' }) {
   const [pendingId, setPendingId] = useState(0)
   const [editing, setEditing] = useState(null)
 
-  const { data: registrations, setData, loading, error } = useAsyncResource(useCallback(() => fetchRegistrations(), []))
-  const { data: messages } = useAsyncResource(useCallback(() => fetchMessages(), []))
-  const { data: offers } = useAsyncResource(useCallback(() => fetchAllOffers(), []))
+  const { data: registrations, setData, loading, error, refresh: refreshRegistrations } = useAsyncResource(useCallback(() => fetchRegistrations(), []))
+  const { data: messages, refresh: refreshMessages } = useAsyncResource(useCallback(() => fetchMessages(), []))
+  const { data: offers, refresh: refreshOffers } = useAsyncResource(useCallback(() => fetchAllOffers(), []))
+
+  const refreshDashboard = useCallback(async () => {
+    const results = await Promise.all([refreshRegistrations(), refreshMessages(), refreshOffers()])
+    return results.every(Boolean)
+  }, [refreshRegistrations, refreshMessages, refreshOffers])
+
+  // Pause while a dialog is open or a status change is in flight, so a refresh
+  // cannot overwrite what the admin is editing.
+  const { live, updatedAt, toggleLive } = useAutoRefresh(refreshDashboard, {
+    enabled: !editing && pendingId === 0,
+    intervalMs: AUTO_REFRESH_SECONDS * 1000,
+  })
 
   const query = searchParams.get('q') ?? ''
   const status = searchParams.get('status') ?? 'All'
@@ -149,7 +166,26 @@ export default function Dashboard({ section = 'Overview' }) {
       <PageHeading
         eyebrow="Dashboard"
         title="Overview"
-        subtitle={`${formatDate(today)} · Live data from the API.`}
+        subtitle={(
+          <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span>
+              {live
+                ? `${formatDate(today)} · Auto-refresh every ${AUTO_REFRESH_SECONDS} seconds${updatedAt ? ` · Updated ${formatTime(updatedAt)}` : ''}`
+                : `${formatDate(today)} · Live updates paused`}
+            </span>
+            <button
+              aria-label={live ? 'Live updates on — pause' : 'Live updates paused — resume'}
+              aria-pressed={live}
+              className="inline-flex min-h-6 items-center gap-1 rounded-[4px] border border-line bg-surface px-2 text-[10px] font-bold text-muted transition-colors hover:border-brand hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+              onClick={toggleLive}
+              title={live ? 'Pause automatic refresh' : 'Resume automatic refresh'}
+              type="button"
+            >
+              <span aria-hidden="true" className={`size-1.5 rounded-full ${live ? 'bg-brand' : 'bg-muted'}`} />
+              {live ? 'Live' : 'Paused'}
+            </button>
+          </span>
+        )}
       >
         <div className="flex flex-wrap items-center justify-end gap-2 max-[560px]:w-full">
           {failedMessages > 0 ? (
