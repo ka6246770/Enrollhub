@@ -1,12 +1,12 @@
 import { Link, useParams } from 'react-router-dom'
 import DirectAnswer from '../components/DirectAnswer.jsx'
 import FaqList from '../components/FaqList.jsx'
+import JobLoading from '../components/JobLoading.jsx'
 import PageFrame from '../components/PageFrame.jsx'
-import RegistrationForm from '../components/RegistrationForm.jsx'
 import Seo from '../components/Seo.jsx'
 import ShareJob from '../components/ShareJob.jsx'
 import { isClosed, isPaused, isSoldOut, REQUIREMENTS, seatsLeft } from '../data/offers.js'
-import { faq } from '../data/sample-data.js'
+import { faq } from '../data/site-content.js'
 import { useOffers } from '../hooks/useOffers.js'
 import { formatDate } from '../lib/format.js'
 import { buildFaqPageSchema, buildJobPostingSchema, buildWebPageSchema } from '../lib/seo.js'
@@ -28,8 +28,13 @@ function clampDescription(value, max = 160) {
 
 export default function Offer() {
   const { slug } = useParams()
-  const offers = useOffers()
+  const { offers, isLoading } = useOffers()
   const offer = offers.find((item) => item.slug === slug)
+
+  // A shared link can arrive before the live offers have loaded. Showing a 404
+  // during that gap would be wrong, so wait for the first API answer.
+  if (!offer && isLoading) return <JobLoading />
+
   if (!offer || isClosed(offer)) return <NotFound />
 
   const paused = isPaused(offer)
@@ -38,6 +43,7 @@ export default function Offer() {
   const reference = String(offer.reference ?? offer.id).padStart(2, '0')
   const statusLabel = paused ? 'Registration paused' : soldOut ? 'Applications closed' : `${remaining} places left`
   const path = `/offers/${offer.slug}`
+  const applyPath = `${path}/apply`
   const seoTitle = clampDescription(`${offer.title} job in ${offer.location} | Al-Tayeb`, 60)
   const statusText = paused ? 'Registration is paused' : soldOut ? 'Applications are closed; join the waitlist' : `${remaining} places left`
   const seoDescription = clampDescription(
@@ -86,13 +92,13 @@ export default function Offer() {
             <span aria-hidden="true">←</span> All jobs
           </Link>
 
-          <header className="mt-6 border-b border-ink/15 pb-8">
+          <header className="motion-hero mt-6 border-b border-ink/15 pb-8">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               <span className="mono-label text-muted">Ref {reference}</span>
               <span aria-hidden="true" className="mono-label text-ink/30">/</span>
               <span className="mono-label text-ink">{offer.location}</span>
               <span aria-hidden="true" className="mono-label text-ink/30">/</span>
-              <span className={`mono-label ${paused ? 'text-sand-ink' : soldOut ? 'text-coral-strong' : 'text-brand'}`}>
+              <span className={`mono-label ${paused ? 'text-sand-ink' : soldOut ? 'text-coral-strong' : 'text-brand-text'}`}>
                 {statusLabel}
               </span>
             </div>
@@ -121,7 +127,7 @@ export default function Offer() {
                   <ul className="mt-4 grid gap-x-8 gap-y-2.5 min-[600px]:grid-cols-2">
                     {offer.included.map((item) => (
                       <li className="flex gap-2.5 text-[13px] leading-relaxed" key={item}>
-                        <span aria-hidden="true" className="mt-px grid size-4 shrink-0 place-items-center bg-mint text-[10px] font-bold text-brand">✓</span>
+                        <span aria-hidden="true" className="mt-px grid size-4 shrink-0 place-items-center bg-mint text-[10px] font-bold text-brand-text">✓</span>
                         {item}
                       </li>
                     ))}
@@ -144,7 +150,7 @@ export default function Offer() {
             </div>
 
             <aside className="max-[899px]:order-first min-[900px]:sticky min-[900px]:top-6 min-[900px]:self-start">
-              <div className="border border-ink bg-white">
+              <div className="motion-panel border border-ink bg-surface">
                 <div className="flex items-center justify-between border-b border-dashed border-ink/25 px-5 py-3">
                   <span className="mono-label text-muted">Job ticket</span>
                   <span className="mono-label text-ink">{reference}</span>
@@ -173,7 +179,7 @@ export default function Offer() {
                   ) : soldOut ? (
                     <Link className={`${button} mt-5 w-full`} to={`/offers/${offer.slug}/waitlist`}>Join the waitlist</Link>
                   ) : (
-                    <a className={`${button} mt-5 w-full`} href="#apply">Apply for this job</a>
+                    <Link className={`${button} mt-5 w-full`} to={applyPath}>Apply for this job</Link>
                   )}
                   <p className="mt-3 text-center text-[11px] leading-relaxed text-muted">
                     {paused ? 'Please check back later for the next intake.' : 'About 3 minutes. We will contact you on WhatsApp.'}
@@ -185,8 +191,8 @@ export default function Offer() {
           </div>
         </div>
 
-        <section className="border-t border-ink/10 bg-white/45">
-          <div className={`${container} max-w-[820px] scroll-mt-6 py-12`} id="apply">
+        <section className="border-t border-ink/10 bg-surface/45">
+          <div className={`${container} max-w-[820px] py-12`}>
             {paused ? (
               <div className="motion-panel border border-sand-strong/30 bg-sand p-6">
                 <h2 className="text-[20px] font-extrabold text-sand-ink">Registration paused</h2>
@@ -200,15 +206,24 @@ export default function Offer() {
                 <p className="mt-1.5 max-w-[52ch] text-[13px] leading-relaxed text-coral-ink">
                   Applications are closed for now. Join the waitlist and we will message you on WhatsApp if a place opens.
                 </p>
-                <Link className={`${button} mt-4`} to={`/offers/${offer.slug}/waitlist`}>Join the waitlist</Link>
+                <Link className={`${button} mt-4`} to={`${path}/waitlist`}>Join the waitlist</Link>
               </div>
             ) : (
-              <RegistrationForm offer={offer} />
+              <div className="motion-panel border border-ink/15 bg-surface p-6 max-[500px]:p-4">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <h2 className="text-[22px] font-extrabold tracking-[-0.02em]">Apply for this job</h2>
+                  <span className="mono-label text-muted">About 3 minutes</span>
+                </div>
+                <p className="mt-2 max-w-[56ch] text-[13px] leading-relaxed text-muted">
+                  No account and no CV. On the application page you enter your details and record a short voice note.
+                </p>
+                <Link className={`${button} mt-5`} to={applyPath}>Start my application</Link>
+              </div>
             )}
 
             <section className="mt-12">
               <h2 className={sectionHeading}>Questions</h2>
-              <FaqList className="mt-4 border-t border-ink/15" items={faq.slice(0, 3)} />
+              <FaqList className="motion-stagger mt-4 border-t border-ink/15" items={faq.slice(0, 3)} />
             </section>
           </div>
         </section>

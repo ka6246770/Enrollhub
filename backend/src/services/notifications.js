@@ -38,6 +38,8 @@ export async function resendLogEntry(entry) {
         text: mail.text,
         html: mail.html,
         attachments: mail.attachments,
+        // Same as the first send: the owner can reply to the applicant.
+        replyTo: registration.email,
         registrationId: registration.id,
         type: entry.type,
       })

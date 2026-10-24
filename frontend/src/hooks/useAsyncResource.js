@@ -1,12 +1,20 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 // Loads data when a dashboard page mounts and exposes `reload` for after a
-// write. `loader` must be stable (wrap it in useCallback) so the effect does not
-// re-run on every render.
+// write, plus `refresh` for silent background updates. `loader` must be stable
+// (wrap it in useCallback) so the effect does not re-run on every render.
 export function useAsyncResource(loader) {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const mountedRef = useRef(true)
+
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+    }
+  }, [])
 
   useEffect(() => {
     let active = true
@@ -42,5 +50,19 @@ export function useAsyncResource(loader) {
     }
   }, [loader])
 
-  return { data, setData, loading, error, reload }
+  // Fetches again without toggling `loading`, so a timer-driven update never
+  // flashes the page. On failure the last good data stays on screen.
+  const refresh = useCallback(async () => {
+    try {
+      const result = await loader()
+      if (!mountedRef.current) return false
+      setData(result)
+      setError('')
+      return true
+    } catch {
+      return false
+    }
+  }, [loader])
+
+  return { data, setData, loading, error, reload, refresh }
 }

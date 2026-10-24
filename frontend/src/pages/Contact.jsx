@@ -149,7 +149,7 @@ export default function Contact() {
             </div>
             <p className="mt-5 text-[12px] leading-relaxed text-muted">
               Applying for a job? Use the{' '}
-              <Link className="font-bold text-brand underline underline-offset-2" to="/offers">application form</Link>
+              <Link className="font-bold text-brand-text underline underline-offset-2" to="/offers">application form</Link>
               {' '}so your voice note reaches the right team.
             </p>
             <p className="mt-2 text-[12px] leading-relaxed text-muted">
@@ -167,7 +167,7 @@ export default function Contact() {
               <button className={`${secondaryButton} mt-5 self-start border-mint-ink/30 text-mint-ink hover:border-mint-ink`} onClick={() => setSent(false)} type="button">Send another message</button>
             </div>
           ) : (
-            <form className="border border-ink/15 bg-white p-6 max-[500px]:p-4" onSubmit={handleSubmit}>
+            <form className="border border-ink/15 bg-surface p-6 max-[500px]:p-4" onSubmit={handleSubmit}>
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 className="text-[22px] font-extrabold tracking-[-0.02em]">Send a message</h2>
                 <span className="mono-label text-muted">Goes to the owner</span>

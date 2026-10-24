@@ -18,7 +18,7 @@ export default function NotFound() {
       />
       <main className="motion-page grid min-h-screen place-items-center px-6 py-12">
         <section className="w-full max-w-[540px]">
-          <p className="mono-label text-accent">404 / Not found</p>
+          <p className="mono-label text-accent-text">404 / Not found</p>
           <h1 className="mt-3 text-balance text-[clamp(32px,5vw,48px)] font-extrabold leading-[1.0] tracking-[-0.04em]">
             This page is not on the board.
           </h1>
@@ -30,7 +30,7 @@ export default function NotFound() {
             <Link className={secondaryButton} to="/">Go home</Link>
           </div>
           <p className="mt-7 text-[11px] text-muted">
-            Looking for the dashboard? <Link className="font-semibold text-brand underline underline-offset-2" to="/admin/login">Team sign in</Link>
+            Looking for the dashboard? <Link className="font-semibold text-brand-text underline underline-offset-2" to="/admin/login">Team sign in</Link>
           </p>
         </section>
       </main>

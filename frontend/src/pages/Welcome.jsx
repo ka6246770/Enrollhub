@@ -5,7 +5,7 @@ import OfferCard from '../components/OfferCard.jsx'
 import PageFrame from '../components/PageFrame.jsx'
 import { Kicker } from '../components/PageHero.jsx'
 import { isClosed, isOpen } from '../data/offers.js'
-import { faq, HOW_IT_WORKS_STEPS } from '../data/sample-data.js'
+import { faq, HOW_IT_WORKS_STEPS } from '../data/site-content.js'
 import { useOffers } from '../hooks/useOffers.js'
 import { button, container, secondaryButton, sectionHeading } from '../lib/ui.js'
 
@@ -17,7 +17,7 @@ const BENEFITS = [
 ]
 
 export default function Welcome() {
-  const offers = useOffers()
+  const { offers, isLoading } = useOffers()
   const visible = offers.filter((offer) => !isClosed(offer))
   const open = visible.filter(isOpen)
 
@@ -26,7 +26,7 @@ export default function Welcome() {
       <main className="motion-page pb-0" id="main-content">
         <section className="border-b border-ink/10">
           <div className={`${container} grid gap-10 py-14 min-[900px]:grid-cols-[1.35fr_1fr] min-[900px]:gap-14 min-[900px]:py-20`}>
-            <div>
+            <div className="motion-hero">
               <Kicker>Hiring in Sadat City, El-Obour and 10th of Ramadan</Kicker>
               <h1 className="mt-6 max-w-[13ch] text-balance text-[clamp(42px,7vw,76px)] font-extrabold leading-[0.96] tracking-[-0.05em]">
                 Factory work. Housing included.
@@ -41,13 +41,15 @@ export default function Welcome() {
               <p className="mt-6 text-[12px] font-semibold text-muted">National ID only. Open to Egyptian nationals.</p>
             </div>
 
-            <aside className="self-start border border-ink bg-night text-night-ink">
+            <aside className="motion-panel self-start border border-ink bg-night text-night-ink">
               <div className="flex items-center justify-between border-b border-white/15 px-5 py-3">
                 <span className="mono-label text-night-muted">Now hiring</span>
-                <span className="mono-label text-white">{open.length} {open.length === 1 ? 'job' : 'jobs'}</span>
+                <span className="mono-label text-white">{isLoading ? 'Loading jobs…' : `${open.length} ${open.length === 1 ? 'job' : 'jobs'}`}</span>
               </div>
               <div>
-                {open.length === 0 ? (
+                {isLoading ? (
+                  <p className="px-5 py-4 text-[12px] text-night-muted">Loading jobs…</p>
+                ) : open.length === 0 ? (
                   <p className="px-5 py-4 text-[12px] text-night-muted">No jobs are taking applications right now. Check back soon.</p>
                 ) : open.map((offer) => (
                   <Link
@@ -65,7 +67,7 @@ export default function Welcome() {
                 ))}
               </div>
               <div className="border-t border-white/15 px-5 py-3">
-                <Link className="text-[12px] font-bold text-white underline underline-offset-4 hover:no-underline" to="/offers">Compare all jobs</Link>
+                <Link className="inline-flex min-h-6 items-center text-[12px] font-bold text-white underline underline-offset-4 hover:no-underline" to="/offers">Compare all jobs</Link>
               </div>
             </aside>
           </div>
@@ -83,11 +85,17 @@ export default function Welcome() {
               <h2 className={sectionHeading}>Current jobs</h2>
               <p className="mt-2 max-w-[52ch] text-[14px] text-muted">Every job uses the same short application and a voice note.</p>
             </div>
-            <Link className="text-[12px] font-bold text-brand underline underline-offset-4 hover:no-underline" to="/offers">See all {visible.length} jobs</Link>
+            <Link className="inline-flex min-h-6 items-center text-[12px] font-bold text-brand-text underline underline-offset-4 hover:no-underline" to="/offers">See all jobs</Link>
           </div>
-          <div className="motion-stagger mt-7 grid gap-4 min-[640px]:grid-cols-2 min-[1100px]:grid-cols-4">
-            {visible.map((offer) => <OfferCard key={offer.id} offer={offer} />)}
-          </div>
+          {isLoading || visible.length === 0 ? (
+            <p className="mt-7 border border-dashed border-ink/20 bg-surface p-6 text-[13px] text-muted">
+              {isLoading ? 'Loading jobs…' : 'No jobs are taking applications right now. Check back soon.'}
+            </p>
+          ) : (
+            <div className="motion-stagger mt-7 grid gap-4 min-[640px]:grid-cols-2 min-[1100px]:grid-cols-4">
+              {visible.map((offer) => <OfferCard key={offer.id} offer={offer} />)}
+            </div>
+          )}
         </section>
 
         <section className="bg-night text-night-ink">
@@ -98,7 +106,7 @@ export default function Welcome() {
             <p className="mt-3 max-w-[54ch] text-[14px] leading-[1.65] text-night-muted">
               What comes with the job depends on the factory. Open a job to see the exact package.
             </p>
-            <div className="mt-8 grid gap-x-8 gap-y-7 min-[700px]:grid-cols-2 min-[1000px]:grid-cols-4">
+            <div className="motion-stagger mt-8 grid gap-x-8 gap-y-7 min-[700px]:grid-cols-2 min-[1000px]:grid-cols-4">
               {BENEFITS.map(([title, text]) => (
                 <div className="border-t border-white/20 pt-4" key={title}>
                   <h3 className="text-[15px] font-bold">{title}</h3>
@@ -111,10 +119,10 @@ export default function Welcome() {
 
         <section className={`${container} py-14`}>
           <h2 className={sectionHeading}>How it works</h2>
-          <div className="mt-7 grid gap-6 min-[760px]:grid-cols-3 min-[760px]:gap-8">
+          <div className="motion-stagger mt-7 grid gap-6 min-[760px]:grid-cols-3 min-[760px]:gap-8">
             {HOW_IT_WORKS_STEPS.map(([title, text], index) => (
               <article className="border-t border-ink/20 pt-4" key={title}>
-                <span className="mono-label text-accent">Step {index + 1}</span>
+                <span className="mono-label text-accent-text">Step {index + 1}</span>
                 <h3 className="mt-2 text-[17px] font-bold">{title}</h3>
                 <p className="mt-1.5 text-[13px] leading-[1.65] text-muted">{text}</p>
               </article>
@@ -126,22 +134,22 @@ export default function Welcome() {
           <div>
             <h2 className={sectionHeading}>Questions before you apply</h2>
             <p className="mt-3 max-w-[34ch] text-[14px] leading-[1.65] text-muted">The things people ask us on the phone, answered here first.</p>
-            <Link className="mt-5 inline-block text-[12px] font-bold text-brand underline underline-offset-4 hover:no-underline" to="/faq">All questions</Link>
+            <Link className="mt-5 inline-flex min-h-6 items-center text-[12px] font-bold text-brand-text underline underline-offset-4 hover:no-underline" to="/faq">All questions</Link>
           </div>
           <FaqList items={faq.slice(0, 4)} />
         </section>
 
-        <section className="mt-14 bg-accent text-white">
+        <section className="mt-14 bg-action text-white">
           <div className={`${container} flex flex-wrap items-center justify-between gap-6 py-10`}>
             <div>
               <h2 className="text-[clamp(26px,3.4vw,38px)] font-extrabold leading-[1.02] tracking-[-0.035em]">Ready for your next shift?</h2>
-              <p className="mt-2 max-w-[46ch] text-[14px] text-white/85">
+              <p className="mt-2 max-w-[46ch] text-[14px] text-white">
                 {open.length > 0
                   ? `${open.length} ${open.length === 1 ? 'job is' : 'jobs are'} open now. Applying takes about three minutes.`
                   : 'No jobs are taking applications right now. Check back soon for the next intake.'}
               </p>
             </div>
-            <Link className="inline-flex min-h-11 items-center justify-center rounded-[4px] border border-white bg-white px-5 text-[13px] font-bold text-accent no-underline transition-colors hover:border-night hover:bg-night hover:text-white" to="/offers">
+            <Link className="inline-flex min-h-11 items-center justify-center rounded-[4px] border border-white bg-white px-5 text-[13px] font-bold text-night no-underline transition-colors hover:border-night hover:bg-night hover:text-white" to="/offers">
               See the open jobs
             </Link>
           </div>

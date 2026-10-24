@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { adminContainer, adminSkipLink } from '../../lib/ui.js'
-import { getSession, isBackendEnabled, logout } from '../../services/api.js'
+import { getSession, logout } from '../../services/api.js'
 import { BrandMark } from '../Brand.jsx'
+import ThemeToggle from '../ThemeToggle.jsx'
 
 const ADMIN_LINKS = [
   ['Overview', '/admin', 'grid'],
@@ -29,11 +30,10 @@ function NavIcon({ name }) {
 }
 
 // Reads the cached session (see services/api.js) so the sidebar can show who is
-// signed in. The admin email is only shown when a backend is configured.
+// signed in.
 function useAdminEmail() {
   const [email, setEmail] = useState('')
   useEffect(() => {
-    if (!isBackendEnabled) return undefined
     let active = true
     getSession()
       .then((session) => {
@@ -50,10 +50,13 @@ function useAdminEmail() {
 function AdminSidebar({ active, email, onSignOut }) {
   return (
     <aside className="fixed inset-y-0 left-0 z-20 hidden w-[248px] flex-col gap-8 bg-night px-5 py-6 text-night-ink min-[900px]:flex">
-      <Link className="flex items-center gap-3 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white" to="/admin">
-        <BrandMark className="size-9" />
-        <span className="text-sm font-bold text-white">AL-TAYEB</span>
-      </Link>
+      <div className="flex items-center justify-between gap-3">
+        <Link className="flex items-center gap-3 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white" to="/admin">
+          <BrandMark className="size-9" />
+          <span className="text-sm font-bold text-white">AL-TAYEB</span>
+        </Link>
+        <ThemeToggle />
+      </div>
       <nav aria-label="Admin sections" className="grid gap-1.5">
         {ADMIN_LINKS.map(([label, href, icon]) => {
           const current = active === label
@@ -73,8 +76,8 @@ function AdminSidebar({ active, email, onSignOut }) {
       <div className="mt-auto grid gap-3">
         {email ? <p className="truncate text-[10px] text-night-ink/60" title={email}>{email}</p> : null}
         <div className="flex items-center justify-between gap-3">
-          <Link className="text-xs font-bold text-night-ink/70 no-underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white motion-reduce:transition-none" to="/">← View site</Link>
-          <button className="text-xs font-bold text-night-ink/70 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white motion-reduce:transition-none" onClick={onSignOut} type="button">Sign out</button>
+          <Link className="inline-flex min-h-6 items-center text-xs font-bold text-night-ink/70 no-underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white motion-reduce:transition-none" to="/">← View site</Link>
+          <button className="inline-flex min-h-6 items-center text-xs font-bold text-night-ink/70 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white motion-reduce:transition-none" onClick={onSignOut} type="button">Sign out</button>
         </div>
       </div>
     </aside>
@@ -84,17 +87,20 @@ function AdminSidebar({ active, email, onSignOut }) {
 function MobileAdminNav({ active, onSignOut }) {
   return (
     <header className="bg-night px-4 pt-4 text-night-ink min-[900px]:hidden">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <Link className="flex items-center gap-2.5 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white" to="/admin">
           <BrandMark className="size-8" />
           <span className="text-sm font-bold text-white">AL-TAYEB</span>
         </Link>
-        <button className="text-[11px] font-bold text-night-ink/70 transition-colors hover:text-white" onClick={onSignOut} type="button">Sign out</button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <button className="text-[11px] font-bold text-night-ink/70 transition-colors hover:text-white" onClick={onSignOut} type="button">Sign out</button>
+        </div>
       </div>
-      <nav aria-label="Admin sections" className="mt-3 flex flex-wrap gap-2 pb-3">
+      <nav aria-label="Admin sections" className="mt-3 flex gap-2 overflow-x-auto pb-3">
         {ADMIN_LINKS.map(([label, href]) => (
           <Link
-            className={`shrink-0 rounded-lg px-3 py-2 text-[11px] font-bold no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white motion-reduce:transition-none ${active === label ? 'bg-brand text-white' : 'text-night-ink/80 hover:bg-night-soft hover:text-white'}`}
+            className={`shrink-0 rounded-full px-3.5 py-2 text-[11px] font-bold no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white motion-reduce:transition-none ${active === label ? 'bg-brand text-white' : 'bg-white/5 text-night-ink/80 hover:bg-white/10 hover:text-white'}`}
             key={label}
             to={href}
           >
@@ -131,7 +137,7 @@ export function PageHeading({ eyebrow, title, subtitle, children }) {
   return (
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div>
-        {eyebrow && <p className="text-[10px] font-bold uppercase tracking-widest text-brand">{eyebrow}</p>}
+        {eyebrow && <p className="text-[10px] font-bold uppercase tracking-widest text-brand-text">{eyebrow}</p>}
         <h1 className="mt-1 text-balance text-2xl font-bold tracking-tight">{title}</h1>
         {subtitle && <p className="mt-1 text-xs text-muted">{subtitle}</p>}
       </div>
@@ -142,7 +148,7 @@ export function PageHeading({ eyebrow, title, subtitle, children }) {
 
 export function StatCard({ title, value, hint }) {
   return (
-    <article className="rounded-xl border border-line bg-white p-4">
+    <article className="motion-card rounded-xl border border-line bg-surface p-4">
       <p className="text-[10px] font-bold uppercase tracking-wide text-muted">{title}</p>
       <p className="mt-2 text-2xl font-bold tabular-nums">{value}</p>
       {hint && <p className="mt-1 text-[10px] text-muted">{hint}</p>}

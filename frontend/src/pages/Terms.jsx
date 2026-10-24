@@ -37,7 +37,7 @@ export default function Terms() {
   return (
     <PageFrame>
       <main className={`${container} motion-page max-w-[760px] pb-14 pt-12`} id="main-content">
-        <p className="mono-label text-accent">Legal</p>
+        <p className="mono-label text-accent-text">Legal</p>
         <h1 className="mt-3 text-balance text-[clamp(32px,4.5vw,44px)] font-extrabold leading-[1.02] tracking-[-0.035em]">Terms of use</h1>
         <p className="mt-3 max-w-[56ch] text-[14px] leading-relaxed text-muted">
           The rules for using this recruitment site and the application process.
@@ -51,7 +51,7 @@ export default function Terms() {
           ))}
         </div>
         <p className="mt-5 text-[13px] leading-relaxed text-muted">
-          Questions about these terms? Use the <Link className="font-bold text-brand underline" to="/contact">contact page</Link>.
+          Questions about these terms? Use the <Link className="font-bold text-brand-text underline" to="/contact">contact page</Link>.
         </p>
         <p className="mt-3 text-[11px] text-muted">Last updated: <time dateTime="2026-10-21">21 October 2026</time></p>
       </main>

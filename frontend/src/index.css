@@ -9,15 +9,28 @@
 
   /* Paper, ink, factory green, safety orange. */
   --color-page: #f1efe8;
+  --color-surface: #fffdf8;
+  --color-surface-2: #f7f4ec;
   --color-ink: #17211c;
   --color-muted: #5b6862;
   --color-brand: #0f4c3a;
   --color-brand-dark: #0a3a2c;
+  /* Brand used as text or an icon: has to stay readable on `page` in both
+     themes, while `brand` also has to carry white button text. */
+  --color-brand-text: #0f4c3a;
   --color-line: #d6d2c7;
   --color-soft: #e3ebe5;
 
-  --color-accent: #d9551f;
-  --color-accent-dark: #b8461a;
+  --color-accent: #cc4b16;
+  --color-accent-dark: #a83c10;
+  /* Accent used as small text: the decorative orange is only 3.98:1 on paper,
+     so labels switch to this darker shade to clear 4.5:1. */
+  --color-accent-text: #a83c10;
+  /* Solid action surface. In daylight this matches the accent; at night it is
+     darker so white button text keeps its contrast while decorative accents
+     stay bright. */
+  --color-action: #cc4b16;
+  --color-action-dark: #a83c10;
 
   --color-mint: #dbe9de;
   --color-mint-ink: #0f4c3a;
@@ -26,7 +39,11 @@
   --color-sand-strong: #c98a1f;
   --color-coral: #f7dfd8;
   --color-coral-ink: #8e3226;
-  --color-coral-strong: #c14a33;
+  --color-coral-strong: #b8422b;
+  /* Destructive action: dark red with white text in daylight, hot coral with
+     dark text at night. */
+  --color-danger: #b23a24;
+  --color-danger-ink: #ffffff;
 
   --color-plum: #2f5468;
   --color-plum-soft: #dfe8ec;
@@ -36,6 +53,56 @@
   --color-night-soft: #1e2c25;
   --color-night-ink: #edf0e9;
   --color-night-muted: #94a39a;
+}
+
+/* Night shift. Every token above is redefined here, so components never need a
+   `dark:` variant: the same `bg-page`, `text-ink`, `border-line` classes follow
+   the theme. The palette keeps the paper/factory identity but shifts it to a
+   dimly lit control room: green-black surfaces, warm sage text, safety orange
+   for action. */
+:root[data-theme='dark'] {
+  --color-page: #0d1411;
+  --color-surface: #151f1a;
+  --color-surface-2: #1c2823;
+  --color-ink: #eef2ec;
+  --color-muted: #9aaca2;
+  --color-brand: #1c7a5b;
+  --color-brand-dark: #165f47;
+  --color-brand-text: #7fd9b4;
+  --color-line: #2c3a33;
+  --color-soft: #1b2b24;
+
+  --color-accent: #f07a45;
+  --color-accent-dark: #d4653a;
+  --color-accent-text: #f07a45;
+  --color-action: #b84a1a;
+  --color-action-dark: #9d3e14;
+
+  --color-mint: #17372b;
+  --color-mint-ink: #a6e7c7;
+  --color-sand: #362910;
+  --color-sand-ink: #f0cf8b;
+  --color-sand-strong: #d9a33f;
+  --color-coral: #3a201a;
+  --color-coral-ink: #f4b7aa;
+  --color-coral-strong: #e0704f;
+  --color-danger: #e0704f;
+  --color-danger-ink: #1a0d08;
+
+  --color-plum: #7fb5cb;
+  --color-plum-soft: #1b2e38;
+  --color-plum-ink: #a9d2e2;
+
+  --color-night: #080e0b;
+  --color-night-soft: #16231d;
+  --color-night-ink: #eef2ec;
+  --color-night-muted: #93a49b;
+
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
 }
 
 @utility content-width {
@@ -57,9 +124,10 @@
   text-transform: uppercase;
 }
 
-/* Motion is used in three deliberate places: the page settles in once, a list
-   of job tickets reveals together, and action panels/dialogs confirm a change.
-   Everything is opt-in only when the visitor has not asked for reduced motion. */
+/* Motion is used in a few deliberate places: the page settles in once, a hero
+   and a list of job tickets reveal in sequence, action panels/dialogs confirm a
+   change, and cards lift slightly under the pointer. Everything is opt-in only
+   when the visitor has not asked for reduced motion. */
 @keyframes page-enter {
   from {
     opacity: 0;
@@ -71,9 +139,28 @@
   }
 }
 
-@keyframes item-enter {
+@keyframes hero-enter {
   from {
     opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rule-enter {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* Starts at 0.55, not 0: when live offers replace the bundled preview the list
+   remounts and replays this reveal. Starting invisible would blank the table
+   for half a second right after the data arrives. */
+@keyframes item-enter {
+  from {
+    opacity: 0.55;
     transform: translateY(12px);
   }
   to {
@@ -125,8 +212,26 @@
     animation: page-enter 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
+  .motion-hero > * {
+    animation: hero-enter 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .motion-hero > *:nth-child(2) { animation-delay: 70ms; }
+  .motion-hero > *:nth-child(3) { animation-delay: 140ms; }
+  .motion-hero > *:nth-child(4) { animation-delay: 210ms; }
+  .motion-hero > *:nth-child(5) { animation-delay: 280ms; }
+  .motion-hero > *:nth-child(n + 6) { animation-delay: 340ms; }
+
+  .motion-rule {
+    transform-origin: left center;
+    animation: rule-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
   .motion-stagger > * {
-    animation: item-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    /* `backwards`, not `both`: the finished keyframe must not keep overriding
+       the hover transform on cards. The final keyframe equals the resting style,
+       so releasing it causes no visible jump. */
+    animation: item-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
   }
 
   .motion-stagger > *:nth-child(2) { animation-delay: 55ms; }
@@ -144,6 +249,24 @@
     animation: notice-enter 280ms ease-out both;
   }
 
+  /* A quiet lift on job tickets and dashboard cards. The shadow is only a
+     depth cue; the border and background still carry the state colours. */
+  .motion-card {
+    transition:
+      transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 300ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 200ms ease-out;
+  }
+
+  .motion-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px -24px rgb(23 33 28 / 0.45);
+  }
+
+  :root[data-theme='dark'] .motion-card:hover {
+    box-shadow: 0 18px 40px -20px rgb(0 0 0 / 0.8);
+  }
+
   dialog[open] {
     animation: dialog-enter 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
@@ -159,12 +282,17 @@
   }
 
   .motion-page,
+  .motion-hero > *,
+  .motion-rule,
   .motion-stagger > *,
   .motion-panel,
   .motion-notice,
+  .motion-card,
   dialog[open],
   dialog[open]::backdrop {
     animation: none !important;
+    transition: none !important;
+    transform: none !important;
   }
 }
 
@@ -178,6 +306,7 @@
     text-rendering: optimizeLegibility;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    overflow-wrap: break-word;
   }
 
   h1,

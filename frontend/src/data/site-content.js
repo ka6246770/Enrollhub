@@ -1,47 +1,5 @@
-// Sample records used only by the dashboard and a few public sections.
-// Nothing here talks to a server; it exists so every screen renders with data.
-
-export const users = [
-  {
-    id: 1,
-    name: 'Sample Name 1',
-    offerId: 1,
-    age: 24,
-    residence: 'Sadat City',
-    email: 'sample1@example.com',
-    phone: '+20 100 000 0001',
-    voiceRecording: null,
-    whatsappConfirmed: true,
-    status: 'new',
-    createdAt: '2026-10-10T23:40:00',
-  },
-  {
-    id: 2,
-    name: 'Sample Name 2',
-    offerId: 2,
-    age: 31,
-    residence: 'Tanta',
-    email: 'sample2@example.com',
-    phone: '+20 100 000 0002',
-    voiceRecording: null,
-    whatsappConfirmed: true,
-    status: 'contacted',
-    createdAt: '2026-10-10T23:40:00',
-  },
-  {
-    id: 3,
-    name: 'Sample Name 3',
-    offerId: 3,
-    age: 19,
-    residence: 'Alexandria',
-    email: 'sample3@example.com',
-    phone: '+20 100 000 0003',
-    voiceRecording: null,
-    whatsappConfirmed: false,
-    status: 'accepted',
-    createdAt: '2026-10-10T23:40:00',
-  },
-]
+// Static site copy that is not stored in the database: the FAQ answers and the
+// three "how it works" steps. Job records and applicant data come from the API.
 
 // GEO: the questions below use the wording people actually type into search
 // and AI assistants. Every answer contains a verifiable fact: a pay range, a
@@ -98,12 +56,6 @@ export const faq = [
     answer:
       'Al-Tayeb reviews applications in the order they arrive and replies on WhatsApp to the number provided. Response time depends on the number of applications and the hiring factory. Keep your phone switched on and make sure the WhatsApp number you entered is correct.',
   },
-]
-
-export const messages = [
-  { id: 1, recipient: 'Sample Name 1', message: 'Customer confirmation', time: 'Oct 10, 23:40', status: 'Delivered' },
-  { id: 2, recipient: 'Owner (you)', message: 'Lead forward with voice file', time: 'Oct 10, 23:40', status: 'Delivered' },
-  { id: 3, recipient: 'Sample Name 3', message: 'Customer confirmation', time: 'Oct 10, 22:15', status: 'Failed' },
 ]
 
 export const HOW_IT_WORKS_STEPS = [

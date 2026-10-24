@@ -3,7 +3,7 @@
 // GEO: the FAQ and article schema here are generated from the same visible copy
 // used by the pages, which keeps answers citation-ready and consistent.
 
-import { faq } from '../data/sample-data.js'
+import { faq } from '../data/site-content.js'
 import { site } from './site.js'
 import {
   buildArticleSchema,
@@ -149,6 +149,18 @@ const THANKS = {
   noindex: true,
 }
 
+const TRACK = {
+  title: 'Track your application | EnrollHub',
+  description: 'Check your EnrollHub application with your reference code and email.',
+  noindex: true,
+}
+
+const APPLY = {
+  title: 'Apply for this job | Al-Tayeb',
+  description: 'Apply for an Al-Tayeb factory job. Enter your details and record a short voice note; no CV or account is needed.',
+  noindex: true,
+}
+
 const WAITLIST = {
   title: 'Join the waitlist | Al-Tayeb',
   description: 'Join the waitlist for a filled Al-Tayeb factory job. Leave your name and WhatsApp number and we will contact you if a place opens.',
@@ -176,6 +188,7 @@ const PAGES = {
   '/privacy': PRIVACY,
   '/terms': TERMS,
   '/thank-you': THANKS,
+  '/track': TRACK,
 }
 
 export function getRouteSeo(pathname = '/') {
@@ -190,6 +203,7 @@ export function getRouteSeo(pathname = '/') {
   // The offer detail page builds its own metadata from live offer data.
   // Returning undefined prevents this static map from overwriting it.
   if (/^\/offers\/[^/]+$/.test(path)) return undefined
+  if (/^\/offers\/[^/]+\/apply$/.test(path)) return APPLY
   if (/^\/offers\/[^/]+\/waitlist$/.test(path)) return WAITLIST
 
   return PAGES[path] ?? NOT_FOUND

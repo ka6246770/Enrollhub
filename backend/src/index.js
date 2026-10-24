@@ -6,6 +6,7 @@ import session from 'express-session'
 import { ZodError } from 'zod'
 import { assertRequiredEnv, capabilities, configWarnings, env, logCapabilities } from './config/env.js'
 import { pool } from './db/database.js'
+import { adminNotesRouter } from './routes/adminNotes.js'
 import { authRouter } from './routes/auth.js'
 import { messagesRouter } from './routes/messages.js'
 import { offersRouter } from './routes/offers.js'
@@ -91,6 +92,7 @@ app.use('/api/waitlist', waitlistRouter)
 app.use('/api/status', statusRouter)
 app.use('/api/messages', messagesRouter)
 app.use('/api/auth', authRouter)
+app.use('/api/admin', adminNotesRouter)
 app.use('/api/telegram', telegramRouter)
 
 app.use((req, res) => {

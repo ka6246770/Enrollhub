@@ -5,7 +5,7 @@ import FaqList from '../components/FaqList.jsx'
 import PageFrame from '../components/PageFrame.jsx'
 import PageHero from '../components/PageHero.jsx'
 import { site } from '../config/site.js'
-import { faq } from '../data/sample-data.js'
+import { faq } from '../data/site-content.js'
 import { formatDate } from '../lib/format.js'
 import { button, container, secondaryOnDark, sectionHeading } from '../lib/ui.js'
 

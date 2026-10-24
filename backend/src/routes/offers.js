@@ -49,6 +49,17 @@ offersRouter.get('/', async (req, res, next) => {
   }
 })
 
+offersRouter.get('/all', requireAdmin, async (req, res, next) => {
+  try {
+    // Archived offers keep their registrations, so the dashboard still needs
+    // their titles. The public list deliberately hides them.
+    const { rows } = await query(`${OFFER_SELECT} ORDER BY o.id DESC`)
+    res.json(rows.map(mapOffer))
+  } catch (error) {
+    next(error)
+  }
+})
+
 offersRouter.get('/:slug', async (req, res, next) => {
   try {
     await closeExpiredOffers()
@@ -82,8 +93,9 @@ const offerPatchSchema = z.object({
   location: z.string().trim().max(80).optional(),
   price: z.string().trim().min(1).max(60).optional(),
   duration: z.string().trim().min(1).max(60).optional(),
+  included: z.array(z.string().trim().min(1).max(200)).max(20).optional(),
   seatsTotal: z.coerce.number().int().min(0).optional(),
-  closesAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  closesAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
   status: z.enum(['active', 'soldout', 'paused', 'closed']).optional(),
 })
 
@@ -94,6 +106,7 @@ const COLUMNS = {
   location: 'location',
   price: 'price',
   duration: 'duration',
+  included: 'included',
   seatsTotal: 'seats_total',
   closesAt: 'closes_at',
   status: 'status',
@@ -175,8 +188,8 @@ offersRouter.patch('/:id', requireAdmin, async (req, res, next) => {
     const entries = Object.entries(patch).filter(([, value]) => value !== undefined)
     if (entries.length === 0) return res.status(400).json({ message: 'Nothing to update.' })
 
-    const assignments = entries.map(([key], index) => `${COLUMNS[key]} = $${index + 2}`)
-    const values = entries.map(([, value]) => value)
+    const assignments = entries.map(([key], index) => `${COLUMNS[key]} = $${index + 2}${key === 'included' ? '::jsonb' : ''}`)
+    const values = entries.map(([key, value]) => (key === 'included' ? JSON.stringify(value) : value))
 
     const { rows } = await query(
       `UPDATE offers SET ${assignments.join(', ')}, updated_at = now() WHERE id = $1 RETURNING id`,

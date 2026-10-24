@@ -27,3 +27,5 @@ dist-ssr
 .env
 .env.*
 !.env.example
+# Production API path is not a secret: same origin, rewritten by vercel.json.
+!.env.production

@@ -41,7 +41,7 @@ export default function Privacy() {
   return (
     <PageFrame>
       <main className={`${container} motion-page max-w-[760px] pb-14 pt-12`} id="main-content">
-        <p className="mono-label text-accent">Legal</p>
+        <p className="mono-label text-accent-text">Legal</p>
         <h1 className="mt-3 text-balance text-[clamp(32px,4.5vw,44px)] font-extrabold leading-[1.02] tracking-[-0.035em]">Privacy policy</h1>
         <p className="mt-3 max-w-[56ch] text-[14px] leading-relaxed text-muted">
           How Al-Tayeb Company handles application, waitlist and contact information.
@@ -55,7 +55,7 @@ export default function Privacy() {
           ))}
         </div>
         <p className="mt-5 text-[13px] leading-relaxed text-muted">
-          To exercise any of these rights, use the <Link className="font-bold text-brand underline" to="/contact">contact page</Link>.
+          To exercise any of these rights, use the <Link className="font-bold text-brand-text underline" to="/contact">contact page</Link>.
           Choose “Question” or “Problem” and include the phone number or email address you used to apply.
         </p>
         <p className="mt-3 text-[11px] text-muted">Last updated: <time dateTime="2026-10-21">21 October 2026</time></p>

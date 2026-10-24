@@ -8,10 +8,12 @@ import Contact from './pages/Contact.jsx'
 import Faq from './pages/Faq.jsx'
 import NotFound from './pages/NotFound.jsx'
 import Offer from './pages/Offer.jsx'
+import OfferApply from './pages/OfferApply.jsx'
 import OfferWaitlist from './pages/OfferWaitlist.jsx'
 import Privacy from './pages/Privacy.jsx'
 import Terms from './pages/Terms.jsx'
 import Thanks from './pages/Thanks.jsx'
+import Track from './pages/Track.jsx'
 import Welcome from './pages/Welcome.jsx'
 
 // Admin screens are only needed after sign-in, so load each one on demand and
@@ -19,6 +21,7 @@ import Welcome from './pages/Welcome.jsx'
 const Login = lazy(() => import('./pages/admin/Login.jsx'))
 const Dashboard = lazy(() => import('./pages/admin/Dashboard.jsx'))
 const Offers = lazy(() => import('./pages/admin/Offers.jsx'))
+const OfferEditor = lazy(() => import('./pages/admin/OfferEditor.jsx'))
 const Waitlist = lazy(() => import('./pages/admin/Waitlist.jsx'))
 const Messages = lazy(() => import('./pages/admin/Messages.jsx'))
 const Status = lazy(() => import('./pages/Status.jsx'))
@@ -39,12 +42,14 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Welcome />} />
           <Route path="/offers" element={<AllOffers />} />
+          <Route path="/offers/:slug/apply" element={<OfferApply />} />
           <Route path="/offers/:slug" element={<Offer />} />
           <Route path="/offers/:slug/waitlist" element={<OfferWaitlist />} />
           <Route path="/about" element={<About />} />
           <Route path="/faq" element={<Faq />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/thank-you" element={<Thanks />} />
+          <Route path="/track" element={<Track />} />
           <Route path="/status/:token" element={<Status />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
@@ -54,6 +59,8 @@ export default function App() {
           <Route path="/admin/registrations" element={<RequireAdmin><Dashboard section="Registrations" /></RequireAdmin>} />
           <Route path="/admin/waitlist" element={<RequireAdmin><Waitlist /></RequireAdmin>} />
           <Route path="/admin/offers" element={<RequireAdmin><Offers /></RequireAdmin>} />
+          <Route path="/admin/offers/new" element={<RequireAdmin><OfferEditor /></RequireAdmin>} />
+          <Route path="/admin/offers/:id/edit" element={<RequireAdmin><OfferEditor /></RequireAdmin>} />
           <Route path="/admin/messages" element={<RequireAdmin><Messages /></RequireAdmin>} />
           <Route path="*" element={<NotFound />} />
         </Routes>

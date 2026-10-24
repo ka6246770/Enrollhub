@@ -69,7 +69,7 @@ export function TemplateEditor({ template, sample, onSave }) {
   if (status === 'saved' && !dirty) note = message
 
   return (
-    <article className="flex flex-col rounded-xl border border-line bg-white p-5">
+    <article className="flex flex-col rounded-xl border border-line bg-surface p-5">
       {/* h4 because the Messages page groups these under an h3 channel heading. */}
       <h4 className="font-bold">{template.label}</h4>
       <p className="mt-1 text-[11px] text-muted">{template.where}</p>
@@ -96,7 +96,7 @@ export function TemplateEditor({ template, sample, onSave }) {
         {template.variables.map((token) => (
           <button
             aria-label={`Add {${token}}`}
-            className="rounded-full bg-page px-3 py-1.5 text-[10px] font-bold text-muted transition-colors hover:bg-soft hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand motion-reduce:transition-none"
+            className="rounded-full bg-page px-3 py-1.5 text-[10px] font-bold text-muted transition-colors hover:bg-soft hover:text-brand-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand motion-reduce:transition-none"
             key={token}
             onClick={() => insertVariable(`{${token}}`)}
             type="button"

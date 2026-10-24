@@ -25,6 +25,15 @@ export function formatDateTime(value) {
   return Number.isNaN(date.getTime()) ? '—' : dateTimeFormatter.format(date)
 }
 
+const timeFormatter = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' })
+
+// Time only, for the dashboard's "updated at" line. Empty string when missing.
+export function formatTime(value) {
+  if (!value) return ''
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? '' : timeFormatter.format(date)
+}
+
 // True when a timestamp is within the last `days` days. Keeps clock reads out
 // of component render bodies.
 export function isWithinLastDays(value, days = 7) {

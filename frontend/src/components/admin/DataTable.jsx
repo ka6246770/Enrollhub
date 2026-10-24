@@ -14,7 +14,7 @@ export function DataTable({
   emptyMessage = 'No data.',
 }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-line bg-white">
+    <div className="overflow-x-auto rounded-xl border border-line bg-surface">
       <table className={`w-full ${minWidth} border-collapse text-left ${textSize}`}>
         <caption className="sr-only">{caption}</caption>
         <thead className="bg-page text-[9px] uppercase tracking-wide text-muted">

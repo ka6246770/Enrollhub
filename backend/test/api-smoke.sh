@@ -26,6 +26,9 @@ SKIP=0
 REG_ID=""
 REG_STATUS_PATH=""
 REG_TOKEN=""
+REG_REFERENCE=""
+NOTE_ID=""
+NOTE_TWO_ID=""
 PRIVACY_REG_ID=""
 PRIVACY_REG_STATUS_PATH=""
 WAITLIST_EMAIL="waiter.$STAMP@example.com"
@@ -69,10 +72,10 @@ check_in() { # check_in <label> <actual> <expected...>
   FAIL=$((FAIL + 1)); printf '  FAIL  %s → got %s, wanted one of: %s\n' "$label" "$actual" "$*"
 }
 
-# Same as `check`, but a 429 from the per-IP form limiter counts as a skip. The
-# forms allow 20 submissions per IP per hour, so a second run within the hour
-# legitimately cannot reach the validation logic. Restart the API (the limiter
-# keeps its counters in memory) for a full run.
+# Same as `check`, but a 429 from the per-IP form limiter counts as a skip.
+# The forms share one per-IP quota; raise FORM_RATE_LIMIT in the local .env for
+# a full run. Restart the API (the limiter keeps its counters in memory) to
+# clear a used quota.
 check_form() {
   local label="$1" expected="$2" actual="$3"
   if [ "$actual" = "429" ] && [ "$expected" != "429" ]; then
@@ -135,9 +138,12 @@ else
   REG_ID="$(json 'd.id')"
   REG_STATUS_PATH="$(json 'd.statusPath')"
   REG_TOKEN="${REG_STATUS_PATH##*/}"
+  REG_REFERENCE="$(json 'd.reference')"
   if [ -n "$REG_ID" ]; then FIXTURE_HAS_APPLICANTS=1; fi
   check 'registration returns a private status path' 'yes' \
     "$(printf '%s' "$REG_STATUS_PATH" | grep -Eq '^/status/reg_[A-Za-z0-9_-]+$' && echo yes || echo no)"
+  check 'registration returns a reference code' 'yes' \
+    "$(printf '%s' "$REG_REFERENCE" | grep -Eq '^ENR-[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{8}$' && echo yes || echo no)"
   if [ -n "$REG_TOKEN" ]; then
     check 'private status link works before an offer' 200 "$(status "$API/status/$REG_TOKEN")"
     check 'new application starts as received' 'new' "$(json 'd.status')"
@@ -171,6 +177,47 @@ else
   PRIVACY_REG_ID="$(json 'd.id')"
   PRIVACY_REG_STATUS_PATH="$(json 'd.statusPath')"
   if [ -n "$PRIVACY_REG_ID" ]; then FIXTURE_HAS_APPLICANTS=1; fi
+fi
+
+section 'Status tracking'
+TRACK_IP='198.51.100.31'
+if [ -n "$REG_REFERENCE" ]; then
+  check 'lookup with a wrong reference' 404 "$(status -H "X-Forwarded-For: $TRACK_IP" -X POST "$API/status/lookup" \
+    -H 'Content-Type: application/json' -d "{\"reference\":\"ENR-22222222\",\"email\":\"$EMAIL\"}")"
+  WRONG_REFERENCE_MESSAGE="$(json 'd.message')"
+  check 'wrong reference gets the generic answer' "We couldn't find a match. Check the reference code and the email address you applied with." "$WRONG_REFERENCE_MESSAGE"
+
+  check 'lookup with a wrong email' 404 "$(status -H "X-Forwarded-For: $TRACK_IP" -X POST "$API/status/lookup" \
+    -H 'Content-Type: application/json' -d "{\"reference\":\"$REG_REFERENCE\",\"email\":\"wrong.$STAMP@example.com\"}")"
+  check 'wrong email gets the same generic answer' "$WRONG_REFERENCE_MESSAGE" "$(json 'd.message')"
+
+  check 'lookup without an email' 400 "$(status -H "X-Forwarded-For: $TRACK_IP" -X POST "$API/status/lookup" \
+    -H 'Content-Type: application/json' -d "{\"reference\":\"$REG_REFERENCE\"}")"
+
+  check 'lookup with the right pair' 200 "$(status -H "X-Forwarded-For: $TRACK_IP" -X POST "$API/status/lookup" \
+    -H 'Content-Type: application/json' -d "{\"reference\":\"$REG_REFERENCE\",\"email\":\"$EMAIL\"}")"
+  check 'tracking shows the received status' 'received' "$(json 'd.status')"
+  check 'tracking returns only the public fields' 'message,offerTitle,ok,position,reference,status,submittedAt' \
+    "$(json 'Object.keys(d).sort().join(",")')"
+  check 'tracking hides personal and private data' 'clean' \
+    "$(json "['email','phone','name','notes','voiceUrl','voicePath','statusToken'].some((key) => key in d) ? 'leak' : 'clean'")"
+
+  check 'resend for a registered email' 200 "$(status -H 'X-Forwarded-For: 198.51.100.32' -X POST "$API/status/resend-reference" \
+    -H 'Content-Type: application/json' -d "{\"email\":\"$EMAIL\"}")"
+  check 'resend answer is generic' 'If this email is registered, we sent the code.' "$(json 'd.message')"
+  check 'resend for an unknown email' 200 "$(status -H 'X-Forwarded-For: 198.51.100.32' -X POST "$API/status/resend-reference" \
+    -H 'Content-Type: application/json' -d "{\"email\":\"nobody.$STAMP@example.com\"}")"
+  check 'unknown email gets the same resend answer' 'If this email is registered, we sent the code.' "$(json 'd.message')"
+
+  TRACK_RATE_STATUS=0
+  for _ in 1 2 3 4 5 6 7 8 9 10 11 12; do
+    TRACK_RATE_STATUS="$(status -H 'X-Forwarded-For: 198.51.100.33' -X POST "$API/status/lookup" \
+      -H 'Content-Type: application/json' -d "{\"reference\":\"$REG_REFERENCE\",\"email\":\"$EMAIL\"}")"
+    [ "$TRACK_RATE_STATUS" = "429" ] && break
+  done
+  check 'lookup rate limit stops repeated guesses' 429 "$TRACK_RATE_STATUS"
+else
+  SKIP=$((SKIP + 14)); printf '  skip  status tracking checks → no reference code was returned\n'
 fi
 
 check_form 'unknown offer' 404 "$(status -X POST "$API/registrations" \
@@ -271,6 +318,61 @@ if [ -n "$REG_TOKEN" ]; then
     -H 'Content-Type: application/json' -d '{"decision":"decline"}')"
 else
   SKIP=$((SKIP + 5)); printf '  skip  private acceptance checks → no private token\n'
+fi
+
+section 'Private notes'
+if need_reg 'private notes'; then
+  check 'notes need a session' 401 "$(status "$API/admin/registrations/$REG_ID/notes")"
+  check 'adding a note needs a session' 401 "$(status -X POST "$API/admin/registrations/$REG_ID/notes" \
+    -H 'Content-Type: application/json' -d '{"body":"Hidden"}')"
+
+  check 'add the first note' 201 "$(status -b "$JAR" -X POST "$API/admin/registrations/$REG_ID/notes" \
+    -H 'Content-Type: application/json' -d '{"body":"  Called about the shift.  "}')"
+  NOTE_ID="$(json 'd.id')"
+  check 'the note is trimmed' 'Called about the shift.' "$(json 'd.body')"
+  check 'the note records the signed-in admin' "$ADMIN_EMAIL" "$(json 'd.author')"
+
+  check 'add a second note' 201 "$(status -b "$JAR" -X POST "$API/admin/registrations/$REG_ID/notes" \
+    -H 'Content-Type: application/json' -d '{"body":"SMOKE-SECRET-NOTE wants a discount."}')"
+  NOTE_TWO_ID="$(json 'd.id')"
+
+  check 'list notes' 200 "$(status -b "$JAR" "$API/admin/registrations/$REG_ID/notes")"
+  check 'the newest note comes first' "$NOTE_TWO_ID" "$(json 'd[0]?.id')"
+  check 'both notes are listed' 2 "$(json 'd.length')"
+
+  check 'an empty note is rejected' 400 "$(status -b "$JAR" -X POST "$API/admin/registrations/$REG_ID/notes" \
+    -H 'Content-Type: application/json' -d '{"body":"   "}')"
+  LONG_NOTE="$(head -c 1001 /dev/zero | tr '\0' 'x')"
+  check 'a note over 1000 characters is rejected' 400 "$(status -b "$JAR" -X POST "$API/admin/registrations/$REG_ID/notes" \
+    -H 'Content-Type: application/json' -d "{\"body\":\"$LONG_NOTE\"}")"
+
+  status -b "$JAR" "$API/registrations?q=$EMAIL" >/dev/null
+  check 'the list includes the note count' 2 "$(json "d.find((r) => r.id === $REG_ID)?.noteCount")"
+  check 'the list includes note text for search' 'yes' \
+    "$(json "d.find((r) => r.id === $REG_ID)?.noteText?.includes('SMOKE-SECRET-NOTE') ? 'yes' : 'no'")"
+  check 'server search finds a note body' "$REG_ID" \
+    "$(status -b "$JAR" "$API/registrations?q=SMOKE-SECRET-NOTE" >/dev/null; json 'd[0]?.id')"
+
+  status -H 'X-Forwarded-For: 198.51.100.34' -X POST "$API/status/lookup" \
+    -H 'Content-Type: application/json' -d "{\"reference\":\"$REG_REFERENCE\",\"email\":\"$EMAIL\"}" >/dev/null
+  check 'public tracking hides notes' 'clean' \
+    "$(json "JSON.stringify(d).includes('SMOKE-SECRET-NOTE') ? 'leak' : 'clean'")"
+  check 'the private status page hides notes' 'clean' \
+    "$(status "$API/status/$REG_TOKEN" >/dev/null; json "JSON.stringify(d).includes('SMOKE-SECRET-NOTE') ? 'leak' : 'clean'")"
+
+  check 'edit a note' 200 "$(status -b "$JAR" -X PATCH "$API/admin/notes/$NOTE_ID" \
+    -H 'Content-Type: application/json' -d '{"body":"Called twice."}')"
+  check 'the edit is stored' 'Called twice.' "$(json 'd.body')"
+  check 'a note cannot be edited to empty' 400 "$(status -b "$JAR" -X PATCH "$API/admin/notes/$NOTE_ID" \
+    -H 'Content-Type: application/json' -d '{"body":"   "}')"
+
+  check 'delete the second note' 204 "$(status -b "$JAR" -X DELETE "$API/admin/notes/$NOTE_TWO_ID")"
+  check 'one note remains' 1 "$(status -b "$JAR" "$API/admin/registrations/$REG_ID/notes" >/dev/null; json 'd.length')"
+  check 'delete a note that is gone' 404 "$(status -b "$JAR" -X DELETE "$API/admin/notes/$NOTE_TWO_ID")"
+  check 'delete the first note' 204 "$(status -b "$JAR" -X DELETE "$API/admin/notes/$NOTE_ID")"
+  check 'the note list is empty again' 0 "$(status -b "$JAR" "$API/admin/registrations/$REG_ID/notes" >/dev/null; json 'd.length')"
+else
+  SKIP=$((SKIP + 24)); printf '  skip  private notes → no setup registration\n'
 fi
 
 section 'Waitlist follow-up'
@@ -378,7 +480,9 @@ else
 fi
 
 section 'Automatic offer closure'
-YESTERDAY="$(date -d 'yesterday' +%F)"
+# The database runs in GMT, so its CURRENT_DATE can still be yesterday during
+# the first hours of the local day. Build the fixture date in the same zone.
+YESTERDAY="$(date -u -d 'yesterday' +%F)"
 EXPIRED_PAYLOAD="{\"title\":\"Expired Smoke $STAMP\",\"description\":\"An offer that passed its closing date.\",\"shortDescription\":\"Expired smoke offer.\",\"location\":\"Cairo\",\"price\":\"1,000 EGP\",\"duration\":\"8-hour shifts\",\"included\":[],\"seatsTotal\":2,\"closesAt\":\"$YESTERDAY\"}"
 check 'create an offer with a past closing date' 201 "$(status -b "$JAR" -X POST "$API/offers" -H 'Content-Type: application/json' -d "$EXPIRED_PAYLOAD")"
 EXPIRED_ID="$(json 'd.id')"

@@ -4,7 +4,7 @@ import DirectAnswer from '../components/DirectAnswer.jsx'
 import PageFrame from '../components/PageFrame.jsx'
 import PageHero from '../components/PageHero.jsx'
 import { REQUIREMENTS } from '../data/offers.js'
-import { HOW_IT_WORKS_STEPS } from '../data/sample-data.js'
+import { HOW_IT_WORKS_STEPS } from '../data/site-content.js'
 import { button, container, secondaryOnDark, sectionHeading } from '../lib/ui.js'
 
 const RECORDING_PROMPTS = [
@@ -32,7 +32,7 @@ export default function About() {
           <div className="grid gap-7 min-[760px]:grid-cols-3 min-[760px]:gap-8">
             {HOW_IT_WORKS_STEPS.map(([title, text], index) => (
               <article className="border-t border-ink/20 pt-4" key={title}>
-                <span className="mono-label text-accent">Step {String(index + 1).padStart(2, '0')}</span>
+                <span className="mono-label text-accent-text">Step {String(index + 1).padStart(2, '0')}</span>
                 <h2 className="mt-2 text-[19px] font-extrabold tracking-[-0.02em]">{title}</h2>
                 <p className="mt-2 text-[13px] leading-[1.7] text-muted">{text}</p>
               </article>
@@ -47,12 +47,12 @@ export default function About() {
               It is not an interview. We only need to hear your voice, confirm your details, and pass the right notes to the factory.
             </p>
           </div>
-          <div className="border border-dashed border-ink/30 bg-white p-5">
+          <div className="border border-dashed border-ink/30 bg-surface p-5">
             <p className="mono-label text-muted">Record 1 to 2 minutes</p>
             <ol className="mt-4 grid gap-3">
               {RECORDING_PROMPTS.map((prompt, index) => (
                 <li className="flex gap-3 text-[14px] leading-relaxed" key={prompt}>
-                  <span aria-hidden="true" className="mono-label mt-1 text-brand">{String(index + 1).padStart(2, '0')}</span>
+                  <span aria-hidden="true" className="mono-label mt-1 text-brand-text">{String(index + 1).padStart(2, '0')}</span>
                   {prompt}
                 </li>
               ))}

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Field } from '../components/FormField.jsx'
+import JobLoading from '../components/JobLoading.jsx'
 import PageFrame from '../components/PageFrame.jsx'
 import Seo from '../components/Seo.jsx'
 import { isClosed, isOpen, isPaused } from '../data/offers.js'
@@ -14,8 +15,13 @@ export default function OfferWaitlist() {
   const [joined, setJoined] = useState(false)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
-  const offers = useOffers()
+  const { offers, isLoading } = useOffers()
   const offer = offers.find((item) => item.slug === slug)
+
+  // Same first-paint guard as the job page: do not call a shared waitlist link
+  // missing while the API is still answering.
+  if (!offer && isLoading) return <JobLoading />
+
   if (!offer || isClosed(offer)) return <NotFound />
 
   const paused = isPaused(offer)
@@ -77,11 +83,11 @@ export default function OfferWaitlist() {
         </header>
 
         <div className="mt-7 grid gap-4 min-[560px]:grid-cols-2">
-          <div className="border border-ink/15 bg-white px-4 py-3">
+          <div className="border border-ink/15 bg-surface px-4 py-3">
             <p className="mono-label text-muted">Pay per month</p>
             <p className="mt-1 text-[20px] font-extrabold tracking-[-0.02em] tabular-nums">{offer.price}</p>
           </div>
-          <div className="border border-ink/15 bg-white px-4 py-3">
+          <div className="border border-ink/15 bg-surface px-4 py-3">
             <p className="mono-label text-muted">Shift</p>
             <p className="mt-1 text-[15px] font-bold">{offer.duration}</p>
           </div>
@@ -93,7 +99,7 @@ export default function OfferWaitlist() {
             <p className="mt-1.5 text-[13px] leading-relaxed text-sand-ink/85">
               We are not taking new applications or waitlist sign-ups for this job right now. Please check back later.
             </p>
-            <Link className="mt-4 inline-flex text-[12px] font-bold text-brand underline underline-offset-4" to={`/offers/${offer.slug}`}>
+            <Link className="mt-4 inline-flex text-[12px] font-bold text-brand-text underline underline-offset-4" to={`/offers/${offer.slug}`}>
               View the job
             </Link>
           </div>
@@ -105,10 +111,10 @@ export default function OfferWaitlist() {
               link to accept it; the place is not confirmed until you accept. You can apply for
               another open job in the meantime.
             </p>
-            <Link className="mt-4 inline-flex text-[12px] font-bold text-brand underline underline-offset-4" to="/offers">See the open jobs</Link>
+            <Link className="mt-4 inline-flex text-[12px] font-bold text-brand-text underline underline-offset-4" to="/offers">See the open jobs</Link>
           </div>
         ) : (
-          <form className="motion-panel mt-7 border border-ink/15 bg-white p-5 max-[500px]:p-4" onSubmit={handleSubmit}>
+          <form className="motion-panel mt-7 border border-ink/15 bg-surface p-5 max-[500px]:p-4" onSubmit={handleSubmit}>
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h2 className="text-[20px] font-extrabold tracking-[-0.02em]">Join the waitlist</h2>
               <span className="mono-label text-muted">Ref {reference}</span>
@@ -129,7 +135,7 @@ export default function OfferWaitlist() {
               <span>
                 I agree to be contacted on WhatsApp or email if a place opens for this job. I have
                 read how my details are handled in the{' '}
-                <Link className="font-bold text-brand underline" to="/privacy">privacy policy</Link>.
+                <Link className="font-bold text-brand-text underline" to="/privacy">privacy policy</Link>.
               </span>
             </label>
             <button className={`${button} mt-4 w-full`} type="submit" disabled={sending}>
@@ -145,7 +151,7 @@ export default function OfferWaitlist() {
             <div className="mt-3 grid gap-2">
               {openOffers.map((item) => (
                 <Link
-                  className="flex flex-wrap items-baseline justify-between gap-2 border border-ink/15 bg-white px-4 py-3 no-underline transition-colors hover:border-ink/40"
+                  className="flex flex-wrap items-baseline justify-between gap-2 border border-ink/15 bg-surface px-4 py-3 no-underline transition-colors hover:border-ink/40"
                   key={item.id}
                   to={`/offers/${item.slug}`}
                 >

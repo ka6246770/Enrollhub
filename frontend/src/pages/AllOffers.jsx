@@ -8,10 +8,12 @@ import { useOffers } from '../hooks/useOffers.js'
 import { container } from '../lib/ui.js'
 
 export default function AllOffers() {
-  const offers = useOffers()
+  const { offers, isLoading } = useOffers()
   const visible = offers.filter((offer) => !isClosed(offer))
   const openCount = visible.filter(isOpen).length
-  const directAnswer = visible.length === 0
+  const directAnswer = isLoading
+    ? 'Loading the current job list…'
+    : visible.length === 0
     ? 'Al-Tayeb has no factory jobs open for applications right now. New packaging, labeling and steward roles in Sadat City, El-Obour and 10th of Ramadan City are listed here when they open. Pay ranges from 6,600 to 11,400 EGP per month, with housing for relocating workers.'
     : `Al-Tayeb currently lists ${visible.length} factory jobs in Sadat City, El-Obour and 10th of Ramadan City. Pay ranges from 6,600 to 11,400 EGP per month, with 8- or 12-hour shifts. Every role is open to Egyptian men aged 18–50 with a National ID, and housing is included for relocating workers.`
 
@@ -21,7 +23,7 @@ export default function AllOffers() {
         <PageHero
           eyebrow="Open jobs"
           title="Find your next shift."
-          intro={`${openCount} of ${visible.length} jobs are taking applications right now. Compare the pay, the shift and what comes with the room before you choose.`}
+          intro={isLoading ? 'Loading the current jobs…' : `${openCount} of ${visible.length} jobs are taking applications right now. Compare the pay, the shift and what comes with the room before you choose.`}
         />
 
         <section className={container}>
@@ -29,14 +31,18 @@ export default function AllOffers() {
           <h2 className="sr-only">Open factory jobs</h2>
 
           {/* A shift board on wide screens, tickets on a phone. */}
-          {visible.length === 0 ? (
-            <p className="border border-dashed border-ink/20 bg-white p-6 text-[13px] text-muted">
+          {isLoading ? (
+            <p className="border border-dashed border-ink/20 bg-surface p-6 text-[13px] text-muted">
+              Loading jobs…
+            </p>
+          ) : visible.length === 0 ? (
+            <p className="border border-dashed border-ink/20 bg-surface p-6 text-[13px] text-muted">
               No jobs are listed right now. Please check back soon.
             </p>
           ) : (
             <>
-              <div className="motion-stagger hidden border border-ink/15 bg-white min-[820px]:block">
-                <div className="grid grid-cols-[56px_1.5fr_0.9fr_1fr_1fr_104px] items-center gap-4 border-b border-ink bg-ink px-5 py-3">
+              <div className="motion-stagger hidden border border-ink/15 bg-surface min-[820px]:block">
+                <div className="grid grid-cols-[56px_1.5fr_0.9fr_1fr_1fr_104px] items-center gap-4 border-b border-ink bg-night px-5 py-3">
                   {['Ref', 'Role', 'City', 'Pay / month', 'Shift', ''].map((heading) => (
                     <span className="mono-label text-white/70" key={heading}>{heading}</span>
                   ))}
@@ -57,7 +63,7 @@ export default function AllOffers() {
                               keeping this desktop row as text avoids duplicate
                               headings in the same document. */}
                           <span className="text-[15px] font-bold leading-snug">
-                            <Link className="text-ink no-underline hover:text-brand" to={target}>
+                            <Link className="inline-flex min-h-6 items-center text-ink no-underline hover:text-brand-text" to={target}>
                               {offer.title}
                             </Link>
                           </span>
@@ -69,7 +75,7 @@ export default function AllOffers() {
                       <span className="text-[13px] font-semibold">{offer.location}</span>
                       <span className="text-[14px] font-bold tabular-nums">{offer.price}</span>
                       <span className="text-[12px] leading-snug text-muted">{offer.duration}</span>
-                      <Link className="inline-flex min-h-8 items-center justify-center border border-ink bg-ink px-3 text-[11px] font-bold text-white no-underline transition-colors hover:border-accent hover:bg-accent motion-reduce:transition-none" to={target}>
+                      <Link className="inline-flex min-h-8 items-center justify-center border border-ink bg-night px-3 text-[11px] font-bold text-white no-underline transition-colors hover:border-action hover:bg-action motion-reduce:transition-none" to={target}>
                         {actionLabel}
                       </Link>
                     </div>

@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import Brand from '../components/Brand.jsx'
-import { button, container } from '../lib/ui.js'
+import { button, container, secondaryButton } from '../lib/ui.js'
 
 export default function Thanks() {
   const location = useLocation()
@@ -8,6 +8,7 @@ export default function Thanks() {
   const phone = String(location.state?.phone ?? '').trim()
   const offerTitle = location.state?.offerTitle || 'the job you applied for'
   const statusPath = location.state?.statusPath || ''
+  const reference = String(location.state?.reference ?? '').trim()
   const steps = [
     ['Check WhatsApp', phone ? `We will message ${phone} about the next step.` : 'We will message the WhatsApp number you gave us about the next step.'],
     ['Keep your phone on', 'We may ask a few questions before the team makes a decision.'],
@@ -24,7 +25,7 @@ export default function Thanks() {
       </header>
 
       <div className="mx-auto w-[min(100%-32px,640px)] py-12 max-[500px]:py-9">
-        <p className="mono-label text-brand">Application received</p>
+        <p className="mono-label text-brand-text">Application received</p>
         <h1 className="mt-3 text-balance text-[clamp(34px,5.4vw,48px)] font-extrabold leading-[1.0] tracking-[-0.04em]">
           Thank you{name ? `, ${name}` : ''}.
         </h1>
@@ -32,23 +33,29 @@ export default function Thanks() {
           Your application for {offerTitle} is with our team. Here is what happens next.
         </p>
 
-        <div className="mt-7 border border-ink bg-white">
+        <div className="mt-7 border border-ink bg-surface">
           <div className="flex items-center justify-between border-b border-dashed border-ink/25 px-5 py-3">
             <span className="mono-label text-muted">Application receipt</span>
-            <span className="mono-label text-brand">Received</span>
+            <span className="mono-label text-brand-text">Received</span>
           </div>
           <dl className="grid grid-cols-[88px_1fr] gap-x-4 gap-y-2.5 px-5 py-4 text-[12px]">
             <dt className="text-muted">Applicant</dt>
             <dd className="font-semibold">{name || 'Your application'}</dd>
             <dt className="text-muted">Job</dt>
             <dd className="font-semibold">{offerTitle}</dd>
+            {reference ? (
+              <>
+                <dt className="text-muted">Reference</dt>
+                <dd className="font-mono font-semibold tracking-[0.06em]">{reference}</dd>
+              </>
+            ) : null}
             <dt className="text-muted">WhatsApp</dt>
             <dd className="font-semibold tabular-nums">{phone || 'Number provided'}</dd>
           </dl>
           <ol className="grid gap-4 border-t border-ink/10 px-5 py-5">
             {steps.map(([title, description], index) => (
               <li className="flex gap-3" key={title}>
-                <span aria-hidden="true" className="mono-label grid size-6 shrink-0 place-items-center bg-ink text-white">{index + 1}</span>
+                <span aria-hidden="true" className="mono-label grid size-6 shrink-0 place-items-center bg-night text-white">{index + 1}</span>
                 <div>
                   <h2 className="text-[14px] font-bold leading-snug">{title}</h2>
                   <p className="mt-0.5 text-[12px] leading-relaxed text-muted">{description}</p>
@@ -57,6 +64,19 @@ export default function Thanks() {
             ))}
           </ol>
         </div>
+
+        {reference ? (
+          <div className="mt-6 border border-ink/15 bg-surface p-4">
+            <h2 className="text-[14px] font-bold">Your reference code</h2>
+            <p className="mt-1 text-[12px] leading-relaxed text-muted">
+              Keep this code. You need it together with your email address to check your status later.
+            </p>
+            <p className="mt-3 break-all rounded bg-soft px-3 py-2 font-mono text-[15px] font-bold tracking-[0.08em] text-ink">{reference}</p>
+            <Link className={`${secondaryButton} mt-3 w-full`} to={`/track?ref=${encodeURIComponent(reference)}`}>
+              Track my application
+            </Link>
+          </div>
+        ) : null}
 
         {statusPath ? (
           <div className="mt-6 border border-brand/30 bg-mint p-4">
@@ -69,11 +89,11 @@ export default function Thanks() {
           </div>
         ) : null}
 
-        <Link className={`${statusPath ? 'inline-flex min-h-11 items-center justify-center rounded-[4px] border border-ink/30 px-5 text-[13px] font-bold text-ink no-underline hover:bg-white/60' : button} mt-3 w-full`} to="/offers">
+        <Link className={`${statusPath ? 'inline-flex min-h-11 items-center justify-center rounded-[4px] border border-ink/30 px-5 text-[13px] font-bold text-ink no-underline hover:bg-surface/60' : button} mt-3 w-full`} to="/offers">
           Back to the open jobs
         </Link>
         <p className="mt-3 text-center text-[12px] leading-relaxed text-muted">
-          Did not get a message? <Link className="font-bold text-brand underline" to="/contact">Contact us</Link>{' '}
+          Did not get a message? <Link className="font-bold text-brand-text underline" to="/contact">Contact us</Link>{' '}
           and we will check your application.
         </p>
       </div>

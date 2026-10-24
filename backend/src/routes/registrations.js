@@ -9,27 +9,11 @@ import { requireAdmin } from '../middleware/requireAdmin.js'
 import { formLimiter } from '../middleware/rateLimit.js'
 import { uploadVoice, verifyAudioSignature } from '../middleware/upload.js'
 import { applyDecision } from '../services/decisions.js'
-import { confirmationEmail, ownerRegistrationEmail, sendEmail, siteUrl } from '../services/email.js'
-import { closeExpiredOffers } from '../services/offers.js'
-import { notifyNewRegistration, storeVoiceFile } from '../services/telegram.js'
+import { siteUrl } from '../services/email.js'
+import { createRegistration } from '../services/registrationIntake.js'
 import { createStatusToken } from '../services/tokens.js'
 
 export const registrationsRouter = Router()
-
-const emptyToUndefined = (value) => (value === '' || value === null || value === undefined ? undefined : value)
-const optionalNumber = (min, max) => z.preprocess(emptyToUndefined, z.coerce.number().int().min(min).max(max).optional())
-const optionalText = (max) => z.preprocess(emptyToUndefined, z.string().trim().max(max).optional())
-
-const registrationSchema = z.object({
-  name: z.string().trim().min(2).max(120),
-  age: optionalNumber(13, 120),
-  language: optionalText(60),
-  level: optionalText(60),
-  residence: optionalText(160),
-  email: z.string().trim().email().max(200),
-  phone: z.string().trim().min(6).max(40),
-  offerSlug: z.string().trim().min(1).max(80),
-})
 
 const statusSchema = z.object({
   status: z.enum(['new', 'contacted', 'offered', 'accepted', 'rejected', 'declined']).optional(),
@@ -44,8 +28,6 @@ const statusSchema = z.object({
 }).refine((value) => Object.values(value).some((item) => item !== undefined), {
   message: 'Nothing to update.',
 })
-
-const acceptsTrue = (value) => value === 'on' || value === 'true' || value === '1' || value === true
 
 function mapRegistration(row) {
   return {
@@ -63,8 +45,11 @@ function mapRegistration(row) {
     hasRecording: Boolean(row.voice_path),
     status: row.status,
     notes: row.notes,
+    ...(row.note_count !== undefined ? { noteCount: row.note_count } : {}),
+    ...(row.note_text !== undefined ? { noteText: row.note_text } : {}),
     followUpAt: row.follow_up_at,
     statusToken: row.status_token,
+    reference: row.reference_code,
     offeredAt: row.offered_at,
     respondedAt: row.responded_at,
     whatsappConfirmed: row.whatsapp_confirmed,
@@ -83,137 +68,19 @@ function publicStatus(response) {
 // --- Public: submit a registration -----------------------------------------
 
 registrationsRouter.post('/', formLimiter, uploadVoice, verifyAudioSignature, async (req, res, next) => {
-  const client = await pool.connect()
   try {
-    if (!acceptsTrue(req.body.consent)) {
-      return res.status(400).json({ message: 'Please accept the consent statement to continue.' })
-    }
-
-    const input = registrationSchema.parse(req.body)
-
-    // Date-driven closure is applied before the offer is read, so a stale
-    // `active` row cannot accept an application after its closing date.
-    await closeExpiredOffers()
-
-    const { rows: offerRows } = await client.query('SELECT * FROM offers WHERE slug = $1', [input.offerSlug])
-    const offer = offerRows[0]
-    if (!offer) return res.status(404).json({ message: 'Offer not found.' })
-
-    if (offer.status === 'paused') {
-      return res.status(409).json({ message: 'Registration is paused for this offer. Please check back later.' })
-    }
-    if (offer.status === 'closed') {
-      return res.status(409).json({ message: 'This offer is no longer accepting applications.' })
-    }
-    if (offer.status !== 'active' || offer.seats_taken >= offer.seats_total) {
-      return res.status(409).json({ message: 'This offer is sold out. Please join the waitlist instead.' })
-    }
-
-    await client.query('BEGIN')
-
-    const { rows: duplicates } = await client.query(
-      `SELECT 1 FROM registrations
-       WHERE offer_id = $1 AND (email = $2 OR phone = $3)
-         AND created_at > now() - make_interval(hours => $4::int)
-       LIMIT 1`,
-      [offer.id, input.email, input.phone, env.duplicateWindowHours],
-    )
-    if (duplicates.length > 0) {
-      await client.query('ROLLBACK')
-      return res.status(409).json({ message: 'You have already registered for this offer. We will contact you soon.' })
-    }
-
-    const statusToken = createStatusToken('reg')
-    const { rows: insertedRows } = await client.query(
-      `INSERT INTO registrations (offer_id, name, age, language, level, residence, email, phone, voice_mime, status_token)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-       RETURNING *`,
-      [
-        offer.id,
-        input.name,
-        input.age ?? null,
-        input.language ?? null,
-        input.level ?? null,
-        input.residence ?? null,
-        input.email,
-        input.phone,
-        req.file?.mimetype ?? null,
-        statusToken,
-      ],
-    )
-    const registration = insertedRows[0]
-
-    await client.query(
-      `UPDATE offers
-       SET seats_taken = seats_taken + 1,
-           status = CASE WHEN seats_taken + 1 >= seats_total THEN 'soldout' ELSE status END,
-           updated_at = now()
-       WHERE id = $1`,
-      [offer.id],
-    )
-
-    await client.query('COMMIT')
-
-    // Store the voice note and remember its path.
-    if (req.file) {
-      const filename = await storeVoiceFile(registration.id, req.file)
-      await query('UPDATE registrations SET voice_path = $1 WHERE id = $2', [filename, registration.id])
-      registration.voice_path = filename
-    }
-
-    // Notify the owner and confirm to the customer. Nothing here throws: a
-    // notification failure must not fail the registration.
-    const messageId = await notifyNewRegistration({
-      registration: registration,
-      offer: offer,
+    const { registration, statusToken } = await createRegistration({
+      form: req.body,
       voice: req.file,
     })
-    if (messageId) {
-      await query('UPDATE registrations SET telegram_message_id = $1 WHERE id = $2', [messageId, registration.id])
-    }
-
-    // The owner also gets the whole form by email, recording attached. This is
-    // the copy that can be searched later; it is skipped while OWNER_EMAIL is
-    // empty and fails without affecting the visitor.
-    if (env.ownerEmail) {
-      const ownerCopy = await ownerRegistrationEmail({ registration, offer, voice: req.file })
-      await sendEmail({
-        to: env.ownerEmail,
-        subject: ownerCopy.subject,
-        text: ownerCopy.text,
-        html: ownerCopy.html,
-        attachments: ownerCopy.attachments,
-        registrationId: registration.id,
-        type: 'owner_email',
-      })
-    }
-
-    const statusUrl = `${siteUrl()}/status/${statusToken}`
-    const confirmation = await confirmationEmail({
-      name: registration.name,
-      offer: offer.title,
-      offerSlug: offer.slug,
-      statusLink: statusUrl,
+    res.status(201).json({
+      ok: true,
+      id: registration.id,
+      reference: registration.reference_code,
+      statusPath: `/status/${statusToken}`,
     })
-    await sendEmail({
-      to: registration.email,
-      subject: confirmation.subject,
-      text: confirmation.text,
-      html: confirmation.html,
-      registrationId: registration.id,
-      type: 'customer_confirmation',
-    })
-
-    res.status(201).json({ ok: true, id: registration.id, statusPath: `/status/${statusToken}` })
   } catch (error) {
-    try {
-      await client.query('ROLLBACK')
-    } catch {
-      // already committed or rolled back
-    }
     next(error)
-  } finally {
-    client.release()
   }
 })
 
@@ -246,7 +113,11 @@ registrationsRouter.get('/', requireAdmin, async (req, res, next) => {
     }
     if (req.query.q) {
       params.push(`%${String(req.query.q)}%`)
-      clauses.push(`(r.name ILIKE $${params.length} OR r.email ILIKE $${params.length} OR r.phone ILIKE $${params.length})`)
+      clauses.push(`(r.name ILIKE $${params.length} OR r.email ILIKE $${params.length} OR r.phone ILIKE $${params.length}
+        OR EXISTS (
+          SELECT 1 FROM registration_notes n
+          WHERE n.registration_id = r.id AND n.body ILIKE $${params.length}
+        ))`)
     }
 
     const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : ''
@@ -255,7 +126,10 @@ registrationsRouter.get('/', requireAdmin, async (req, res, next) => {
     // single-owner business sees in a season; paging is the next step if it is
     // ever reached (the newest rows are the ones that matter).
     const { rows } = await query(
-      `SELECT r.*, o.slug FROM registrations r JOIN offers o ON o.id = r.offer_id ${where} ORDER BY r.created_at DESC LIMIT 1000`,
+      `SELECT r.*, o.slug,
+              (SELECT count(*)::int FROM registration_notes n WHERE n.registration_id = r.id) AS note_count,
+              COALESCE((SELECT string_agg(n.body, ' ') FROM registration_notes n WHERE n.registration_id = r.id), '') AS note_text
+       FROM registrations r JOIN offers o ON o.id = r.offer_id ${where} ORDER BY r.created_at DESC LIMIT 1000`,
       params,
     )
     res.json(rows.map(mapRegistration))
@@ -300,7 +174,7 @@ registrationsRouter.patch('/:id', requireAdmin, async (req, res, next) => {
     const { rows } = await query(
       `UPDATE registrations SET ${sets.join(', ')} WHERE id = $1
        RETURNING id, offer_id, name, age, language, level, residence, email, phone, voice_path,
-                 status, notes, follow_up_at, status_token, offered_at, responded_at,
+                 status, notes, follow_up_at, status_token, reference_code, offered_at, responded_at,
                  whatsapp_confirmed, created_at, updated_at,
                  (SELECT slug FROM offers WHERE offers.id = registrations.offer_id) AS slug`,
       params,

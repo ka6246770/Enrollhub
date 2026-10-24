@@ -73,7 +73,7 @@ function StatusPage({ token }) {
         title="Private status | Al-Tayeb"
       />
       <main className={`${container} motion-page min-h-[70vh] max-w-[760px] pb-16 pt-12`} id="main-content">
-        <p className="mono-label text-brand">Private status link</p>
+        <p className="mono-label text-brand-text">Private status link</p>
         <h1 className="mt-2 text-balance text-[clamp(28px,5vw,44px)] font-extrabold leading-[1.05] tracking-[-0.035em]">
           {loading ? 'Checking your status…' : data ? 'Your place, in plain words.' : 'We could not open this link.'}
         </h1>
@@ -93,7 +93,7 @@ function StatusPage({ token }) {
 
         {data ? (
           <>
-            <div className="mt-6 border border-line bg-white p-5">
+            <div className="mt-6 border border-line bg-surface p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="mono-label text-muted">{data.kind === 'waitlist' ? 'Waitlist' : 'Application'}</p>
@@ -153,7 +153,7 @@ function StatusPage({ token }) {
 
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-muted">
               <p>Keep this link private. Anyone with it can open this page.</p>
-              <Link className="font-bold text-brand no-underline hover:underline" to="/contact">Need help? Contact us</Link>
+              <Link className="font-bold text-brand-text no-underline hover:underline" to="/contact">Need help? Contact us</Link>
             </div>
           </>
         ) : null}

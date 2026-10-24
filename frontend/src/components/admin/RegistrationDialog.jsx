@@ -9,6 +9,7 @@ import {
   updateRegistration,
 } from '../../services/api.js'
 import AdminDialog from './AdminDialog.jsx'
+import RegistrationNotes from './RegistrationNotes.jsx'
 
 const ADMIN_STATUS_OPTIONS = [
   ['new', 'Received'],
@@ -33,7 +34,7 @@ function statusUrlFor(token) {
   return token ? `${SITE_URL}/status/${token}` : ''
 }
 
-export default function RegistrationDialog({ person, onClose, onDeleted, onUpdated }) {
+export default function RegistrationDialog({ person, onClose, onDeleted, onNotesChanged, onUpdated }) {
   const [status, setStatus] = useState(person.status)
   const [notes, setNotes] = useState(person.notes ?? '')
   const [followUpAt, setFollowUpAt] = useState(person.followUpAt ?? '')
@@ -144,7 +145,7 @@ export default function RegistrationDialog({ person, onClose, onDeleted, onUpdat
           <p><span className="font-bold text-ink">Applicant response:</span> {formatDateTime(person.respondedAt)}</p>
         </div>
 
-        {notice ? <p className="rounded-lg bg-soft p-3 text-xs font-semibold text-brand" role="status">{notice}</p> : null}
+        {notice ? <p className="rounded-lg bg-soft p-3 text-xs font-semibold text-brand-text" role="status">{notice}</p> : null}
         {error ? <p className="rounded-lg bg-coral p-3 text-xs font-semibold text-coral-ink" role="alert">{error}</p> : null}
 
         <div className="grid gap-4 min-[600px]:grid-cols-2">
@@ -171,7 +172,10 @@ export default function RegistrationDialog({ person, onClose, onDeleted, onUpdat
         )}
 
         <label className={label}>
-          Internal notes
+          Internal summary
+          <span className="mt-0.5 block text-[11px] font-normal leading-relaxed text-muted">
+            One short summary kept with the application. Use Notes below for the running log.
+          </span>
           <textarea
             className={`${inputClass} min-h-28 resize-y py-2.5`}
             maxLength={4000}
@@ -180,6 +184,12 @@ export default function RegistrationDialog({ person, onClose, onDeleted, onUpdat
             value={notes}
           />
         </label>
+
+        <RegistrationNotes
+          key={person.id}
+          onCountChange={(count, noteText) => onNotesChanged?.(person.id, count, noteText)}
+          registrationId={person.id}
+        />
 
         <div className="rounded-lg border border-line p-4">
           <h3 className="text-sm font-bold">Private applicant link</h3>
@@ -198,7 +208,7 @@ export default function RegistrationDialog({ person, onClose, onDeleted, onUpdat
           </p>
           {confirmDelete ? (
             <div className="mt-3 flex flex-wrap gap-2">
-              <button className="inline-flex min-h-9 items-center justify-center rounded-[4px] border border-coral-strong bg-coral-strong px-3 text-xs font-bold text-white disabled:opacity-50" disabled={deleting} onClick={remove} type="button">
+              <button className="inline-flex min-h-9 items-center justify-center rounded-[4px] border border-danger bg-danger px-3 text-xs font-bold text-danger-ink disabled:opacity-50" disabled={deleting} onClick={remove} type="button">
                 {deleting ? 'Deleting…' : 'Yes, delete permanently'}
               </button>
               <button className={outlineButton} disabled={deleting} onClick={() => setConfirmDelete(false)} type="button">Cancel</button>

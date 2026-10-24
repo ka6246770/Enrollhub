@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { BrandMark } from '../../components/Brand.jsx'
 import { inputClass, solidButton } from '../../lib/ui.js'
-import { getSession, isBackendEnabled, login } from '../../services/api.js'
+import { getSession, login } from '../../services/api.js'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -14,7 +14,6 @@ export default function Login() {
   // A saved cookie is enough to skip the form. This also covers revisiting a
   // bookmarked /admin/login while already signed in.
   useEffect(() => {
-    if (!isBackendEnabled) return undefined
     let active = true
     getSession()
       .then((session) => {
@@ -48,7 +47,7 @@ export default function Login() {
 
   return (
     <main className="motion-page flex min-h-screen items-center justify-center bg-night px-6 py-10">
-      <div className="w-full max-w-[440px] rounded-[4px] border border-line bg-white p-8 max-[650px]:p-6">
+      <div className="w-full max-w-[440px] rounded-[4px] border border-line bg-surface p-8 max-[650px]:p-6">
         <Link className="flex items-center gap-3 no-underline" to="/">
           <BrandMark className="size-10" />
           <span className="text-base font-extrabold tracking-[-0.01em] text-ink">AL-TAYEB</span>
@@ -90,13 +89,11 @@ export default function Login() {
             {submitting ? 'Signing in…' : 'Sign in'}
           </button>
           {error ? <p className="rounded-lg bg-coral px-3 py-2 text-xs font-semibold text-coral-ink" role="alert">{error}</p> : null}
-          <button className="text-center text-xs font-bold text-brand underline hover:no-underline" onClick={() => setNotice('Password reset is not configured. Ask the site owner to create a new admin password with the backend admin command.')} type="button">Forgot password?</button>
+          <button className="min-h-6 text-center text-xs font-bold text-brand-text underline hover:no-underline" onClick={() => setNotice('Password reset is not configured. Ask the site owner to create a new admin password with the backend admin command.')} type="button">Forgot password?</button>
           {notice && <p className="text-center text-xs text-muted" role="status">{notice}</p>}
         </form>
         <p className="mt-5 text-center text-[10px] leading-relaxed text-muted">
-          {isBackendEnabled
-            ? 'Sign in with the admin account created by `npm run admin:set`. “Keep me signed in” lasts 30 days and renews while you use the dashboard.'
-            : 'Preview mode: any email and password open the dashboard, because no backend is configured.'}
+          Sign in with the admin account created by `npm run admin:set`. “Keep me signed in” lasts 30 days and renews while you use the dashboard.
         </p>
       </div>
     </main>
