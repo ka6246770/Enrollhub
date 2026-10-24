@@ -1,4 +1,5 @@
 import rateLimit from 'express-rate-limit'
+import { env } from '../config/env.js'
 
 const reject = (message) => (req, res) => res.status(429).json({ message })
 
@@ -7,12 +8,14 @@ const shared = {
   legacyHeaders: false,
 }
 
-// Registration, waitlist, and contact forms: 20 requests per IP per hour.
+// Registration, waitlist, and contact forms share this per-IP limit. 60 per
+// hour still blocks a script, while a household or a shared factory connection
+// can submit for several people. Set FORM_RATE_LIMIT to tune it per deploy.
 export const formLimiter = rateLimit({
   ...shared,
   windowMs: 60 * 60 * 1000,
-  limit: 20,
-  handler: reject('Too many submissions from this address. Please try again later.'),
+  limit: env.formRateLimit,
+  handler: reject('Too many submissions from this address. Please try again in about an hour.'),
 })
 
 // Admin login: slows password guessing. Successful attempts are not counted.

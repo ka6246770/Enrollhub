@@ -57,6 +57,11 @@ export const env = {
   uploadDir: process.env.UPLOAD_DIR ?? 'uploads',
   maxUploadBytes: asNumber(process.env.MAX_UPLOAD_BYTES, 10 * 1024 * 1024),
   duplicateWindowHours: asNumber(process.env.DUPLICATE_WINDOW_HOURS, 6),
+  // Public forms share one per-IP limit. The default is deliberately higher
+  // than a single household needs because many applicants can share one
+  // network (factory Wi-Fi or a mobile carrier NAT); development can raise it
+  // further without changing the production protection.
+  formRateLimit: asPositiveNumber(process.env.FORM_RATE_LIMIT, 60),
 
   // Voice notes are personal data: the retention job (npm run retention:voice)
   // deletes recordings older than this many days.

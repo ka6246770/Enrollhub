@@ -72,10 +72,10 @@ check_in() { # check_in <label> <actual> <expected...>
   FAIL=$((FAIL + 1)); printf '  FAIL  %s → got %s, wanted one of: %s\n' "$label" "$actual" "$*"
 }
 
-# Same as `check`, but a 429 from the per-IP form limiter counts as a skip. The
-# forms allow 20 submissions per IP per hour, so a second run within the hour
-# legitimately cannot reach the validation logic. Restart the API (the limiter
-# keeps its counters in memory) for a full run.
+# Same as `check`, but a 429 from the per-IP form limiter counts as a skip.
+# The forms share one per-IP quota; raise FORM_RATE_LIMIT in the local .env for
+# a full run. Restart the API (the limiter keeps its counters in memory) to
+# clear a used quota.
 check_form() {
   local label="$1" expected="$2" actual="$3"
   if [ "$actual" = "429" ] && [ "$expected" != "429" ]; then
